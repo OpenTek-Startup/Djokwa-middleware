@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "djokwa-client": "file:.."
+  }
+}

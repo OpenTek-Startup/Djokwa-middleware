@@ -1,0 +1,19 @@
+.container {
+  width: 100%;
+  border-radius: 5px;
+  height: 111px;
+  background-color: #0a4378;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title {
+  color: #fff;
+  padding: auto 0px;
+  font-weight: 700;
+  font-size: 4.16rem;
+}

@@ -1,0 +1,69 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "jest": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:tailwindcss/recommended"
+  ],
+  "overrides": [],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "unused-imports",
+    "react-hooks",
+    "prettier"
+  ],
+  "rules": {
+    "tailwindcss/classnames-order": "off",
+    "tailwindcss/no-custom-classname": "off",
+    "tailwindcss/no-contradicting-classname": "error",
+    "react/react-in-jsx-scope": "off",
+    "camelcase": "off",
+    "spaced-comment": "error",
+    "quotes": [2, "single"],
+    "no-duplicate-imports": "error",
+    "@typescript-eslint/no-unused-vars": 2,
+    "unused-imports/no-unused-imports-ts": 2
+  },
+
+  "settings": {
+    "import/resolver": {
+      "typescript": {},
+      "tailwindcss": {
+        // These are the default values but feel free to customize
+        "callees": ["classnames", "clsx", "ctl"],
+        "config": "tailwind.config.js", // returned from `loadConfig()` utility if not provided
+        "cssFiles": [
+          "**/*.css",
+          "!**/node_modules",
+          "!**/.*",
+          "!**/dist",
+          "!**/build"
+        ],
+        "cssFilesRefreshRate": 5000,
+        "removeDuplicates": true,
+        "skipClassAttribute": false,
+        "whitelist": [],
+        "tags": [], // can be set to e.g. ['tw'] for use in tw`bg-blue`
+        "classRegex": "^class(Name)?$" // can be modified to support custom attributes. E.g. "^tw$" for `twin.macro`
+      }
+    },
+    "react": {
+      "version": "detect"
+    }
+  }
+}
