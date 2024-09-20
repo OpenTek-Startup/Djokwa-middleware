@@ -1,10 +1,4 @@
-## Djokwa SMS-client
-
-addStudent:
-![image](https://github.com/OpenTek-Startup/Djokwa-client/assets/65525163/d892b97d-c22f-49e1-afde-2927fac0d877)
-
-addTeacherpage:
-![image](https://github.com/OpenTek-Startup/Djokwa-client/assets/65525163/52ed0178-636a-412a-a5cd-3dfc0a7664a8)
+## Djokwa SMS-Middleware
 
 ## Getting Started
 
@@ -22,32 +16,32 @@ addTeacherpage:
 
 ## Folder Structuring Explained (Most important files and folders)
 
-    .
-    ├── ...
-    ├── public                 # Public folder
-    ├── src                    # Source folder
-    │   ├── app                # Redux store configs folder
-    │   ├── components         # App components folder
-    │   ├── configs            # Global config folder
-    │   ├── features           # Redux thunks, slices config folder
-    │   ├── icons              # Project icons folder
-    │   ├── lib                # Useful project functions folder
-    │   │   ├── hooks          # Custom hooks creation folder
-    │   │   ├── utils          # Reusable function groups folder
-    │   ├── pages              # Pages folder
-    │   ├── repository         # Reusable exports
-    │   │   ├── assets         # Assets exports folder
-    │   │   ├── constants      # App constants exports folder
-    │   │   ├── data           # Dummy/Static data exports folder
-    │   │   ├── icons          # Icons exports folder
-    │   ├── router             # App routing configs folder
-    │   ├── services           # Services folder
-    │   │   ├── api            # Api services folder
-    │   │   ├── storage        # Storage services folder
-    │   ├── stories            # Components stories folder
-    │   ├── types              # Type definitions
-    │   └── ...
-    └── ...
+Djokwa-middleware/
+├── src/
+│ ├── config/
+│ │ └── database.ts # Database connection setup
+│ ├── controllers/
+│ │ └── userController.ts # Controller for user-related logic
+│ ├── models/
+│ │ └── userModel.ts # Database model definition
+│ ├── routes/
+│ │ └── userRoutes.ts # Routes related to users
+│ ├── middleware/
+│ │ └── authMiddleware.ts # Authentication middleware
+│ ├── services/
+│ │ └── userService.ts # Business logic for users
+│ ├── utils/
+│ │ └── logger.ts # Logger utility
+│ ├── types/
+│ │ └── userTypes.ts # Type definitions for user entities
+│ └── index.ts # Main application entry point
+├── dist/ # Compiled JavaScript files
+├── node_modules/ # Node.js modules
+├── .env # Environment variables
+├── .gitignore # Files to ignore in Git
+├── package.json # Project metadata and dependencies
+├── tsconfig.json # TypeScript configuration
+└── README.md # Project documentation
 
 ## How to contribute
 
@@ -96,8 +90,8 @@ To run the application using docker:
 
 ## Reporting
 
-- Please follow the follow link to provide daily reporting on what you have accomplished on your respective tasks [Github discussion reference](https://github.com/World-Charity-Tour/payment-gateway-client/discussions/10)
+- Please follow the follow link to provide daily reporting on what you have accomplished on your respective tasks [Github discussion reference](https://github.com/orgs/OpenTek-Startup/discussions/1)
 
 ## Project Board
 
-- Refere to the following link for the project board and assigned tasks and issue labels. This also includes an automatic milestones tracker linked to issues [Project board reference](https://github.com/orgs/World-Charity-Tour/projects/5)
+- Refere to the following link for the project board and assigned tasks and issue labels. This also includes an automatic milestones tracker linked to issues [Project board reference](https://github.com/orgs/OpenTek-Startup/projects/2/views/2)

@@ -22,8 +22,6 @@ package-lock.json
 .env.production.local
 .eslintignore
 .prettierignore
-.storybook
-.storybook
 .vscode
 
 package-lock.json
@@ -31,8 +29,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# storybook build
-storybook-static
+
 
 # test type
 default.ts
