@@ -1,4 +1,4 @@
-# The Backend Server for the DJOKWA app
+# The Backend Server for the DJOKWA SMS-Middleware
 
 ## Getting Started
 
@@ -13,41 +13,34 @@
    https://app.id123.io/free-tools/key-generator/. <br />
    After that, encode both private and public keys to base64 and update .env file's variables values with the encoded public and private keys, based on .env.example variables naming!
 
-3. Getting MongoDb URL Connection <br>
-   If you are using MongoDb in you local computer, the regular url connection is `mongodb://127.0.0.1:27017/database_name`. You can change `database_name` with your project name, for example `tiktok-server`, so the url connection will be `mongodb://127.0.0.1:27017/tiktok-server`. <br />
-   <br />
-   But, if you are using MongoDb with Atlas, you can get the url connection from your Atlas account.
-   Check out this tutorial to do so: https://medium.com/@sergio13prez/connecting-to-mongodb-atlas-d1381f184369
-
 ### # Install All The Dependencies
 
 Open up your terminal, and type <br >
 
-`yarn`, if you are using yarn
+```npm install```, if you are using npm.
 <br />
+
+```yarn```, if you are using yarn
 <br />
-`npm install`, if you are using npm.
 
 ## # Run the Server
 
 Open up your terminal, and type <br >
 
-`yarn dev`, if you are using yarn
+```npm run dev```, if you are using npm.
 <br />
-`npm run dev`, if you are using npm.
+
+```yarn dev```, if you are using yarn 
 
 ## # Build the Server
 
 Open up your terminal, and type <br >
 
-`yarn build`, if you are using yarn
+```npm run build```, if you are using npm.
 <br />
-`npm run build`, if you are using npm.
+
+```yarn build```, if you are using yarn 
 <br>
-
-> > > > > > > origin/dev
-
-## Djokwa SMS-Middleware
 
 ## Getting Started
 
@@ -66,31 +59,34 @@ Open up your terminal, and type <br >
 ## Folder Structuring Explained (Most important files and folders)
 
 Djokwa-middleware/
-├── src/
-│ ├── config/
-│ │ └── database.ts # Database connection setup
-│ ├── controllers/
-│ │ └── userController.ts # Controller for user-related logic
-│ ├── models/
-│ │ └── userModel.ts # Database model definition
-│ ├── routes/
-│ │ └── userRoutes.ts # Routes related to users
-│ ├── middleware/
-│ │ └── authMiddleware.ts # Authentication middleware
-│ ├── services/
-│ │ └── userService.ts # Business logic for users
-│ ├── utils/
-│ │ └── logger.ts # Logger utility
-│ ├── types/
-│ │ └── userTypes.ts # Type definitions for user entities
-│ └── index.ts # Main application entry point
-├── dist/ # Compiled JavaScript files
-├── node_modules/ # Node.js modules
-├── .env # Environment variables
-├── .gitignore # Files to ignore in Git
-├── package.json # Project metadata and dependencies
-├── tsconfig.json # TypeScript configuration
-└── README.md # Project documentation
+├── ...
+├── src/                    # Source folder
+│ ├── config/               # configuration folder
+│ │ └── database.ts         # Database connection setup
+│ ├── controllers/          # the controller folder
+│ │ └── userController.ts   # Controller for user-related logic
+│ ├── models/               # The models folder
+│ │ └── userModel.ts        # Database model definition
+│ ├── routes/               # The folder for routes
+│ │ └── userRoutes.ts       # Routes related to users
+│ ├── middleware/           # Middleware
+│ │ └── authMiddleware.ts   # Authentication middleware
+│ ├── services/             # Services
+│ │ └── userService.ts      # Business logic for users
+│ ├── utils/                # Utils
+│ │ └── logger.ts           # Logger utility
+│ ├── types/                # Folder for all types of the project
+│ │ └── userTypes.ts        # Type definitions for user entities
+│ └── index.ts              # Main application entry point
+| └── ...
+├── dist/                   # Compiled JavaScript files
+├── node_modules/           # Node.js modules
+├── .env                    # Environment variables
+├── .gitignore              # Files to ignore in Git
+├── package.json            # Project metadata and dependencies
+├── tsconfig.json           # TypeScript configuration
+└── README.md               # Project documentation
+└── ...
 
 ## How to contribute
 
