@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createTeacher, getTeacher, updateTeacher, deleteTeacher } from '../controlers/teacher.controller';
+import { createTeacher, getTeacher, updateTeacher, deleteTeacher } from '../controllers/teacher.controller';
 import { authMiddleware } from '../middlewares/auth.middleware'; 
 
 const router = Router();

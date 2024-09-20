@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-import { decodeBase64 } from '../util/base64';
+import { decodeBase64 } from '../utils/base64';
 
 dotenv.config();
 

@@ -1,7 +1,6 @@
 import express from "express"
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
-import mongoose from "mongoose";
 
 require('dotenv').config();
 const app = express();
