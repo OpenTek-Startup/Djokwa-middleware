@@ -5,7 +5,7 @@
 ### # ENV Variables
 
 1. Create a .env file <br>
-   Create a .env file in the root directory. See .env.example for variables naming!
+   Create a .env file in the root directory. See .env.example for variables naming! You have to download and install PgAdmin to configure the database URL
 
 2. Generate Public and Private keys <br />
    `Public and private key are used to generate JWT Tokens more securely`.

@@ -1,16 +1,48 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { CreateTeacherDto } from '../valdators/teacher.validator';
+import { validate } from 'class-validator';
 
 const prisma = new PrismaClient();
 
+/*
+  @route    POST: /teachers
+  @access   private
+  @desc     Create a new teacher
+*/
 export const createTeacher = async (req: Request, res: Response) => {
   try {
-    const { name, subject } = req.body;
+    const teacherData = req.body;
+
+    // Validate the incoming data
+    const createTeacherDto = new CreateTeacherDto();
+    Object.assign(createTeacherDto, teacherData); // Assign the incoming data to the DTO
+
+    const errors = await validate(createTeacherDto);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors: errors,
+      });
+    }
 
     const newTeacher = await prisma.teacher.create({
       data: {
-        name,
-        subject,
+        First_Name: teacherData.First_Name,
+        Last_Name: teacherData.Last_Name,
+        Hiring_Date: teacherData.Hiring_Date, //2024-09-24T00:00:00.000Z
+        Salary: teacherData.Salary,
+        Specialty: teacherData.Specialty,
+        Email: teacherData.Email,
+        Image: teacherData.Image,
+        Phone: teacherData.Phone,
+        Teacher_ID: teacherData.Teacher_ID,
+        Courses: {},
+        Disciplines: {},
+        Leaves: {},
+        PaySleeps: {},
+        RHEvaluations: {}
       },
     });
 
@@ -55,10 +87,11 @@ export const updateTeacher = async (req: Request, res: Response) => {
     const { name, subject } = req.body;
 
     const updatedTeacher = await prisma.teacher.update({
-      where: { id: Number(id) },
+      where: { Teacher_ID: Number(id) },
       data: {
-        name,
-        subject,
+        First_Name: "",
+        Hiring_Date:"",
+        Last_Name: "",
       },
     });
 
@@ -82,7 +115,7 @@ export const deleteTeacher = async (req: Request, res: Response) => {
 
   try {
     await prisma.teacher.delete({
-      where: { id: Number(id) },
+      where: { Teacher_ID: Number(id) },
     });
 
     res.json({
