@@ -6,6 +6,13 @@ import {
   deleteTeacher,
   logoutTeacher,
   getTeachers,
+  getClassesForTeachers,
+  getSubjectsForTeacher,
+  getAbsencesForTeacher,
+  getDisciplineForTeacher,
+  getPaysleepsForTeacher,
+  getRHEvaluationForTeacher,
+  getLeavesForTeacher,
 } from '../controllers/teacher.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
@@ -79,12 +86,58 @@ const router = Router();
  *           description: A list of teachers
  *         404:
  *           description: No teachers found
+ *   /api/teacher/{:id}/classes:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's classes
+ *       responses:
+ *         200:
+ *           description: A list of teacher's classes
+ *         404:
+ *           description: No classes found
+ *   /api/teacher/{:id}/subjects:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's courses
+ *       responses:
+ *         200:
+ *           description: A list of courses for a teacher
+ *         404:
+ *           description: No course found for the teacher
+ *   /api/teacher/{:id}/absences:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's absences
+ *   /api/teacher/{:id}/disciplines:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's disciplines
+ *   /api/teacher/{:id}/pay-sleeps:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's pay-sleeps
+ *   /api/teacher/{:id}/rhevaluations:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's rhevaluations
+ *   /api/teacher/{:id}/leaves:
+ *     get:
+ *       tags: [Teachers]
+ *       summary: Retrieve teacher's leaves
+ *
  */
-router.get('/sign-in', signInTeacher);
+router.post('/sign-in', signInTeacher);
 router.post('/sign-up', signUpTeacher);
 router.put('/update', authMiddleware, updateTeacher);
 router.delete('/delete', authMiddleware, deleteTeacher);
 router.post('/logout', authMiddleware, logoutTeacher);
 router.get('/all-teachers', getTeachers);
+router.get('/:id/classes', getClassesForTeachers);
+router.get('/:id/subjects', getSubjectsForTeacher);
+router.get('/:id/absences', getAbsencesForTeacher);
+router.get('/:id/disciplines', getDisciplineForTeacher);
+router.get('/:id/pay-sleeps', getPaysleepsForTeacher);
+router.get('/:id/rhevaluations', getRHEvaluationForTeacher);
+router.get('/:id/leaves', getLeavesForTeacher);
 
 export default router;
