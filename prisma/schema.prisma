@@ -40,8 +40,10 @@ enum ProgressStatus {
 }
 
 enum AbsenceStatus {
-  Active
-  Inactive
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
 }
 
 enum Days {
@@ -92,6 +94,7 @@ model Student {
   Medical_Info   String?
   Image          String?
   password     String
+  Class_ID Int
 
   ParentRelations ParentRelation[]
   Registrations  Registration[]
@@ -102,6 +105,9 @@ model Student {
   Disciplines    Discipline[]
   Transcripts    Transcript[]
   payment        Payment[]
+  user_roles      user_roles[]
+
+  classes       classes @relation(fields: [Class_ID], references: [class_id])
 }
 
 model ParentRelation {
@@ -139,12 +145,53 @@ model Teacher {
   Image       String?
   Salary      Float
   password     String
+  gender      Gender
+  address     String
 
+  user_roles  user_roles[]
   Courses     Course[]
   Leaves      Leaves[]
   RHEvaluations RHEvaluation[]
   PaySleeps   PaySleep[]
   Disciplines Discipline[]
+  classes       classes[]
+  abscences Absence[]
+}
+// User's role
+model user_roles {
+  id         Int  @id @default(autoincrement())
+  teacher_id Int? @unique
+  student_id Int? @unique
+  staff_id   Int? @unique
+  role_id    Int
+
+  teachers Teacher? @relation(fields: [teacher_id], references: [Teacher_ID], onDelete: Cascade)
+  roles    roles     @relation(fields: [role_id], references: [id])
+  students Student? @relation(fields: [student_id], references: [Student_ID], onDelete: Cascade)
+  staffs   Personnel?   @relation(fields: [staff_id], references: [Staff_ID], onDelete: Cascade)
+}
+
+// Roles
+model roles {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user_roles       user_roles[]
+}
+
+// Class Management
+model classes {
+  class_id         Int      @id @default(autoincrement())
+  class_name String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  students             Student[]
+  teachers     Teacher[]
+  courses            Course[]
+  class_attendance    Absence[]
 }
 
 model Course {
@@ -155,11 +202,13 @@ model Course {
   Start_Date    DateTime
   End_Date      DateTime
   Teacher_ID    Int
+  Class_ID       Int
 
   Chapters      Chapter[]
   Schedules     Schedule[]
   Grades        Grade[]
   transcript    Transcript[]
+  class       classes @relation(fields: [Class_ID], references: [class_id])
   Teacher       Teacher  @relation(fields: [Teacher_ID], references: [Teacher_ID])
 }
 
@@ -212,11 +261,19 @@ model Absence {
   Absence_ID       Int      @id @default(autoincrement())
   Absence_Date     DateTime
   Absence_Time     Float?
+  class_id   Int
+  note       String?
   Justification    String?
   Status           AbsenceStatus
   Student_ID       Int
+  teacher_id  Int
+
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
 
   Student          Student  @relation(fields: [Student_ID], references: [Student_ID])
+  Teacher           Teacher @relation(fields: [teacher_id], references: [Teacher_ID])
+  class   classes  @relation(fields: [class_id], references: [class_id], onDelete: Cascade)
 }
 
 model Lateness {
@@ -294,6 +351,7 @@ model Personnel {
   Leaves       Leaves[]
   RHEvaluations RHEvaluation[]
   PaySleeps    PaySleep[]
+  role user_roles[]
 }
 
 // PaySleep Model (Payroll or Salary Slips)
