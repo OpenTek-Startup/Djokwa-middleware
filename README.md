@@ -5,7 +5,7 @@
 ### # ENV Variables
 
 1. Create a .env file <br>
-   Create a .env file in the root directory. See .env.example for variables naming!
+   Create a .env file in the root directory. See .env.example for variables naming! You have to download and install PgAdmin to configure the database URL
 
 2. Generate Public and Private keys <br />
    `Public and private key are used to generate JWT Tokens more securely`.
@@ -17,29 +17,29 @@
 
 Open up your terminal, and type <br >
 
-```npm install```, if you are using npm.
+`npm install`, if you are using npm.
 <br />
 
-```yarn```, if you are using yarn
+`yarn`, if you are using yarn
 <br />
 
 ## # Run the Server
 
 Open up your terminal, and type <br >
 
-```npm run dev```, if you are using npm.
+`npm run dev`, if you are using npm.
 <br />
 
-```yarn dev```, if you are using yarn 
+`yarn dev`, if you are using yarn
 
 ## # Build the Server
 
 Open up your terminal, and type <br >
 
-```npm run build```, if you are using npm.
+`npm run build`, if you are using npm.
 <br />
 
-```yarn build```, if you are using yarn 
+`yarn build`, if you are using yarn
 <br>
 
 ## Getting Started
@@ -58,35 +58,35 @@ Open up your terminal, and type <br >
 
 ## Folder Structuring Explained (Most important files and folders)
 
-Djokwa-middleware/
-├── ...
-├── src/                    # Source folder
-│ ├── config/               # configuration folder
-│ │ └── database.ts         # Database connection setup
-│ ├── controllers/          # the controller folder
-│ │ └── userController.ts   # Controller for user-related logic
-│ ├── models/               # The models folder
-│ │ └── userModel.ts        # Database model definition
-│ ├── routes/               # The folder for routes
-│ │ └── userRoutes.ts       # Routes related to users
-│ ├── middleware/           # Middleware
-│ │ └── authMiddleware.ts   # Authentication middleware
-│ ├── services/             # Services
-│ │ └── userService.ts      # Business logic for users
-│ ├── utils/                # Utils
-│ │ └── logger.ts           # Logger utility
-│ ├── types/                # Folder for all types of the project
-│ │ └── userTypes.ts        # Type definitions for user entities
-│ └── index.ts              # Main application entry point
-| └── ...
-├── dist/                   # Compiled JavaScript files
-├── node_modules/           # Node.js modules
-├── .env                    # Environment variables
-├── .gitignore              # Files to ignore in Git
-├── package.json            # Project metadata and dependencies
-├── tsconfig.json           # TypeScript configuration
-└── README.md               # Project documentation
-└── ...
+Djokwa-middleware/ <br/>
+├── ... <br/>
+├── src/ # Source folder <br/>
+│ ├── config/ # configuration folder <br/>
+│ │ └── database.ts # Database connection setup <br/>
+│ ├── controllers/ # the controller folder <br/>
+│ │ └── user.controller.ts # Controller for user-related logic <br/>
+│ ├── models/ # The models folder <br/>
+│ │ └── user.model.ts # Database model definition <br/>
+│ ├── routes/ # The folder for routes <br/>
+│ │ └── user.routes.ts # Routes related to users <br/>
+│ ├── middleware/ # Middleware <br/>
+│ │ └── auth.middleware.ts # Authentication middleware <br/>
+│ ├── services/ # Services <br/>
+│ │ └── user.service.ts # Business logic for users <br/>
+│ ├── utils/ # Utils <br/>
+│ │ └── logger.ts # Logger utility <br/>
+│ ├── types/ # Folder for all types of the project <br/>
+│ │ └── user.types.ts # Type definitions for user entities <br/>
+│ └── index.ts # Main application entry point <br/>
+| └── ... <br/>
+├── dist/ # Compiled JavaScript files <br/>
+├── node_modules/ # Node.js modules <br/>
+├── .env # Environment variables <br/>
+├── .gitignore # Files to ignore in Git <br/>
+├── package.json # Project metadata and dependencies <br/>
+├── tsconfig.json # TypeScript configuration <br/>
+└── README.md # Project documentation <br/>
+└── ... <br/>
 
 ## How to contribute
 

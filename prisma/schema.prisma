@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+// Prisma Schema for the DJOKWA ERP School Management
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
@@ -13,10 +13,447 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  Male
+  Female
+}
+
+enum RelationType {
+  Mother
+  Father
+  Guardian
+  Other
+}
+
+enum EvaluationType {
+  Exam
+  Assignment
+  Quiz
+  Project
+  Other
+}
+
+enum ProgressStatus {
+  NotStarted
+  InProgress
+  Completed
+}
+
+enum AbsenceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
+}
+
+enum Days {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+enum LeaveType {
+  Vacation
+  SickLeave
+  MaternityLeave
+  PaternityLeave
+  Other
+}
+
+model SchoolYear {
+  Academic_ID Int      @id @default(autoincrement())
+  Start_date  DateTime
+  End_date    DateTime
+  year        String  //e.g. "2024-2025"
+
+  Registrations Registration[]
+}
+
+model Registration {
+  Registration_ID Int    @id @default(autoincrement())
+  Registration_Date DateTime
+  Student_ID       Int
+  Academic_ID      Int
+
+  Student          Student @relation(fields: [Student_ID], references: [Student_ID])
+  Academic_Year    SchoolYear  @relation(fields: [Academic_ID], references: [Academic_ID])
+}
+
+model Student {
+  Student_ID     Int       @id @default(autoincrement())
+  First_Name     String
+  Last_Name      String
+  Date_Of_Birth  DateTime
+  Gender         Gender
+  Address        String
+  Phone          String?
+  Medical_Info   String?
+  Image          String?
+  password     String
+  Class_ID Int
+
+  ParentRelations ParentRelation[]
+  Registrations  Registration[]
+  Grades         Grade[]
+  Evaluations    Evaluation[]
+  Absences       Absence[]
+  Latenesses     Lateness[]
+  Disciplines    Discipline[]
+  Transcripts    Transcript[]
+  payment        Payment[]
+  user_roles      user_roles[]
+
+  classes       classes @relation(fields: [Class_ID], references: [class_id])
+}
+
+model ParentRelation {
+  ParentRelation_ID Int    @id @default(autoincrement())
+  Parent_ID         Int
+  Student_ID        Int
+  Relation_Type     RelationType
+
+  Parent            Parent @relation(fields: [Parent_ID], references: [Parent_ID])
+  Student           Student @relation(fields: [Student_ID], references: [Student_ID])
+}
+
+model Parent {
+  Parent_ID    Int       @id @default(autoincrement())
+  Last_Name    String
+  First_Name   String
+  Profession   String?
+  Address      String
+  Email        String?
+  Phone        String?
+  NIC_Information String?
+  password     String
+  Relations    ParentRelation[]
+}
+
+// Teacher Model
 model Teacher {
-  id        Int      @id @default(autoincrement())
-  name      String
-  subject   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  Teacher_ID  Int       @id @default(autoincrement())
+  Last_Name   String
+  First_Name  String
+  Email       String @unique
+  Phone       String @unique
+  Specialty   String
+  Hiring_Date DateTime
+  Image       String?
+  Salary      Float
+  password     String
+  gender      Gender
+  address     String
+
+  user_roles  user_roles[]
+  Courses     Course[]
+  Leaves      Leaves[]
+  RHEvaluations RHEvaluation[]
+  PaySleeps   PaySleep[]
+  Disciplines Discipline[]
+  classes       classes[]
+  abscences Absence[]
+}
+// User's role
+model user_roles {
+  id         Int  @id @default(autoincrement())
+  teacher_id Int? @unique
+  student_id Int? @unique
+  staff_id   Int? @unique
+  role_id    Int
+
+  teachers Teacher? @relation(fields: [teacher_id], references: [Teacher_ID], onDelete: Cascade)
+  roles    roles     @relation(fields: [role_id], references: [id])
+  students Student? @relation(fields: [student_id], references: [Student_ID], onDelete: Cascade)
+  staffs   Personnel?   @relation(fields: [staff_id], references: [Staff_ID], onDelete: Cascade)
+}
+
+// Roles
+model roles {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user_roles       user_roles[]
+}
+
+// Class Management
+model classes {
+  class_id         Int      @id @default(autoincrement())
+  class_name String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  students             Student[]
+  teachers     Teacher[]
+  courses            Course[]
+  class_attendance    Absence[]
+}
+
+model Course {
+  Course_ID     Int      @id @default(autoincrement())
+  Name          String
+  Class_Level   Int
+  Coefficient   Int
+  Start_Date    DateTime
+  End_Date      DateTime
+  Teacher_ID    Int
+  Class_ID       Int
+
+  Chapters      Chapter[]
+  Schedules     Schedule[]
+  Grades        Grade[]
+  transcript    Transcript[]
+  class       classes @relation(fields: [Class_ID], references: [class_id])
+  Teacher       Teacher  @relation(fields: [Teacher_ID], references: [Teacher_ID])
+}
+
+model Chapter {
+  Chapter_ID    Int      @id @default(autoincrement())
+  Name          String
+  Description   String?
+  Coefficient   Int
+  Start_Date    DateTime
+  End_Date      DateTime
+  Progress_Status ProgressStatus
+  Course_ID     Int
+
+  Course        Course   @relation(fields: [Course_ID], references: [Course_ID])
+}
+
+model Grade {
+  Grade_ID      Int      @id @default(autoincrement())
+  Value         Float
+  Student_ID    Int
+  Course_ID     Int
+
+  Student       Student  @relation(fields: [Student_ID], references: [Student_ID])
+  Course        Course   @relation(fields: [Course_ID], references: [Course_ID])
+}
+
+model Evaluation {
+  Evaluation_ID Int      @id @default(autoincrement())
+  Type          EvaluationType  
+  Start_Date    DateTime
+  End_Date      DateTime
+  Description   String?
+  Student_ID    Int
+
+  Student       Student  @relation(fields: [Student_ID], references: [Student_ID])
+}
+
+model Transcript {
+  Transcript_ID Int      @id @default(autoincrement())
+  Name          String
+  Logo          String?
+  Student_ID    Int
+  Course_ID     Int
+
+  Student       Student  @relation(fields: [Student_ID], references: [Student_ID])
+  Course        Course   @relation(fields: [Course_ID], references: [Course_ID])
+}
+
+model Absence {
+  Absence_ID       Int      @id @default(autoincrement())
+  Absence_Date     DateTime
+  Absence_Time     Float?
+  class_id   Int
+  note       String?
+  Justification    String?
+  Status           AbsenceStatus
+  Student_ID       Int
+  teacher_id  Int
+
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+
+  Student          Student  @relation(fields: [Student_ID], references: [Student_ID])
+  Teacher           Teacher @relation(fields: [teacher_id], references: [Teacher_ID])
+  class   classes  @relation(fields: [class_id], references: [class_id], onDelete: Cascade)
+}
+
+model Lateness {
+  Lateness_ID       Int      @id @default(autoincrement())
+  Lateness_Date     DateTime
+  Lateness_Time     Float?
+  Justification     String?
+  Student_ID        Int
+
+  Student           Student  @relation(fields: [Student_ID], references: [Student_ID])
+}
+
+model Discipline {
+  Discipline_ID   Int      @id @default(autoincrement())
+  Sanction        String?
+  Justification   String?
+  Student_ID      Int
+  Teacher_ID      Int
+
+  Teacher         Teacher @relation(fields: [Teacher_ID], references: [Teacher_ID])
+  Student         Student  @relation(fields: [Student_ID], references: [Student_ID])
+}
+
+model Schedule {
+  Schedule_ID  Int     @id @default(autoincrement())
+  Day          Days  
+  Start_Time   DateTime
+  End_Time     DateTime
+  Room_ID      Int
+  Course_ID    Int
+
+  Room         Room    @relation(fields: [Room_ID], references: [Room_ID])
+  Course       Course  @relation(fields: [Course_ID], references: [Course_ID])
+}
+
+model Room {
+  Room_ID    Int     @id @default(autoincrement())
+  Name       String
+
+  Schedules  Schedule[]
+}
+
+model Payment {
+  Payment_ID   Int      @id @default(autoincrement())
+  Amount       Float
+  Payment_Date DateTime
+  Student_ID   Int
+  Service_ID   Int
+
+  Student      Student  @relation(fields: [Student_ID], references: [Student_ID])
+  Service      Service  @relation(fields: [Service_ID], references: [Service_ID])
+}
+
+model Service {
+  Service_ID   Int      @id @default(autoincrement())
+  Name         String
+  Logo         String?
+
+  Payments     Payment[]
+}
+
+model Event {
+  Event_ID     Int      @id @default(autoincrement())
+  Name         String
+  Logo         String?
+}
+
+// Personnel Model 
+model Personnel {
+  Staff_ID     Int      @id @default(autoincrement())
+  Email        String
+  Staff_Role   String
+  password     String
+
+  Leaves       Leaves[]
+  RHEvaluations RHEvaluation[]
+  PaySleeps    PaySleep[]
+  role user_roles[]
+}
+
+// PaySleep Model (Payroll or Salary Slips)
+model PaySleep {
+  PaySleep_ID  Int      @id @default(autoincrement())
+  FirstName    String
+  LastName     String
+  JerseyNum    String
+  Position     String
+  Pay_Date     DateTime
+  Amount       Float
+  Personnel_ID Int?
+  Teacher_ID   Int?
+  Budget_ID    Int?
+
+  Personnel    Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) // Link to Personnel
+  Teacher      Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) // Link to Teacher
+  Budget       Budget?    @relation(fields: [Budget_ID], references: [Budget_ID])   // Optional link to Budget
+}
+
+// Warehouse Model (Storage locations)
+model Warehouse {
+  Warehouse_ID Int      @id @default(autoincrement())
+  Name         String
+  Location     String
+  Products     Product[]
+}
+
+// Product Model (Items stored in the warehouse)
+model Product {
+  Product_ID   Int      @id @default(autoincrement())
+  Name         String
+  Category     String
+  Quantity     Int
+  Price        Float
+  Warehouse_ID Int
+
+  Warehouse    Warehouse @relation(fields: [Warehouse_ID], references: [Warehouse_ID])
+}
+
+// Leaves Model (Employee leave records)
+model Leaves {
+  Leave_ID     Int      @id @default(autoincrement())
+  FirstName    String
+  LastName     String
+  JerseyNum    String
+  Position     String
+  Start_Date   DateTime
+  End_Date     DateTime
+  Type         LeaveType 
+  Personnel_ID Int?
+  Teacher_ID   Int?
+
+  Personnel    Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) 
+  Teacher      Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) 
+}
+
+// RHEvaluation Model (Human resource evaluations)
+model RHEvaluation {
+  RHEvaluation_ID Int      @id @default(autoincrement())
+  FirstName       String
+  LastName        String
+  JerseyNum       String
+  Position        String
+  Evaluation_Date DateTime
+  Score           Int     
+  Comments        String?
+  Personnel_ID    Int?
+  Teacher_ID      Int?
+
+  Personnel       Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) // Link to Personnel
+  Teacher         Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) // Link to Teacher
+}
+
+// Budget Model (Financial allocation)
+model Budget {
+  Budget_ID   Int      @id @default(autoincrement())
+  Name        String
+  Description String
+  Amount      Float
+  Year        String   // e.g., "2024"
+  Expenses    Expenses[]
+  PaySleeps   PaySleep[]
+}
+
+// Expenses Model (Tracking expenses)
+model Expenses {
+  Expense_ID  Int      @id @default(autoincrement())
+  Name        String
+  Description String?
+  Amount      Float
+  Date        DateTime
+  Budget_ID   Int
+
+  Budget      Budget   @relation(fields: [Budget_ID], references: [Budget_ID]) 
+}
+
+// Income Model (Tracking revenue)
+model Income {
+  Income_ID   Int      @id @default(autoincrement())
+  Name        String
+  Description String?
+  Amount      Float
+  Date        DateTime
 }
