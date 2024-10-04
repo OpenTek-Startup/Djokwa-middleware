@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocs from '../swagger';
 
 require('dotenv').config();
 const app = express();
@@ -13,6 +15,9 @@ app.use(cors());
 // main route
 app.use('/api/teacher', teacherRoute);
 
+// Set up Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 // Health check endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
@@ -20,7 +25,9 @@ app.get('/', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(
+    `Server is running on http://localhost:${PORT} \n access the endpoints on http://localhost:${PORT}/api-docs`
+  );
 });
 
 module.exports = app;

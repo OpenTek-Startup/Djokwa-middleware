@@ -1,16 +1,22 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { CreateTeacherDto } from '../valdators/teacher.validator';
+import {
+  CreateTeacherDto,
+  UpdateTeacherDto,
+} from '../valdators/teacher.validator';
 import { validate } from 'class-validator';
+import argon2 from 'argon2';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+const SECRET_KEY = process.env.JWT_SECRET || '';
 
 /*
-  @route    POST: /teachers
+  @route    POST: /teachers/sign-up
   @access   private
   @desc     Create a new teacher
 */
-export const createTeacher = async (req: Request, res: Response) => {
+export const signUpTeacher = async (req: Request, res: Response) => {
   try {
     const teacherData = req.body;
 
@@ -22,10 +28,43 @@ export const createTeacher = async (req: Request, res: Response) => {
     if (errors.length > 0) {
       return res.status(400).json({
         type: 'error',
-        message: 'Validation failed',
-        errors: errors,
+        message: 'Failed signing up',
+        // errors: errors,
       });
     }
+
+    // Check if passwords match
+    if (teacherData.password !== teacherData.confirmPassword) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Passwords do not match',
+      });
+    }
+
+    // // Check for unique email
+    // const existingEmail = await prisma.teacher.findUnique({
+    //   where: { Email: teacherData.email },
+    // });
+    // if (existingEmail) {
+    //   return res.status(400).json({
+    //     type: 'error',
+    //     message: 'Email already in use, use different email',
+    //   });
+    // }
+
+    // // Check for unique phone number
+    // const existingPhone = await prisma.teacher.findUnique({
+    //   where: { Phone: teacherData.Phone },
+    // });
+    // if (existingPhone) {
+    //   return res.status(400).json({
+    //     type: 'error',
+    //     message: 'Phone number already in use',
+    //   });
+    // }
+
+    // encrypt password
+    const hash = await argon2.hash(teacherData.password);
 
     const newTeacher = await prisma.teacher.create({
       data: {
@@ -37,15 +76,14 @@ export const createTeacher = async (req: Request, res: Response) => {
         Email: teacherData.Email,
         Image: teacherData.Image,
         Phone: teacherData.Phone,
-        Teacher_ID: teacherData.Teacher_ID,
+        password: hash,
         Courses: {},
         Disciplines: {},
         Leaves: {},
         PaySleeps: {},
-        RHEvaluations: {}
+        RHEvaluations: {},
       },
     });
-
     res.status(201).json({
       type: 'success',
       message: 'Teacher created successfully',
@@ -55,80 +93,205 @@ export const createTeacher = async (req: Request, res: Response) => {
     console.error('Error creating teacher:', error);
     res.status(500).json({
       type: 'error',
-      message: 'Error creating teacher',
+      message:
+        'Credentials have already been taken, use different email and/or different phone number',
       data: {},
     });
   }
 };
 
-export const getTeacher = async (req: Request, res: Response) => {
+/*
+  @route    GET: /teachers/sign-in
+  @access   private
+  @desc     Get teacher details
+*/
+export const signInTeacher = async (req: Request, res: Response) => {
   try {
+    const { email, password } = req.body;
+
+    // Find the teacher by email
+    const teacher = await prisma.teacher.findUnique({
+      where: { Email: email },
+    });
+    console.log(teacher);
+
+    if (!teacher) {
+      return res
+        .status(401)
+        .json({ message: 'The email provided does not exist' });
+    }
+
+    // Verify the password
+    const isPasswordValid = await argon2.verify(teacher.password, password);
+    if (!isPasswordValid) {
+      return res
+        .status(401)
+        .json({ message: 'The password provided is invalid' });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { id: teacher.Teacher_ID, email: teacher.Email },
+      SECRET_KEY,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({
+      type: 'success',
+      message: 'Login successful',
+      token,
+      teacher: {
+        Teacher_ID: teacher.Teacher_ID,
+        First_Name: teacher.First_Name,
+        Last_Name: teacher.Last_Name,
+        Email: teacher.Email,
+        Phone: teacher.Phone,
+        // Other fields as necessary
+      },
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({
+      type: 'error',
+      message: 'Error during login',
+    });
+  }
+};
+
+/*
+  @route    PUT: /teachers/update
+  @access   private
+  @desc     Update a teacher
+*/
+export const updateTeacher = async (req: Request, res: Response) => {
+  try {
+    const teacherId = req.user?.id;
+    if (!teacherId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const updateData = req.body;
+
+    // Validate incoming data
+    const updateTeacherDto = new UpdateTeacherDto();
+    Object.assign(updateTeacherDto, updateData);
+    const errors = await validate(updateTeacherDto);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors: errors,
+      });
+    }
+
+    // Verify the password before updating other fields
+    const teacher = await prisma.teacher.findUnique({
+      where: { Teacher_ID: teacherId },
+    });
+
+    if (!teacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    // const isPasswordValid = await argon2.verify(
+    //   teacher.password,
+    //   updateData.password
+    // );
+    // if (!isPasswordValid) {
+    //   return res.status(401).json({ message: 'Invalid password' });
+    // }
+
+    // Update teacher information
+    const updatedTeacher = await prisma.teacher.update({
+      where: { Teacher_ID: teacherId },
+      data: {
+        ...updateData,
+        password: teacher.password, // Keep the existing password
+      },
+    });
+
+    res.status(200).json({
+      type: 'success',
+      message: 'Teacher information updated successfully',
+      data: updatedTeacher,
+    });
+  } catch (error) {
+    // console.error('Error updating teacher:', error);
+    res.status(500).json({
+      type: 'error',
+      message: 'Error updating teacher information',
+    });
+  }
+};
+
+/*
+  @route    DELETE: /teachers/delete
+  @access   private
+  @desc     delete a teacher
+*/
+export const deleteTeacher = async (req: Request, res: Response) => {
+  try {
+    const teacherId = req.user?.id;
+    if (!teacherId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    // Delete the teacher from the database
+    await prisma.teacher.delete({
+      where: { Teacher_ID: teacherId },
+    });
+
+    res.status(200).json({
+      type: 'success',
+      message: 'Teacher deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting teacher:', error);
+  }
+};
+
+/*
+  @route    DELETE: /teacher/logout
+  @access   private
+  @desc     logout a teacher
+*/
+export const logoutTeacher = (req: Request, res: Response) => {
+  res.status(200).json({
+    type: 'success',
+    message: 'Logged out successfully',
+  });
+};
+
+/*
+  @route    GET: /teachers/all-teachers
+  @access   private
+  @desc     Get all teachers
+*/
+export const getTeachers = async (req: Request, res: Response) => {
+  try {
+    // Retrieve all teachers from the database
     const teachers = await prisma.teacher.findMany();
 
-    res.json({
+    // Check if any teachers were found
+    if (teachers.length === 0) {
+      return res.status(404).json({
+        type: 'error',
+        message: 'No teachers found',
+      });
+    }
+
+    // Return the list of teachers
+    res.status(200).json({
       type: 'success',
-      message: '',
+      message: 'Teachers retrieved successfully',
       data: teachers,
     });
   } catch (error) {
     console.error('Error retrieving teachers:', error);
     res.status(500).json({
       type: 'error',
-      message: 'Error retrieving teachers',
-      data: {},
-    });
-  }
-};
-
-export const updateTeacher = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const { name, subject } = req.body;
-
-    const updatedTeacher = await prisma.teacher.update({
-      where: { Teacher_ID: Number(id) },
-      data: {
-        First_Name: "",
-        Hiring_Date:"",
-        Last_Name: "",
-      },
-    });
-
-    res.json({
-      type: 'success',
-      message: `Teacher with ID ${id} updated successfully`,
-      data: updatedTeacher,
-    });
-  } catch (error) {
-    console.error('Error updating teacher:', error);
-    res.status(500).json({
-      type: 'error',
-      message: 'Error updating teacher',
-      data: {},
-    });
-  }
-};
-
-export const deleteTeacher = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    await prisma.teacher.delete({
-      where: { Teacher_ID: Number(id) },
-    });
-
-    res.json({
-      type: 'success',
-      message: `Teacher with ID ${id} deleted successfully`,
-      data: {},
-    });
-  } catch (error) {
-    console.error('Error deleting teacher:', error);
-    res.status(500).json({
-      type: 'error',
-      message: 'Error deleting teacher',
-      data: {},
+      message: 'An error occurred while retrieving teachers',
     });
   }
 };

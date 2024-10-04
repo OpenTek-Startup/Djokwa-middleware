@@ -10,13 +10,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL_DEV")
+  url      = env("DATABASE_URL")
 }
 
 enum Gender {
   Male
   Female
-  Other
 }
 
 enum RelationType {
@@ -92,6 +91,7 @@ model Student {
   Phone          String?
   Medical_Info   String?
   Image          String?
+  password     String
 
   ParentRelations ParentRelation[]
   Registrations  Registration[]
@@ -123,6 +123,7 @@ model Parent {
   Email        String?
   Phone        String?
   NIC_Information String?
+  password     String
   Relations    ParentRelation[]
 }
 
@@ -131,12 +132,13 @@ model Teacher {
   Teacher_ID  Int       @id @default(autoincrement())
   Last_Name   String
   First_Name  String
-  Email       String?
-  Phone       String?
+  Email       String @unique
+  Phone       String @unique
   Specialty   String
   Hiring_Date DateTime
   Image       String?
   Salary      Float
+  password     String
 
   Courses     Course[]
   Leaves      Leaves[]
@@ -287,6 +289,7 @@ model Personnel {
   Staff_ID     Int      @id @default(autoincrement())
   Email        String
   Staff_Role   String
+  password     String
 
   Leaves       Leaves[]
   RHEvaluations RHEvaluation[]

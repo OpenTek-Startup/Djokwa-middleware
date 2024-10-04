@@ -1,21 +1,5 @@
-/*
-  Warnings:
-
-  - The primary key for the `Teacher` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - You are about to drop the column `createdAt` on the `Teacher` table. All the data in the column will be lost.
-  - You are about to drop the column `id` on the `Teacher` table. All the data in the column will be lost.
-  - You are about to drop the column `name` on the `Teacher` table. All the data in the column will be lost.
-  - You are about to drop the column `subject` on the `Teacher` table. All the data in the column will be lost.
-  - You are about to drop the column `updatedAt` on the `Teacher` table. All the data in the column will be lost.
-  - Added the required column `First_Name` to the `Teacher` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `Hiring_Date` to the `Teacher` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `Last_Name` to the `Teacher` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `Salary` to the `Teacher` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `Specialty` to the `Teacher` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- CreateEnum
-CREATE TYPE "Gender" AS ENUM ('Male', 'Female', 'Other');
+CREATE TYPE "Gender" AS ENUM ('Male', 'Female');
 
 -- CreateEnum
 CREATE TYPE "RelationType" AS ENUM ('Mother', 'Father', 'Guardian', 'Other');
@@ -34,24 +18,6 @@ CREATE TYPE "Days" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 
 -- CreateEnum
 CREATE TYPE "LeaveType" AS ENUM ('Vacation', 'SickLeave', 'MaternityLeave', 'PaternityLeave', 'Other');
-
--- AlterTable
-ALTER TABLE "Teacher" DROP CONSTRAINT "Teacher_pkey",
-DROP COLUMN "createdAt",
-DROP COLUMN "id",
-DROP COLUMN "name",
-DROP COLUMN "subject",
-DROP COLUMN "updatedAt",
-ADD COLUMN     "Email" TEXT,
-ADD COLUMN     "First_Name" TEXT NOT NULL,
-ADD COLUMN     "Hiring_Date" TIMESTAMP(3) NOT NULL,
-ADD COLUMN     "Image" TEXT,
-ADD COLUMN     "Last_Name" TEXT NOT NULL,
-ADD COLUMN     "Phone" TEXT,
-ADD COLUMN     "Salary" DOUBLE PRECISION NOT NULL,
-ADD COLUMN     "Specialty" TEXT NOT NULL,
-ADD COLUMN     "Teacher_ID" SERIAL NOT NULL,
-ADD CONSTRAINT "Teacher_pkey" PRIMARY KEY ("Teacher_ID");
 
 -- CreateTable
 CREATE TABLE "SchoolYear" (
@@ -84,6 +50,7 @@ CREATE TABLE "Student" (
     "Phone" TEXT,
     "Medical_Info" TEXT,
     "Image" TEXT,
+    "password" TEXT NOT NULL,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("Student_ID")
 );
@@ -108,8 +75,25 @@ CREATE TABLE "Parent" (
     "Email" TEXT,
     "Phone" TEXT,
     "NIC_Information" TEXT,
+    "password" TEXT NOT NULL,
 
     CONSTRAINT "Parent_pkey" PRIMARY KEY ("Parent_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Teacher" (
+    "Teacher_ID" SERIAL NOT NULL,
+    "Last_Name" TEXT NOT NULL,
+    "First_Name" TEXT NOT NULL,
+    "Email" TEXT NOT NULL,
+    "Phone" TEXT NOT NULL,
+    "Specialty" TEXT NOT NULL,
+    "Hiring_Date" TIMESTAMP(3) NOT NULL,
+    "Image" TEXT,
+    "Salary" DOUBLE PRECISION NOT NULL,
+    "password" TEXT NOT NULL,
+
+    CONSTRAINT "Teacher_pkey" PRIMARY KEY ("Teacher_ID")
 );
 
 -- CreateTable
@@ -260,6 +244,7 @@ CREATE TABLE "Personnel" (
     "Staff_ID" SERIAL NOT NULL,
     "Email" TEXT NOT NULL,
     "Staff_Role" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
     CONSTRAINT "Personnel_pkey" PRIMARY KEY ("Staff_ID")
 );
@@ -366,6 +351,12 @@ CREATE TABLE "Income" (
 
     CONSTRAINT "Income_pkey" PRIMARY KEY ("Income_ID")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Teacher_Email_key" ON "Teacher"("Email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Teacher_Phone_key" ON "Teacher"("Phone");
 
 -- AddForeignKey
 ALTER TABLE "Registration" ADD CONSTRAINT "Registration_Student_ID_fkey" FOREIGN KEY ("Student_ID") REFERENCES "Student"("Student_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
