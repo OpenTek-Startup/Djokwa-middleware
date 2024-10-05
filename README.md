@@ -116,7 +116,7 @@ OR
     $ npm run commit
 ```
 
-Please follow the questionaires that follow to commit your work (please make sure to provide descriptive commit messages).
+Please follow the questionaires that follow to commit your work (please make sure to provide .descriptive commit messages).
 
 ## Branch Naming Convention
 
