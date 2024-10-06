@@ -1,12 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
+import blockNoteRoutes from './routes/blocknoteRoutes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
 
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
@@ -14,6 +15,7 @@ app.use(cors());
 
 // main route
 app.use('/api/teacher', teacherRoute);
+app.use('/api/blocknotes', blockNoteRoutes);
 
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));

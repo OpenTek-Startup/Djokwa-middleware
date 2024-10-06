@@ -399,3 +399,11 @@ model Income {
   Amount      Float
   Date        DateTime
 }
+model BlockNote {
+  id         Int      @id @default(autoincrement())
+  task       String
+  isComplete Boolean   @default(false)
+  note       String?
+  title      String
+  createdAt  DateTime  @default(now())
+}
