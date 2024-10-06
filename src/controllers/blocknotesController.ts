@@ -24,10 +24,10 @@ export const getBlockNoteById = async (req: Request, res: Response) => {
 };
 
 export const createBlockNote = async (req: Request, res: Response) => {
-  const { task, isComplete, note, title } = req.body;
+  const { task, isComplete, note, title, deadline } = req.body;
   try {
     const newBlockNote = await prisma.blockNote.create({
-      data: { task, isComplete, note, title },
+      data: { task, isComplete, note, title, deadline },
     });
     res.status(201).json(newBlockNote);
   } catch (error) {
@@ -37,11 +37,11 @@ export const createBlockNote = async (req: Request, res: Response) => {
 
 export const updateBlockNote = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { task, isComplete, note, title } = req.body;
+  const { task, isComplete, note, title, deadline } = req.body;
   try {
     const updatedBlockNote = await prisma.blockNote.update({
       where: { id: Number(id) },
-      data: { task, isComplete, note, title },
+      data: { task, isComplete, note, title, deadline },
     });
     res.status(200).json(updatedBlockNote);
   } catch (error) {
