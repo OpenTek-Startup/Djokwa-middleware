@@ -1,12 +1,10 @@
 import {
   IsString,
   IsNotEmpty,
-  IsEmail,
   IsOptional,
   IsNumber,
   IsDateString,
   MaxLength,
-  isEnum,
   IsEnum,
 } from 'class-validator';
 
@@ -32,7 +30,9 @@ export class CreateStudentDto {
   Date_Of_Birth!: string;
 
   @IsNotEmpty({ message: 'Gender is required.' })
-  @IsEnum(Gender, { message: 'Gender must either be female,male or other' })
+  @IsEnum(Gender, {
+    message: 'Gender must either be "female","male" or "other" ',
+  })
   Gender!: string;
 
   @IsString({ message: 'Address must be a string.' })
@@ -48,7 +48,7 @@ export class CreateStudentDto {
   @IsOptional()
   Image?: string;
 
-  @IsNumber({}, { message: 'Teacher ID must be a number.' })
+  @IsNumber({}, { message: 'Student ID must be a number.' })
   @IsOptional()
   Student_ID?: number;
 }

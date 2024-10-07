@@ -6,9 +6,9 @@ import { validate } from 'class-validator';
 const prisma = new PrismaClient();
 
 /*
-  @route    POST: /teachers
+  @route    POST: /students
   @access   private
-  @desc     Create a new teacher
+  @desc     Create a new student
 */
 export const createStudent = async (req: Request, res: Response) => {
   try {
@@ -36,7 +36,6 @@ export const createStudent = async (req: Request, res: Response) => {
         Gender: studentData.Gender,
         Image: studentData.Image,
         Phone: studentData.Phone,
-        // Student_ID: studentData.Student_ID,
       },
     });
 
@@ -78,27 +77,42 @@ export const updateStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const { name, subject } = req.body;
+    const updateData = req.body;
+    const createStudentDto = new CreateStudentDto();
+    Object.assign(createStudentDto, updateData); // Assign the incoming data to the DTO
 
-    const updatedTeacher = await prisma.teacher.update({
-      where: { Teacher_ID: Number(id) },
+    const errors = await validate(createStudentDto);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors: errors,
+      });
+    }
+
+    const updatedstudent = await prisma.student.update({
+      where: { Student_ID: Number(id) },
       data: {
-        First_Name: '',
-        Hiring_Date: '',
-        Last_Name: '',
+        First_Name: updateData.First_Name,
+        Last_Name: updateData.Last_Name,
+        Date_Of_Birth: updateData.Date_Of_Birth,
+        Gender: updateData.Gender,
+        Address: updateData.Address,
+        Phone: updateData.Phone,
+        Medical_Info: updateData.Medical_Info,
       },
     });
 
     res.json({
       type: 'success',
-      message: `Teacher with ID ${id} updated successfully`,
-      data: updatedTeacher,
+      message: `student with ID ${id} updated successfully`,
+      data: updatedstudent,
     });
   } catch (error) {
-    console.error('Error updating teacher:', error);
+    console.error('Error updating student:', error);
     res.status(500).json({
       type: 'error',
-      message: 'Error updating teacher',
+      message: 'Error updating student',
       data: {},
     });
   }
