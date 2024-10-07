@@ -1,8 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
+import LeaveRoute from "./routes/leaves.route";
+import ScheduleRoute from "./routes/schedule.route";
+import PaySleepRoute from "./routes/paysleep.route";
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
+import { PrismaClient } from '@prisma/client';
+
+// create new prisma object
+
+export const prisma = new PrismaClient();
 
 require('dotenv').config();
 const app = express();
@@ -14,7 +22,9 @@ app.use(cors());
 
 // main route
 app.use('/api/teacher', teacherRoute);
-
+app.use('/api/leave', LeaveRoute);
+app.use('/api/paysleep', PaySleepRoute);
+app.use('/api/schedule', ScheduleRoute);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
