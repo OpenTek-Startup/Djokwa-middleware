@@ -3,6 +3,8 @@ import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
+// Financial Module Routes
+import financialRoutes from './routes/financial.route'
 
 require('dotenv').config();
 const app = express();
@@ -12,6 +14,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json()); // Parse JSON bodies
 app.use(cors());
 
+// Financial Module Routes
+app.use('/api/financial', financialRoutes);
 // main route
 app.use('/api/teacher', teacherRoute);
 

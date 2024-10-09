@@ -445,8 +445,8 @@ model Expenses {
   Amount      Float
   Date        DateTime
   Budget_ID   Int
-
   Budget      Budget   @relation(fields: [Budget_ID], references: [Budget_ID]) 
+ 
 }
 
 // Income Model (Tracking revenue)
@@ -456,4 +456,5 @@ model Income {
   Description String?
   Amount      Float
   Date        DateTime
+  IncomeType  String
 }

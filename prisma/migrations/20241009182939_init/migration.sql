@@ -95,7 +95,6 @@ CREATE TABLE "Teacher" (
     "password" TEXT NOT NULL,
     "gender" "Gender" NOT NULL,
     "address" TEXT NOT NULL,
-    "profile_img" TEXT,
 
     CONSTRAINT "Teacher_pkey" PRIMARY KEY ("Teacher_ID")
 );
@@ -389,6 +388,7 @@ CREATE TABLE "Income" (
     "Description" TEXT,
     "Amount" DOUBLE PRECISION NOT NULL,
     "Date" TIMESTAMP(3) NOT NULL,
+    "IncomeType" TEXT NOT NULL,
 
     CONSTRAINT "Income_pkey" PRIMARY KEY ("Income_ID")
 );
