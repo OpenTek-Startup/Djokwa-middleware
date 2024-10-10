@@ -3,6 +3,14 @@ import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
+import classRoute from './routes/class.route'
+import courseRoute from './routes/course.route'
+import assignmentRoute from './routes/assignment.route'
+import gradeRoute from './routes/grade.route'
+import attendanceRoute from './routes/attendance.route'
+import recordRoute from './routes/studentRecord.route'
+import academicsRoute from './routes/academics.route'
+
 
 require('dotenv').config();
 const app = express();
@@ -14,6 +22,14 @@ app.use(cors());
 
 // main route
 app.use('/api/teacher', teacherRoute);
+app.use('/api', classRoute);
+app.use('/api', courseRoute);
+app.use('/api', assignmentRoute);
+app.use('/api', gradeRoute);
+app.use('/api',recordRoute);
+app.use('/api', attendanceRoute);
+app.use('/api', academicsRoute);
+
 
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
