@@ -90,10 +90,9 @@ model Student {
   Date_Of_Birth  DateTime
   Gender         Gender
   Address        String
-  Phone          String?
+  Phone          String? 
   Medical_Info   String?
   Image          String?
-  password     String
   Class_ID Int
 
   ParentRelations ParentRelation[]
