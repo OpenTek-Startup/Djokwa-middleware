@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
+import studentRoute from './routes/student.routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
 
@@ -14,6 +15,7 @@ app.use(cors());
 
 // main route
 app.use('/api/teacher', teacherRoute);
+app.use('/api/student', studentRoute);
 
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
