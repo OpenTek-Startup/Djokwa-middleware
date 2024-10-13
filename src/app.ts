@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
-import LeaveRoute from "./routes/leaves.route";
-import ScheduleRoute from "./routes/schedule.route";
-import PaySleepRoute from "./routes/paysleep.route";
+import leaveRoute from "./routes/leaves.route";
+import scheduleRoute from "./routes/schedule.route";
+import paySleepRoute from "./routes/paysleep.route";
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
 import { PrismaClient } from '@prisma/client';
@@ -22,9 +22,9 @@ app.use(cors());
 
 // main route
 app.use('/api/teacher', teacherRoute);
-app.use('/api/leave', LeaveRoute);
-app.use('/api/paysleep', PaySleepRoute);
-app.use('/api/schedule', ScheduleRoute);
+app.use('/api/leave', leaveRoute);
+app.use('/api/paysleep', paySleepRoute);
+app.use('/api/schedule', scheduleRoute);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

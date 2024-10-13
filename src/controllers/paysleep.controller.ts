@@ -1,57 +1,52 @@
 import { Request, Response } from "express";
 import { prisma } from "../app";
 import { ProgressStatus } from "@prisma/client";
+import { validate } from "class-validator"; 
+import { CreatePaySleepDto } from "../valdators/paysleep.validator"; 
 
-// creating a Payrol record
+// Creating PaySleeps 
+export const createPaySleep = async (req: Request, res: Response) => {
+    const createPaySleepDTO = new CreatePaySleepDto();
+    const paysleepData = req.body;
 
-export const createPaySleep = async(req: Request, res: Response) => {
-     const { 
-        FirstName, 
-        LastName,  
-        Pay_Date, 
-        Create_Date, 
-        Amount, 
-        Status, 
-        Personnel_ID, 
-        Teacher_ID,
-        Budget
-    }: { 
-        FirstName: string;
-        LastName: string; 
-        Pay_Date: string; 
-        Create_Date: string; 
-        Amount: GLfloat;         
-        Status:ProgressStatus ;    
-        Personnel_ID?: number; 
-        Teacher_ID?: number;
-        Budget?: number;
-    } = req.body;  
-
-    try{
-        const paySleep = await prisma.paySleep.create({
-            data: {
-                FirstName,
-                LastName,
-                Pay_Date: Pay_Date? new Date(Pay_Date) : null,
-                Create_Date: new Date(Create_Date),
-                Amount,
-                Status,
-                Personnel_ID: Number(Personnel_ID),
-                Teacher_ID: Number(Teacher_ID),
-                Budget_ID: Number(Budget)
-            },
-        })
-            res.status(201).json({
-                message: "PaySleep Created Successfully ",
-                data: paySleep,
-            })
-    } 
-    catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Server Error" });
+    Object.assign(createPaySleepDTO, paysleepData);
+    
+    const errors = await validate(createPaySleepDTO); // Correct input for validation
+    
+    if (errors.length > 0) {
+        console.log(errors);
+        return res.status(400).json({
+            type: 'error',
+            message: 'Validation failed',
+            errors: errors,
+        });
     }
 
-}
+    try {
+        const paysleep = await prisma.paySleep.create({
+            data: {
+                FirstName: paysleepData.FirstName,  // Use camelCase if that's your schema naming
+                LastName: paysleepData.LastName,  
+                Pay_Date: new Date(paysleepData.Pay_Date),  
+                Create_Date: new Date(paysleepData.Create_Date),
+                Amount: paysleepData.Amount,
+                Status: paysleepData.Status,
+                Personnel_ID: paysleepData.Personnel_ID ? Number(paysleepData.Personnel_ID) : null,
+                Teacher_ID: paysleepData.Teacher_ID ? Number(paysleepData.Teacher_ID) : null,
+                Budget_ID: paysleepData.Budget_ID? Number(paysleepData.Budget_ID) : null
+            },
+        });
+        res.status(201).json({
+            message: "PaySleep created successfully",
+            data: paysleep,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Error creating PaySleep",
+        });
+    }
+};
 
 // retrieving a Payrol record
 
@@ -114,7 +109,7 @@ export const updatePaySleep = async(req: Request, res: Response) => {
         LastName: string; 
         Pay_Date: string; 
         Create_Date: string; 
-        Amount: GLfloat;         
+        Amount: number;         
         Status:ProgressStatus ;    
         Personnel_ID?: number; 
         Teacher_ID?: number;
@@ -158,7 +153,7 @@ export const updatePaySleep = async(req: Request, res: Response) => {
     }
 }
 
-// updating the status of a payroll
+// updating the status of a payroll and Pay Date
 export const updatePaySleepStatus = async (req: Request, res: Response) => {
             const { psid } = req.params;
             const { Pay_Date, Status }:{

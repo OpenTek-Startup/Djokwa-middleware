@@ -1,31 +1,35 @@
 import { Request, Response } from "express";
 import { prisma } from "../app";
 import { Days } from "@prisma/client";
+import { validate } from "class-validator";
+import { CreateSceduleDto } from "../valdators/schedule.validator";
 
 // creating a schedule
 export const createSchedule = async(req: Request, res: Response) => {
-    const {
-        Day, 
-        Start_Time, 
-        End_Time, 
-        Room_ID, 
-        Course_ID
-          }: {
-        Day: Days;
-        Start_Time: string;
-        End_Time: string;
-        Room_ID: number;
-        Course_ID: number;
+    const scheduleData = req.body
+    const createScheduleDTO = new CreateSceduleDto();
 
-        } = req.body;
+    Object.assign(createScheduleDTO, scheduleData);
+    
+    const errors = await validate(createScheduleDTO); // Correct input for validation
+    
+    if (errors.length > 0) {
+        console.log(errors);
+        return res.status(400).json({
+            type: 'error',
+            message: 'Validation failed',
+            errors: errors,
+        });
+    }
+
     try{
         const schedule = await prisma.schedule.create({
             data:{
-                Day,
-                Start_Time,
-                End_Time,
-                Room_ID: Number(Room_ID),
-                Course_ID: Number(Course_ID)
+                Day: scheduleData.Day,
+                Start_Time: scheduleData.Start_Time,
+                End_Time: scheduleData.End_Time,
+                Room_ID: scheduleData.Room_ID,
+                Course_ID:scheduleData.Course_ID,
             },
         })
         res.status(201).json({
