@@ -9,9 +9,8 @@ import {
 } from 'class-validator';
 
 enum Gender {
-  FEMALE = 'female',
-  MALE = 'male',
-  OTHER = 'other',
+  FEMALE = 'Female',
+  MALE = 'Male',
 }
 
 export class CreateStudentDto {
@@ -31,7 +30,7 @@ export class CreateStudentDto {
 
   @IsNotEmpty({ message: 'Gender is required.' })
   @IsEnum(Gender, {
-    message: 'Gender must either be "female","male" or "other" ',
+    message: 'Gender must either be "Female" or "Male"  ',
   })
   Gender!: string;
 
