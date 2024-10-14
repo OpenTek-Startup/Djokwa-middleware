@@ -5,9 +5,10 @@
 ### # ENV Variables
 
 1. Create a .env file <br>
-   Create a .env file in the root directory. See .env.example for variables naming! You have to download and install PgAdmin to configure the database URL
+   Create a .env file in the root directory. See .env.example for variables naming! <br/>
+2. You have to download and install PgAdmin to configure the database URL
 
-2. Generate Public and Private keys <br />
+3. Generate Public and Private keys <br />
    `Public and private key are used to generate JWT Tokens more securely`.
    You can easily generate them in here <br />
    https://app.id123.io/free-tools/key-generator/. <br />
@@ -116,7 +117,7 @@ OR
     $ npm run commit
 ```
 
-Please follow the questionaires that follow to commit your work (please make sure to provide descriptive commit messages).
+Please follow the questionaires that follow to commit your work (please make sure to provide .descriptive commit messages).
 
 ## Branch Naming Convention
 
