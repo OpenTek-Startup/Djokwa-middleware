@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
+import {CreateBlocknoteDto, UpdateBlocknoteDto} from '../valdators/blocknotes.validator'
+import { validate } from 'class-validator';
 
 const prisma = new PrismaClient();
 
@@ -24,27 +26,74 @@ export const getBlockNoteById = async (req: Request, res: Response) => {
 };
 
 export const createBlockNote = async (req: Request, res: Response) => {
-  const { task, isComplete, note, title, deadline } = req.body;
+ 
   try {
+  
+    const blocknoteData = req.body;
+
+    const createBlocknoteDto = new CreateBlocknoteDto;
+    Object.assign(createBlocknoteDto, blocknoteData);
+
+
+    const errors = await validate(createBlockNote);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Failed to create',
+      });
+    }
+
+
     const newBlockNote = await prisma.blockNote.create({
-      data: { task, isComplete, note, title, deadline },
+      data: { task: blocknoteData.task
+            , isComplete: blocknoteData.isComplete
+            , note: blocknoteData.note
+            , title: blocknoteData.title
+            , deadline: blocknoteData.deadline
+          },
     });
     res.status(201).json(newBlockNote);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create block note' });
+    console.log(error)
   }
 };
 
 export const updateBlockNote = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { task, isComplete, note, title, deadline } = req.body;
   try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Instantiate and populate the DTO
+    const updateBlocknoteDto = new UpdateBlocknoteDto();
+    Object.assign(updateBlocknoteDto, updateData);
+
+    // Validate the DTO
+    const errors = await validate(updateBlocknoteDto);
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors: errors.map(err => ({
+          property: err.property,
+          constraints: err.constraints,
+        })),
+      });
+    }
+
+    // Update the block note in the database
     const updatedBlockNote = await prisma.blockNote.update({
       where: { id: Number(id) },
-      data: { task, isComplete, note, title, deadline },
+      data: updateData, // Spread the update data directly
     });
+
     res.status(200).json(updatedBlockNote);
-  } catch (error) {
+  } catch (error: any) {
+    // Prisma-specific error handling (optional)
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Block note not found' });
+    }
     res.status(500).json({ error: 'Failed to update block note' });
   }
 };
@@ -56,5 +105,6 @@ export const deleteBlockNote = async (req: Request, res: Response) => {
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete block note' });
+    console.log(error)
   }
 };

@@ -5,7 +5,7 @@ import {
   createBlockNote,
   updateBlockNote,
   deleteBlockNote,
-} from '../controllers/blocknotesController';
+} from '../controllers/blocknotes.controller';
 
 const router = Router();
 

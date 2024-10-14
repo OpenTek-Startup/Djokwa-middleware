@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
-import blockNoteRoutes from './routes/blocknoteRoutes';
+import blockNoteRoutes from './routes/blocknote.routes';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
 
