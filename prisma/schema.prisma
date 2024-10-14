@@ -39,6 +39,12 @@ enum ProgressStatus {
   Completed
 }
 
+enum LeaveStatus {
+  Pending 
+  Approved 
+  Denied 
+}
+
 enum AbsenceStatus {
   PRESENT
   ABSENT
@@ -358,10 +364,12 @@ model PaySleep {
   PaySleep_ID  Int      @id @default(autoincrement())
   FirstName    String
   LastName     String
-  JerseyNum    String
-  Position     String
-  Pay_Date     DateTime
+//JerseyNum    String
+//Position     String
+  Pay_Date     DateTime? // Optional and populated only when payment is done Completed
+  Create_Date  DateTime   @default(now())
   Amount       Float
+  Status       ProgressStatus
   Personnel_ID Int?
   Teacher_ID   Int?
   Budget_ID    Int?
@@ -396,14 +404,13 @@ model Leaves {
   Leave_ID     Int      @id @default(autoincrement())
   FirstName    String
   LastName     String
-  JerseyNum    String
-  Position     String
-  Start_Date   DateTime
+  JerseyNum    String?
+  Start_Date   DateTime  @default(now())
   End_Date     DateTime
   Type         LeaveType 
   Personnel_ID Int?
   Teacher_ID   Int?
-
+  Status       LeaveStatus
   Personnel    Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) 
   Teacher      Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) 
 }
