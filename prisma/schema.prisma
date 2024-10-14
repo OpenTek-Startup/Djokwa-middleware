@@ -39,6 +39,12 @@ enum ProgressStatus {
   Completed
 }
 
+enum LeaveStatus {
+  Pending 
+  Approved 
+  Denied 
+}
+
 enum AbsenceStatus {
   PRESENT
   ABSENT
@@ -90,13 +96,17 @@ model Student {
   Date_Of_Birth  DateTime
   Gender         Gender
   Address        String
+  classId        Int
   Phone          String?
   Medical_Info   String?
   Image          String?
-  password     String
   Class_ID Int
 
   ParentRelations ParentRelation[]
+  assignments     Assignment[]
+  submissions     Submission[]
+  class           Class[]
+  course          Course[]
   Registrations  Registration[]
   Grades         Grade[]
   Evaluations    Evaluation[]
@@ -151,6 +161,9 @@ model Teacher {
   user_roles  user_roles[]
   Courses     Course[]
   Leaves      Leaves[]
+  Assignment  Assignment[]
+  Submission  Submission[]
+  Class       Class[]
   RHEvaluations RHEvaluation[]
   PaySleeps   PaySleep[]
   Disciplines Discipline[]
@@ -194,24 +207,6 @@ model classes {
   class_attendance    Absence[]
 }
 
-model Course {
-  Course_ID     Int      @id @default(autoincrement())
-  Name          String
-  Class_Level   Int
-  Coefficient   Int
-  Start_Date    DateTime
-  End_Date      DateTime
-  Teacher_ID    Int
-  Class_ID       Int
-
-  Chapters      Chapter[]
-  Schedules     Schedule[]
-  Grades        Grade[]
-  transcript    Transcript[]
-  class       classes @relation(fields: [Class_ID], references: [class_id])
-  Teacher       Teacher  @relation(fields: [Teacher_ID], references: [Teacher_ID])
-}
-
 model Chapter {
   Chapter_ID    Int      @id @default(autoincrement())
   Name          String
@@ -230,6 +225,7 @@ model Grade {
   Value         Float
   Student_ID    Int
   Course_ID     Int
+  assignmentId   Int
 
   Student       Student  @relation(fields: [Student_ID], references: [Student_ID])
   Course        Course   @relation(fields: [Course_ID], references: [Course_ID])
@@ -359,10 +355,12 @@ model PaySleep {
   PaySleep_ID  Int      @id @default(autoincrement())
   FirstName    String
   LastName     String
-  JerseyNum    String
-  Position     String
-  Pay_Date     DateTime
+//JerseyNum    String
+//Position     String
+  Pay_Date     DateTime? // Optional and populated only when payment is done Completed
+  Create_Date  DateTime   @default(now())
   Amount       Float
+  Status       ProgressStatus
   Personnel_ID Int?
   Teacher_ID   Int?
   Budget_ID    Int?
@@ -397,14 +395,13 @@ model Leaves {
   Leave_ID     Int      @id @default(autoincrement())
   FirstName    String
   LastName     String
-  JerseyNum    String
-  Position     String
-  Start_Date   DateTime
+  JerseyNum    String?
+  Start_Date   DateTime  @default(now())
   End_Date     DateTime
   Type         LeaveType 
   Personnel_ID Int?
   Teacher_ID   Int?
-
+  Status       LeaveStatus
   Personnel    Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) 
   Teacher      Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) 
 }
@@ -456,4 +453,84 @@ model Income {
   Description String?
   Amount      Float
   Date        DateTime
+}
+
+model Class {
+  Class_id                Int      @id @default(autoincrement())
+  name              String
+  classCode         String   @unique
+  teacherId         Int
+  capacity          Int
+  currentEnrollment Int      @default(0)
+
+  Course            Course[]
+  Assignment        Assignment[]
+  Student           Student[]
+  Teacher           Teacher @relation(fields: [teacherId], references: [Teacher_ID])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Course {
+  Course_ID     Int      @id @default(autoincrement())
+  Name          String
+  courseCode    Int
+  Coefficient   Int
+  Start_Date    DateTime
+  End_Date      DateTime
+  Teacher_ID    Int
+  Class_Level   Int
+  Class_ID       Int
+  
+  Chapters      Chapter[]
+  Class          Class[]
+  Schedules     Schedule[]
+  Student       Student[]
+  Grades        Grade[]
+  transcript    Transcript[]
+  Assignment    Assignment []
+  Teacher       Teacher  @relation(fields: [Teacher_ID], references: [Teacher_ID])
+  class       classes @relation(fields: [Class_ID], references: [class_id])
+}
+
+model Assignment{
+  Assignment_id      Int   @id @default(autoincrement())
+  dueDate            DateTime
+  title              String
+  description        String
+  classId             Int
+  courseId            Int
+  teacherId          Int
+
+  Submission       Submission[]
+  Student          Student[]
+  Teacher            Teacher@relation(fields: [teacherId], references:[Teacher_ID])
+  Class              Class@relation(fields: [classId], references:[Class_id])
+  Course             Course@relation(fields: [courseId], references: [Course_ID])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Submission {
+  submissionId   Int     @id @default(autoincrement())
+  teacherId      Int
+  studentId      Int
+  assignmentId   Int
+  fileUrl        String
+  submittedAt    DateTime @default(now())
+
+  teacher         Teacher@relation(fields: [teacherId], references:[Teacher_ID])
+  student         Student@relation(fields: [studentId], references:[Student_ID])
+  assignment      Assignment@relation(fields: [assignmentId], references:[Assignment_id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+model BlockNote {
+  id         Int      @id @default(autoincrement())
+  task       String
+  isComplete Boolean   @default(false)
+  deadline   DateTime?  
+  note       String?
+  title      String
+  createdAt  DateTime  @default(now())
 }
