@@ -6,8 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
 import { PrismaClient } from '@prisma/client';
 import studentRoute from './routes/student.route';
-
-// create new prisma object
+import academicsRoute from './routes/academics.route';
 
 export const prisma = new PrismaClient();
 
@@ -23,6 +22,7 @@ app.use(cors());
 app.use('/api/teacher', teacherRoute);
 app.use('/api/hr', humanResourcesRoute);
 app.use('/api/student', studentRoute);
+app.use('/api/academics', academicsRoute);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

@@ -17,7 +17,7 @@ import {
   updatePaySleep,
   updatePaySleepStatus,
   deletePaySleep,
-} from '../controllers/humanresources.controller';
+} from '../controllers/humanResources.controller';
 
 const router = Router();
 
