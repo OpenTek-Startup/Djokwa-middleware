@@ -21,6 +21,10 @@ export class CreateTeacherDto {
   @MaxLength(50, { message: 'Last name cannot exceed 50 characters.' })
   Last_Name!: string;
 
+  @IsString({ message: 'Address must be a valid address.' })
+  @IsNotEmpty({ message: 'Address is required.' })
+  address!: string;
+
   @IsDateString({}, { message: 'Hiring date must be a valid date.' })
   @IsOptional()
   Hiring_Date?: string;
@@ -32,6 +36,9 @@ export class CreateTeacherDto {
   @IsString({ message: 'Specialty must be a string.' })
   @IsOptional()
   Specialty?: string;
+
+  @IsNotEmpty({ message: 'The gender is required.' })
+  gender!: 'Male' | 'Female';
 
   @IsEmail({}, { message: 'Email must be a valid email address.' })
   @IsOptional()
@@ -45,8 +52,8 @@ export class CreateTeacherDto {
   @IsOptional()
   Phone!: string;
 
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'The confirm password must match the password' })
+  @IsString({ message: 'The confirm password must match the password' })
   confirmPassword!: string;
 
   @IsString({ message: 'Password must be a string' })

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import {
   CreateTeacherDto,
@@ -77,11 +77,17 @@ export const signUpTeacher = async (req: Request, res: Response) => {
         Image: teacherData.Image,
         Phone: teacherData.Phone,
         password: hash,
+        gender: teacherData.gender,
+        address: teacherData.address,
+
         Courses: {},
         Disciplines: {},
         Leaves: {},
         PaySleeps: {},
         RHEvaluations: {},
+        user_roles: {},
+        abscences: {},
+        classes: {},
       },
     });
     res.status(201).json({
@@ -101,7 +107,7 @@ export const signUpTeacher = async (req: Request, res: Response) => {
 };
 
 /*
-  @route    GET: /teachers/sign-in
+  @route    POST: /teachers/sign-in
   @access   private
   @desc     Get teacher details
 */
@@ -159,7 +165,7 @@ export const signInTeacher = async (req: Request, res: Response) => {
 };
 
 /*
-  @route    PUT: /teachers/update
+  @route    PUT: /teacher/update
   @access   private
   @desc     Update a teacher
 */
@@ -294,4 +300,212 @@ export const getTeachers = async (req: Request, res: Response) => {
       message: 'An error occurred while retrieving teachers',
     });
   }
+};
+
+/*
+  @route    GET: /teachers/classes
+  @access   private
+  @desc     Get only assigned classes for a teacher
+*/
+export const getClassesForTeachers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get Classes for this teacher
+    const classes = await tx.classes.findMany({
+      where: {
+        teachers: {
+          some: {
+            Teacher_ID: findTeacher.Teacher_ID,
+          },
+        },
+      },
+    });
+
+    res.json(classes);
+  });
+};
+
+/*
+  @route    GET: {:id}/teachers/courses
+  @access   private
+  @desc     Get only assigned subjects for a teacher
+*/
+export const getSubjectsForTeacher = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get Subjects for this teacher
+    const subjects = await tx.course.findMany({
+      where: {
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
+        },
+      },
+    });
+
+    res.json(subjects);
+  });
+};
+
+export const getAbsencesForTeacher = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get Absences for this teacher
+    const absences = await tx.absence.findMany({
+      where: {
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
+        },
+      },
+    });
+
+    res.json(absences);
+  });
+};
+
+export const getDisciplineForTeacher = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get Absences for this teacher
+    const disciplines = await tx.discipline.findMany({
+      where: {
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
+        },
+      },
+    });
+
+    res.json(disciplines);
+  });
+};
+
+export const getPaysleepsForTeacher = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get pay-sleeps for this teacher
+    const paysleep = await tx.paySleep.findMany({
+      where: {
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
+        },
+      },
+    });
+
+    res.json(paysleep);
+  });
+};
+
+export const getRHEvaluationForTeacher = async (
+  req: Request,
+  res: Response
+) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get RHEvaluation for this teacher
+    const rhevaluations = await tx.rHEvaluation.findMany({
+      where: {
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
+        },
+      },
+    });
+
+    res.json(rhevaluations);
+  });
+};
+
+export const getLeavesForTeacher = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+
+  await prisma.$transaction(async (tx) => {
+    const findTeacher = await tx.teacher.findUnique({
+      where: {
+        Teacher_ID: id,
+      },
+    });
+
+    if (!findTeacher) {
+      return res.status(404).json({ message: 'No teacher found' });
+    }
+
+    // Get Leaves for this teacher
+    const leaves = await tx.leaves.findMany({
+      where: {
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
+        },
+      },
+    });
+
+    res.json(leaves);
+  });
 };

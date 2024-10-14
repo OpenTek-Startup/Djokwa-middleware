@@ -5,9 +5,10 @@
 ### # ENV Variables
 
 1. Create a .env file <br>
-   Create a .env file in the root directory. See .env.example for variables naming! You have to download and install PgAdmin to configure the database URL
+   Create a .env file in the root directory. See .env.example for variables naming! <br/>
+2. You have to download and install PgAdmin to configure the database URL
 
-2. Generate Public and Private keys <br />
+3. Generate Public and Private keys <br />
    `Public and private key are used to generate JWT Tokens more securely`.
    You can easily generate them in here <br />
    https://app.id123.io/free-tools/key-generator/. <br />
@@ -64,19 +65,19 @@ Djokwa-middleware/ <br/>
 │ ├── config/ # configuration folder <br/>
 │ │ └── database.ts # Database connection setup <br/>
 │ ├── controllers/ # the controller folder <br/>
-│ │ └── userController.ts # Controller for user-related logic <br/>
+│ │ └── user.controller.ts # Controller for user-related logic <br/>
 │ ├── models/ # The models folder <br/>
-│ │ └── userModel.ts # Database model definition <br/>
+│ │ └── user.model.ts # Database model definition <br/>
 │ ├── routes/ # The folder for routes <br/>
-│ │ └── userRoutes.ts # Routes related to users <br/>
+│ │ └── user.routes.ts # Routes related to users <br/>
 │ ├── middleware/ # Middleware <br/>
-│ │ └── authMiddleware.ts # Authentication middleware <br/>
+│ │ └── auth.middleware.ts # Authentication middleware <br/>
 │ ├── services/ # Services <br/>
-│ │ └── userService.ts # Business logic for users <br/>
+│ │ └── user.service.ts # Business logic for users <br/>
 │ ├── utils/ # Utils <br/>
 │ │ └── logger.ts # Logger utility <br/>
 │ ├── types/ # Folder for all types of the project <br/>
-│ │ └── userTypes.ts # Type definitions for user entities <br/>
+│ │ └── user.types.ts # Type definitions for user entities <br/>
 │ └── index.ts # Main application entry point <br/>
 | └── ... <br/>
 ├── dist/ # Compiled JavaScript files <br/>
