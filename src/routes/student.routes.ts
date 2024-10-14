@@ -10,8 +10,8 @@ import {
 const router = Router();
 
 router.post('/create', createStudent);
-router.put('/update', authMiddleware, updateStudent);
-router.delete('/delete', authMiddleware, deleteStudent);
+router.put('/update/:id', authMiddleware, updateStudent);
+router.delete('/delete/:id', authMiddleware, deleteStudent);
 router.get('/all-students', getStudent);
 
 export default router;
