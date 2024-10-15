@@ -1,19 +1,14 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
-import leaveRoute from './routes/leaves.route';
-import scheduleRoute from './routes/schedule.route';
-import paySleepRoute from './routes/paysleep.route';
 import humanResourcesRoute from './routes/humanResources.route';
 import blockNoteRoute from './routes/blocknote.route';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
-import studentRoute from './routes/student.route';
-import academicsRoute from './routes/academics.route';
 
 import { PrismaClient } from '@prisma/client';
-
-// create new prisma object
+import studentRoute from './routes/student.route';
+import academicsRoute from './routes/academics.route';
 
 export const prisma = new PrismaClient();
 
@@ -27,15 +22,11 @@ app.use(cors());
 
 // main route
 app.use('/api/teacher', teacherRoute);
-app.use('/api/student', studentRoute);
 app.use('/api/hr', humanResourcesRoute);
 app.use('/api/student', studentRoute);
 app.use('/api/academics', academicsRoute);
 app.use('/api/blocknotes', blockNoteRoute);
 
-app.use('/api/leave', leaveRoute);
-app.use('/api/paysleep', paySleepRoute);
-app.use('/api/schedule', scheduleRoute);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

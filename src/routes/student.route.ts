@@ -25,22 +25,30 @@ const router = Router();
  *       responses:
  *         200:
  *           description: Student registered Successfully
- *         401:
- *           description: Invalid credentials
+ *         400:
+ *           description: Invalid details
  *
- *    /api/student/delete:
- *     delete:
- *       tags: [Student]
- *       summary: Delete a student
- *       security:
- *         - bearerAuth: []
- *       responses:
- *         200:
- *           description: Student account deleted successfully
- *         401:
- *           description: Unauthorized
- *         404:
- *           description: Student account Not Found
+ *    /api/student/delete/{id}:
+      delete:
+        tags: [Student]
+        summary: Delete a student
+        security:
+          - bearerAuth: []
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: string
+            description: The student's ID
+        responses:
+          200:
+            description: Student account deleted successfully
+          401:
+            description: Unauthorized
+          404:
+            description: Student account not found
+
  *
  *    /api/student/all-students:
  *     get:
@@ -52,19 +60,27 @@ const router = Router();
  *         404:
  *           description: No student found
  *
- *    /api/student/update:
- *     put:
- *       tags: [Student]
- *       summary: Update a Student Information
- *       security:
- *         - bearerAuth: []
- *       responses:
- *         200:
- *           description: Student updated successfully
- *         401:
- *           description: Unauthorized
- *         404:
- *           description: Student Not Found
+ *    /api/student/update/{id}:
+      put:
+        tags: [Student]
+        summary: Update a Student Information
+        security:
+          - bearerAuth: []
+        parameters:
+          - in: path
+            name: id
+            required: true
+            schema:
+              type: string
+            description: The student's ID
+        responses:
+          200:
+            description: Student updated successfully
+          401:
+            description: Unauthorized
+          404:
+            description: Student Not Found
+
  *
  */
 

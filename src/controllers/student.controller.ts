@@ -22,7 +22,7 @@ export const createStudent = async (req: Request, res: Response) => {
     if (errors.length > 0) {
       return res.status(400).json({
         type: 'error',
-        message: 'Validation failed',
+        message: 'Invalid details',
         errors: errors,
       });
     }
