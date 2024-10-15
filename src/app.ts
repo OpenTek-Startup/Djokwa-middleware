@@ -1,12 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
-import studentRoute from './routes/student.routes';
 import leaveRoute from './routes/leaves.route';
 import scheduleRoute from './routes/schedule.route';
 import paySleepRoute from './routes/paysleep.route';
+import humanResourcesRoute from './routes/humanResources.route';
+import blockNoteRoute from './routes/blocknote.route';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
+import studentRoute from './routes/student.route';
+import academicsRoute from './routes/academics.route';
+
 import { PrismaClient } from '@prisma/client';
 
 // create new prisma object
@@ -15,7 +19,7 @@ export const prisma = new PrismaClient();
 
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
@@ -24,6 +28,10 @@ app.use(cors());
 // main route
 app.use('/api/teacher', teacherRoute);
 app.use('/api/student', studentRoute);
+app.use('/api/hr', humanResourcesRoute);
+app.use('/api/student', studentRoute);
+app.use('/api/academics', academicsRoute);
+app.use('/api/blocknotes', blockNoteRoute);
 
 app.use('/api/leave', leaveRoute);
 app.use('/api/paysleep', paySleepRoute);
