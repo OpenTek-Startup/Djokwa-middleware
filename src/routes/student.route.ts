@@ -23,13 +23,15 @@ const router = Router();
  *       tags: [Student]
  *       summary: Create a student
  *       responses:
- *         200:
- *           description: Student registered Successfully
+ *         201:
+ *           description: Student created successfully
  *         400:
  *           description: Invalid details
+ *         500:
+ *            description: Error creating students
  *
  *    /api/student/delete/{id}:
-      delete:
+ *    delete:
         tags: [Student]
         summary: Delete a student
         security:
@@ -39,15 +41,17 @@ const router = Router();
             name: id
             required: true
             schema:
-              type: string
+              type: number
             description: The student's ID
         responses:
           200:
             description: Student account deleted successfully
-          401:
-            description: Unauthorized
+          400:
+            description: Validation failed
           404:
-            description: Student account not found
+            description: Student id not found
+          500:
+            description: Error deleting student
 
  *
  *    /api/student/all-students:
@@ -56,9 +60,9 @@ const router = Router();
  *       summary: Retrieve all Students
  *       responses:
  *         200:
- *           description: A list of students information
+ *           description: Succesfully retrieved students
  *         404:
- *           description: No student found
+ *           description: Error retrieving students
  *
  *    /api/student/update/{id}:
       put:
@@ -71,16 +75,17 @@ const router = Router();
             name: id
             required: true
             schema:
-              type: string
+              type: number
             description: The student's ID
         responses:
           200:
-            description: Student updated successfully
-          401:
-            description: Unauthorized
+            description: Student information updated successfully
+          400:
+            description: Validation failed
           404:
-            description: Student Not Found
-
+            description: Invalid Student ID
+          500:
+            description: Error updating student
  *
  */
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { CreateStudentDto } from '../valdators/student.validator';
-import { validate } from 'class-validator';
+import { isNumber, validate } from 'class-validator';
 
 const prisma = new PrismaClient();
 
@@ -36,6 +36,7 @@ export const createStudent = async (req: Request, res: Response) => {
         Gender: studentData.Gender,
         Image: studentData.Image,
         Phone: studentData.Phone,
+        classes: studentData.classes, //Still not clear what this does
       },
     });
 
@@ -58,9 +59,9 @@ export const getStudent = async (req: Request, res: Response) => {
   try {
     const students = await prisma.student.findMany();
 
-    res.json({
+    res.status(200).json({
       type: 'success',
-      message: '',
+      message: 'Succesfully retrieved students',
       data: students,
     });
   } catch (error) {
@@ -75,6 +76,13 @@ export const getStudent = async (req: Request, res: Response) => {
 
 export const updateStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (isNaN(Number(id))) {
+    return res.status(404).json({
+      type: 'error',
+      message: 'Invalid student id',
+    });
+  }
 
   try {
     const updateData = req.body;
@@ -103,7 +111,7 @@ export const updateStudent = async (req: Request, res: Response) => {
       },
     });
 
-    res.json({
+    res.status(200).json({
       type: 'success',
       message: `student with ID ${id} updated successfully`,
       data: updatedstudent,
@@ -121,12 +129,19 @@ export const updateStudent = async (req: Request, res: Response) => {
 export const deleteStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
 
+  if (isNaN(Number(id))) {
+    return res.status(404).json({
+      type: 'error',
+      message: 'Invalid student Id',
+    });
+  }
+
   try {
     await prisma.student.delete({
       where: { Student_ID: Number(id) },
     });
 
-    res.json({
+    res.status(200).json({
       type: 'success',
       message: `Student with ID ${id} deleted successfully`,
       data: {},
