@@ -11,6 +11,9 @@ CREATE TYPE "EvaluationType" AS ENUM ('Exam', 'Assignment', 'Quiz', 'Project', '
 CREATE TYPE "ProgressStatus" AS ENUM ('NotStarted', 'InProgress', 'Completed');
 
 -- CreateEnum
+CREATE TYPE "LeaveStatus" AS ENUM ('Pending', 'Approved', 'Denied');
+
+-- CreateEnum
 CREATE TYPE "AbsenceStatus" AS ENUM ('PRESENT', 'ABSENT', 'LATE', 'LEAVE');
 
 -- CreateEnum
@@ -47,10 +50,10 @@ CREATE TABLE "Student" (
     "Date_Of_Birth" TIMESTAMP(3) NOT NULL,
     "Gender" "Gender" NOT NULL,
     "Address" TEXT NOT NULL,
+    "classId" INTEGER NOT NULL,
     "Phone" TEXT,
     "Medical_Info" TEXT,
     "Image" TEXT,
-    "password" TEXT NOT NULL,
     "Class_ID" INTEGER NOT NULL,
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("Student_ID")
@@ -95,7 +98,6 @@ CREATE TABLE "Teacher" (
     "password" TEXT NOT NULL,
     "gender" "Gender" NOT NULL,
     "address" TEXT NOT NULL,
-    "profile_img" TEXT,
 
     CONSTRAINT "Teacher_pkey" PRIMARY KEY ("Teacher_ID")
 );
@@ -132,20 +134,6 @@ CREATE TABLE "classes" (
 );
 
 -- CreateTable
-CREATE TABLE "Course" (
-    "Course_ID" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Class_Level" INTEGER NOT NULL,
-    "Coefficient" INTEGER NOT NULL,
-    "Start_Date" TIMESTAMP(3) NOT NULL,
-    "End_Date" TIMESTAMP(3) NOT NULL,
-    "Teacher_ID" INTEGER NOT NULL,
-    "Class_ID" INTEGER NOT NULL,
-
-    CONSTRAINT "Course_pkey" PRIMARY KEY ("Course_ID")
-);
-
--- CreateTable
 CREATE TABLE "Chapter" (
     "Chapter_ID" SERIAL NOT NULL,
     "Name" TEXT NOT NULL,
@@ -165,6 +153,7 @@ CREATE TABLE "Grade" (
     "Value" DOUBLE PRECISION NOT NULL,
     "Student_ID" INTEGER NOT NULL,
     "Course_ID" INTEGER NOT NULL,
+    "assignmentId" INTEGER NOT NULL,
 
     CONSTRAINT "Grade_pkey" PRIMARY KEY ("Grade_ID")
 );
@@ -295,10 +284,10 @@ CREATE TABLE "PaySleep" (
     "PaySleep_ID" SERIAL NOT NULL,
     "FirstName" TEXT NOT NULL,
     "LastName" TEXT NOT NULL,
-    "JerseyNum" TEXT NOT NULL,
-    "Position" TEXT NOT NULL,
-    "Pay_Date" TIMESTAMP(3) NOT NULL,
+    "Pay_Date" TIMESTAMP(3),
+    "Create_Date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "Amount" DOUBLE PRECISION NOT NULL,
+    "Status" "ProgressStatus" NOT NULL,
     "Personnel_ID" INTEGER,
     "Teacher_ID" INTEGER,
     "Budget_ID" INTEGER,
@@ -332,13 +321,13 @@ CREATE TABLE "Leaves" (
     "Leave_ID" SERIAL NOT NULL,
     "FirstName" TEXT NOT NULL,
     "LastName" TEXT NOT NULL,
-    "JerseyNum" TEXT NOT NULL,
-    "Position" TEXT NOT NULL,
-    "Start_Date" TIMESTAMP(3) NOT NULL,
+    "JerseyNum" TEXT,
+    "Start_Date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "End_Date" TIMESTAMP(3) NOT NULL,
     "Type" "LeaveType" NOT NULL,
     "Personnel_ID" INTEGER,
     "Teacher_ID" INTEGER,
+    "Status" "LeaveStatus" NOT NULL,
 
     CONSTRAINT "Leaves_pkey" PRIMARY KEY ("Leave_ID")
 );
@@ -394,7 +383,116 @@ CREATE TABLE "Income" (
 );
 
 -- CreateTable
+CREATE TABLE "Class" (
+    "Class_id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "classCode" TEXT NOT NULL,
+    "teacherId" INTEGER NOT NULL,
+    "capacity" INTEGER NOT NULL,
+    "currentEnrollment" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Class_pkey" PRIMARY KEY ("Class_id")
+);
+
+-- CreateTable
+CREATE TABLE "Course" (
+    "Course_ID" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "courseCode" INTEGER NOT NULL,
+    "Coefficient" INTEGER NOT NULL,
+    "Start_Date" TIMESTAMP(3) NOT NULL,
+    "End_Date" TIMESTAMP(3) NOT NULL,
+    "Teacher_ID" INTEGER NOT NULL,
+    "Class_Level" INTEGER NOT NULL,
+    "Class_ID" INTEGER NOT NULL,
+
+    CONSTRAINT "Course_pkey" PRIMARY KEY ("Course_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Assignment" (
+    "Assignment_id" SERIAL NOT NULL,
+    "dueDate" TIMESTAMP(3) NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "classId" INTEGER NOT NULL,
+    "courseId" INTEGER NOT NULL,
+    "teacherId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Assignment_pkey" PRIMARY KEY ("Assignment_id")
+);
+
+-- CreateTable
+CREATE TABLE "Submission" (
+    "submissionId" SERIAL NOT NULL,
+    "teacherId" INTEGER NOT NULL,
+    "studentId" INTEGER NOT NULL,
+    "assignmentId" INTEGER NOT NULL,
+    "fileUrl" TEXT NOT NULL,
+    "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Submission_pkey" PRIMARY KEY ("submissionId")
+);
+
+-- CreateTable
+CREATE TABLE "BlockNote" (
+    "id" SERIAL NOT NULL,
+    "task" TEXT NOT NULL,
+    "isComplete" BOOLEAN NOT NULL DEFAULT false,
+    "deadline" TIMESTAMP(3),
+    "note" TEXT,
+    "title" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BlockNote_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Incident" (
+    "Incident_ID" SERIAL NOT NULL,
+    "Student_ID" INTEGER NOT NULL,
+    "place" TEXT NOT NULL,
+    "witness" TEXT NOT NULL,
+    "description" TEXT NOT NULL DEFAULT 'Pending',
+    "disciplinary_recomendation" TEXT,
+    "DateTime" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Incident_pkey" PRIMARY KEY ("Incident_ID")
+);
+
+-- CreateTable
 CREATE TABLE "_TeacherToclasses" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_ClassToCourse" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_ClassToStudent" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_CourseToStudent" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_AssignmentToStudent" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
@@ -421,10 +519,37 @@ CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
 CREATE UNIQUE INDEX "classes_class_name_key" ON "classes"("class_name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Class_classCode_key" ON "Class"("classCode");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_TeacherToclasses_AB_unique" ON "_TeacherToclasses"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_TeacherToclasses_B_index" ON "_TeacherToclasses"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ClassToCourse_AB_unique" ON "_ClassToCourse"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ClassToCourse_B_index" ON "_ClassToCourse"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_ClassToStudent_AB_unique" ON "_ClassToStudent"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_ClassToStudent_B_index" ON "_ClassToStudent"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_CourseToStudent_AB_unique" ON "_CourseToStudent"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_CourseToStudent_B_index" ON "_CourseToStudent"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_AssignmentToStudent_AB_unique" ON "_AssignmentToStudent"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_AssignmentToStudent_B_index" ON "_AssignmentToStudent"("B");
 
 -- AddForeignKey
 ALTER TABLE "Registration" ADD CONSTRAINT "Registration_Student_ID_fkey" FOREIGN KEY ("Student_ID") REFERENCES "Student"("Student_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -452,12 +577,6 @@ ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_student_id_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "Personnel"("Staff_ID") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "Course_Class_ID_fkey" FOREIGN KEY ("Class_ID") REFERENCES "classes"("class_id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "Course_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Teacher_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_Course_ID_fkey" FOREIGN KEY ("Course_ID") REFERENCES "Course"("Course_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -535,7 +654,61 @@ ALTER TABLE "RHEvaluation" ADD CONSTRAINT "RHEvaluation_Teacher_ID_fkey" FOREIGN
 ALTER TABLE "Expenses" ADD CONSTRAINT "Expenses_Budget_ID_fkey" FOREIGN KEY ("Budget_ID") REFERENCES "Budget"("Budget_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Class" ADD CONSTRAINT "Class_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("Teacher_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Course" ADD CONSTRAINT "Course_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Teacher_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Course" ADD CONSTRAINT "Course_Class_ID_fkey" FOREIGN KEY ("Class_ID") REFERENCES "classes"("class_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Assignment" ADD CONSTRAINT "Assignment_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("Teacher_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Assignment" ADD CONSTRAINT "Assignment_classId_fkey" FOREIGN KEY ("classId") REFERENCES "Class"("Class_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Assignment" ADD CONSTRAINT "Assignment_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("Course_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("Teacher_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("Student_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_assignmentId_fkey" FOREIGN KEY ("assignmentId") REFERENCES "Assignment"("Assignment_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Incident" ADD CONSTRAINT "Incident_Student_ID_fkey" FOREIGN KEY ("Student_ID") REFERENCES "Student"("Student_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "_TeacherToclasses" ADD CONSTRAINT "_TeacherToclasses_A_fkey" FOREIGN KEY ("A") REFERENCES "Teacher"("Teacher_ID") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_TeacherToclasses" ADD CONSTRAINT "_TeacherToclasses_B_fkey" FOREIGN KEY ("B") REFERENCES "classes"("class_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ClassToCourse" ADD CONSTRAINT "_ClassToCourse_A_fkey" FOREIGN KEY ("A") REFERENCES "Class"("Class_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ClassToCourse" ADD CONSTRAINT "_ClassToCourse_B_fkey" FOREIGN KEY ("B") REFERENCES "Course"("Course_ID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ClassToStudent" ADD CONSTRAINT "_ClassToStudent_A_fkey" FOREIGN KEY ("A") REFERENCES "Class"("Class_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_ClassToStudent" ADD CONSTRAINT "_ClassToStudent_B_fkey" FOREIGN KEY ("B") REFERENCES "Student"("Student_ID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CourseToStudent" ADD CONSTRAINT "_CourseToStudent_A_fkey" FOREIGN KEY ("A") REFERENCES "Course"("Course_ID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_CourseToStudent" ADD CONSTRAINT "_CourseToStudent_B_fkey" FOREIGN KEY ("B") REFERENCES "Student"("Student_ID") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_AssignmentToStudent" ADD CONSTRAINT "_AssignmentToStudent_A_fkey" FOREIGN KEY ("A") REFERENCES "Assignment"("Assignment_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_AssignmentToStudent" ADD CONSTRAINT "_AssignmentToStudent_B_fkey" FOREIGN KEY ("B") REFERENCES "Student"("Student_ID") ON DELETE CASCADE ON UPDATE CASCADE;
