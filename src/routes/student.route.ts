@@ -18,7 +18,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *    /api/student/create:
+ *   /api/student/create:
  *     post:
  *       tags: [Student]
  *       summary: Create a student
@@ -28,70 +28,68 @@ const router = Router();
  *         400:
  *           description: Invalid details
  *         500:
- *            description: Error creating students
+ *           description: Error creating student
  *
- *    /api/student/delete/{id}:
- *    delete:
-        tags: [Student]
-        summary: Delete a student
-        security:
-          - bearerAuth: []
-        parameters:
-          - in: path
-            name: id
-            required: true
-            schema:
-              type: number
-            description: The student's ID
-        responses:
-          200:
-            description: Student account deleted successfully
-          400:
-            description: Validation failed
-          404:
-            description: Student id not found
-          500:
-            description: Error deleting student
-
- *
- *    /api/student/all-students:
- *     get:
+ *   /api/student/delete/{id}:
+ *     delete:
  *       tags: [Student]
- *       summary: Retrieve all Students
+ *       summary: Delete a student
+ *       security:
+ *         - bearerAuth: []
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           required: true
+ *           schema:
+ *             type: number
+ *           description: The student's ID
  *       responses:
  *         200:
- *           description: Succesfully retrieved students
+ *           description: Student account deleted successfully
+ *         400:
+ *           description: Validation failed
+ *         404:
+ *           description: Student ID not found
+ *         500:
+ *           description: Error deleting student
+ *
+ *   /api/student:
+ *     get:
+ *       tags: [Student]
+ *       summary: Retrieve all students
+ *       responses:
+ *         200:
+ *           description: Successfully retrieved students
  *         404:
  *           description: Error retrieving students
  *
- *    /api/student/update/{id}:
-      put:
-        tags: [Student]
-        summary: Update a Student Information
-        security:
-          - bearerAuth: []
-        parameters:
-          - in: path
-            name: id
-            required: true
-            schema:
-              type: number
-            description: The student's ID
-        responses:
-          200:
-            description: Student information updated successfully
-          400:
-            description: Validation failed
-          404:
-            description: Invalid Student ID
-          500:
-            description: Error updating student
- *
+ *   /api/student/update/{id}:
+ *     put:
+ *       tags: [Student]
+ *       summary: Update a student's information
+ *       security:
+ *         - bearerAuth: []
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           required: true
+ *           schema:
+ *             type: number
+ *           description: The student's ID
+ *       responses:
+ *         200:
+ *           description: Student information updated successfully
+ *         400:
+ *           description: Validation failed
+ *         404:
+ *           description: Invalid student ID
+ *         500:
+ *           description: Error updating student
  */
 
 router.post('/create', createStudent);
-router.put('/update/:id', authMiddleware, updateStudent);
-router.delete('/delete/:id', authMiddleware, deleteStudent);
-router.get('/all-students', getStudent);
+router.put('/update/:id', updateStudent);
+router.delete('/delete/:id', deleteStudent);
+router.get('/', getStudent);
 
 export default router;
