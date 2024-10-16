@@ -36,8 +36,8 @@ export const createStudent = async (req: Request, res: Response) => {
         Gender: studentData.Gender,
         Image: studentData.Image,
         Phone: studentData.Phone,
-        Class_ID: studentData.Class_ID,
-        classId: studentData.classId, //To be eventually removed
+        classId: studentData.classId,
+        Medical_Info: studentData.Medical_Info,
       },
     });
 

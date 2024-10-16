@@ -125,7 +125,7 @@ const router = Router();
 router.get('/all-blocknotes', getAllBlockNotes);
 router.get('/get-blocknote/:id', getBlockNoteById);
 router.post('/create', createBlockNote);
-router.put('/update/:{id}', updateBlockNote);
-router.delete('delete/:{id}', deleteBlockNote);
+router.put('/update/:id', updateBlockNote);
+router.delete('/delete/:id', deleteBlockNote);
 
 export default router;
