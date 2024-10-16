@@ -75,10 +75,10 @@ export const submitAssignment = async (req: Request, res: Response) => {
 };
 
 export const getSubmissions = async (req: Request, res: Response) => {
-  const { Assignment_id } = req.params;
+  const { id } = req.params;
   try {
     const submissions = await prisma.submission.findMany({
-      where: { assignmentId: Number(Assignment_id) },
+      where: { assignmentId: Number(id) },
       include: { student: true },
     });
 
@@ -129,19 +129,17 @@ export const createClass = async (req: Request, res: Response) => {
       name,
       classCode,
       teacherId,
-      Course,
       capacity,
       currentEnrollment,
       Assignment,
       Student,
     } = req.body;
 
-    const newClass = await prisma.class.create({
+    const newClass = await prisma.classes.create({
       data: {
         name,
         classCode,
         Teacher: { connect: { Teacher_ID: teacherId } },
-        Course,
         Assignment,
         Student,
         capacity,
@@ -166,7 +164,9 @@ export const createClass = async (req: Request, res: Response) => {
 
 export const getClass = async (req: Request, res: Response) => {
   try {
-    const classes = await prisma.class.findMany({ include: { Teacher: true } });
+    const classes = await prisma.classes.findMany({
+      include: { Teacher: true },
+    });
 
     res.json({
       type: 'success',
@@ -197,7 +197,7 @@ export const updateClass = async (req: Request, res: Response) => {
       currentEnrollment,
     } = req.body;
 
-    const updatedClass = await prisma.class.update({
+    const updatedClass = await prisma.classes.update({
       where: { Class_id: Number(id) },
       data: {
         name,
@@ -205,7 +205,6 @@ export const updateClass = async (req: Request, res: Response) => {
         currentEnrollment,
         classCode,
         Teacher: { connect: { Teacher_ID: teacherId } },
-        Course,
         Assignment,
         Student,
       },
@@ -228,7 +227,7 @@ export const updateClass = async (req: Request, res: Response) => {
 export const deleteClass = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const deletedClass = await prisma.class.delete({
+    const deletedClass = await prisma.classes.delete({
       where: { Class_id: Number(id) },
     });
 
@@ -264,7 +263,6 @@ export const createCourse = async (req: Request, res: Response) => {
       Schedules,
       transcript,
       Assignment,
-      _class,
       Class_Level,
     } = req.body;
 
@@ -274,7 +272,6 @@ export const createCourse = async (req: Request, res: Response) => {
         courseCode,
         Coefficient,
         Teacher: { connect: { Teacher_ID: teacherId } },
-        Class: { connect: { Class_id: classId } },
         End_Date: new Date(EndDate),
         Start_Date: new Date(StartDate),
         Chapters,
@@ -283,7 +280,7 @@ export const createCourse = async (req: Request, res: Response) => {
         Schedules,
         transcript,
         Assignment,
-        class: _class,
+        classes: classId,
         Class_Level,
       },
     });
@@ -306,7 +303,7 @@ export const createCourse = async (req: Request, res: Response) => {
 export const getCourse = async (req: Request, res: Response) => {
   try {
     const courses = await prisma.course.findMany({
-      include: { Teacher: true, Class: true, Student: true },
+      include: { Teacher: true, classes: true, Student: true },
     });
 
     res.json({
@@ -347,7 +344,7 @@ export const updateCourse = async (req: Request, res: Response) => {
       where: { Course_ID: Number(id) },
       data: {
         Name,
-        Class: { connect: { Class_id: classId } },
+        classes: { connect: { Class_id: classId } },
         Coefficient,
         Teacher: { connect: { Teacher_ID: teacherId } },
         courseCode,
