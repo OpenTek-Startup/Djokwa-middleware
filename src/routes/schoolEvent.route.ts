@@ -19,7 +19,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/school-events:
+ *   /api/admin/school-events/create:
  *     post:
  *       tags: [School Events]
  *       summary: Create a new school event
@@ -46,7 +46,7 @@ const router = Router();
  *           description: School event created successfully
  *         400:
  *           description: Invalid input
- *   /api/school-events:
+ *   /api/admin/school-events:
  *     get:
  *       tags: [School Events]
  *       summary: Retrieve all school events
@@ -55,7 +55,7 @@ const router = Router();
  *           description: A list of school events
  *         404:
  *           description: No school events found
- *   /api/school-events/{id}:
+ *   /api/admin/school-events/{id}:
  *     get:
  *       tags: [School Events]
  *       summary: Retrieve a school event by ID
@@ -71,7 +71,7 @@ const router = Router();
  *           description: School event retrieved successfully
  *         404:
  *           description: School event not found
- *   /api/school-events/{id}:
+ *   /api/admin/school-events/{id}/update:
  *     put:
  *       tags: [School Events]
  *       summary: Update a school event by ID
@@ -107,7 +107,7 @@ const router = Router();
  *           description: School event not found
  *         400:
  *           description: Invalid input
- *   /api/school-events/{id}:
+ *   /api/admin/school-events/{id}/delete:
  *     delete:
  *       tags: [School Events]
  *       summary: Delete a school event by ID
@@ -125,10 +125,10 @@ const router = Router();
  *           description: School event not found
  */
 
-router.post('/school-events', createSchoolEvent);
+router.post('/school-events/create', createSchoolEvent);
 router.get('/school-events', getAllSchoolEvents);
 router.get('/school-events/:id', getSchoolEventById);
-router.put('/school-events/:id', updateSchoolEvent);
-router.delete('/school-events/:id', deleteSchoolEvent);
+router.put('/school-events/:id/update', updateSchoolEvent);
+router.delete('/school-events/:id/delete', deleteSchoolEvent);
 
 export default router;

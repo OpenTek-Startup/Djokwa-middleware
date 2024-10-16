@@ -8,6 +8,8 @@ import swaggerDocs from '../swagger';
 import { PrismaClient } from '@prisma/client';
 import studentRoute from './routes/student.route';
 import academicsRoute from './routes/academics.route';
+import incidentRoute from './routes/incident.route';
+import schoolEventRoute from './routes/schoolEvent.route';
 
 export const prisma = new PrismaClient();
 
@@ -25,6 +27,7 @@ app.use('/api/hr', humanResourcesRoute);
 app.use('/api/student', studentRoute);
 app.use('/api/academics', academicsRoute);
 app.use('/api/blocknotes', blockNoteRoute);
+app.use('/api/admin', incidentRoute, schoolEventRoute);
 
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));

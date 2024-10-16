@@ -20,7 +20,7 @@ const router = Router();
 /**
  * @swagger
  * paths:
- *   /api/incident/create:
+ *   /api/admin/incident/create:
  *     post:
  *       tags: [Incidents]
  *       summary: Create a new disciplinary incident
@@ -63,7 +63,7 @@ const router = Router();
 
 /**
  * @swagger
- *   /api/incident:
+ *   /api/admin/incident:
  *     get:
  *       tags: [Incidents]
  *       summary: Retrieve all incidents
@@ -76,7 +76,7 @@ const router = Router();
 
 /**
  * @swagger
- *   /api/incident/{id}:
+ *   /api/admin/incident/{id}:
  *     get:
  *       tags: [Incidents]
  *       summary: Get incident details by ID
@@ -96,7 +96,7 @@ const router = Router();
 
 /**
  * @swagger
- *   /api/incident/{id}:
+ *   /api/admin/incident/{id}:
  *     put:
  *       tags: [Incidents]
  *       summary: Update incident by ID
@@ -131,7 +131,7 @@ const router = Router();
 
 /**
  * @swagger
- *   /api/incident/{id}:
+ *   /api/admin/incident/{id}:
  *     delete:
  *       tags: [Incidents]
  *       summary: Delete incident by ID

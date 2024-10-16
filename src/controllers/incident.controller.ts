@@ -92,7 +92,7 @@ export const deleteIncident = async (req: Request, res: Response) => {
     await prisma.incident.delete({
       where: { Incident_ID: Number(id) },
     });
-    res.status(204).send();
+    res.status(204).json({ type: 'success', message: 'Account deleted' });
   } catch (error) {
     res.status(500).json({
       type: 'error',

@@ -100,12 +100,10 @@ model Student {
   Phone         String?
   Medical_Info  String?
   Image         String?
-  Class_ID      Int
 
   ParentRelations ParentRelation[]
   assignments     Assignment[]
   submissions     Submission[]
-  class           Class[]
   course          Course[]
   Registrations   Registration[]
   Grades          Grade[]
@@ -117,7 +115,7 @@ model Student {
   payment         Payment[]
   user_roles      user_roles[]
 
-  classes  classes    @relation(fields: [Class_ID], references: [class_id])
+  classes  Classes    @relation(fields: [classId], references: [Class_id])
   Incident Incident[]
 }
 
@@ -164,11 +162,10 @@ model Teacher {
   Leaves        Leaves[]
   Assignment    Assignment[]
   Submission    Submission[]
-  Class         Class[]
   RHEvaluations RHEvaluation[]
   PaySleeps     PaySleep[]
   Disciplines   Discipline[]
-  classes       classes[]
+  classes       Classes[]
   abscences     Absence[]
 }
 
@@ -194,19 +191,6 @@ model roles {
   updated_at DateTime @updatedAt
 
   user_roles user_roles[]
-}
-
-// Class Management
-model classes {
-  class_id   Int      @id @default(autoincrement())
-  class_name String   @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  students         Student[]
-  teachers         Teacher[]
-  courses          Course[]
-  class_attendance Absence[]
 }
 
 model Chapter {
@@ -271,7 +255,7 @@ model Absence {
 
   Student Student @relation(fields: [Student_ID], references: [Student_ID])
   Teacher Teacher @relation(fields: [teacher_id], references: [Teacher_ID])
-  class   classes @relation(fields: [class_id], references: [class_id], onDelete: Cascade)
+  class   Classes @relation(fields: [class_id], references: [Class_id], onDelete: Cascade)
 }
 
 model Lateness {
@@ -457,7 +441,7 @@ model Income {
   Date        DateTime
 }
 
-model Class {
+model Classes {
   Class_id          Int    @id @default(autoincrement())
   name              String
   classCode         String @unique
@@ -465,8 +449,9 @@ model Class {
   capacity          Int
   currentEnrollment Int    @default(0)
 
-  Course     Course[]
+  Courses     Course[]
   Assignment Assignment[]
+  class_attendance Absence[]
   Student    Student[]
   Teacher    Teacher      @relation(fields: [teacherId], references: [Teacher_ID])
   createdAt  DateTime     @default(now())
@@ -485,14 +470,13 @@ model Course {
   Class_ID    Int
 
   Chapters   Chapter[]
-  Class      Class[]
   Schedules  Schedule[]
   Student    Student[]
   Grades     Grade[]
   transcript Transcript[]
   Assignment Assignment[]
   Teacher    Teacher      @relation(fields: [Teacher_ID], references: [Teacher_ID])
-  class      classes      @relation(fields: [Class_ID], references: [class_id])
+  classes      Classes      @relation(fields: [Class_ID], references: [Class_id])
 }
 
 model Assignment {
@@ -507,7 +491,7 @@ model Assignment {
   Submission Submission[]
   Student    Student[]
   Teacher    Teacher      @relation(fields: [teacherId], references: [Teacher_ID])
-  Class      Class        @relation(fields: [classId], references: [Class_id])
+  Class      Classes        @relation(fields: [classId], references: [Class_id])
   Course     Course       @relation(fields: [courseId], references: [Course_ID])
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
