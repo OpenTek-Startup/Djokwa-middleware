@@ -22,7 +22,7 @@ export const createStudent = async (req: Request, res: Response) => {
     if (errors.length > 0) {
       return res.status(400).json({
         type: 'error',
-        message: 'Validation failed',
+        message: 'Invalid details',
         errors: errors,
       });
     }
@@ -36,6 +36,8 @@ export const createStudent = async (req: Request, res: Response) => {
         Gender: studentData.Gender,
         Image: studentData.Image,
         Phone: studentData.Phone,
+        Class_ID: studentData.Class_ID,
+        classId: studentData.classId, //To be eventually removed
       },
     });
 
@@ -58,9 +60,9 @@ export const getStudent = async (req: Request, res: Response) => {
   try {
     const students = await prisma.student.findMany();
 
-    res.json({
+    res.status(200).json({
       type: 'success',
-      message: '',
+      message: 'Succesfully retrieved students',
       data: students,
     });
   } catch (error) {
@@ -75,6 +77,13 @@ export const getStudent = async (req: Request, res: Response) => {
 
 export const updateStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
+
+  if (isNaN(Number(id))) {
+    return res.status(404).json({
+      type: 'error',
+      message: 'Invalid student id',
+    });
+  }
 
   try {
     const updateData = req.body;
@@ -103,7 +112,7 @@ export const updateStudent = async (req: Request, res: Response) => {
       },
     });
 
-    res.json({
+    res.status(200).json({
       type: 'success',
       message: `student with ID ${id} updated successfully`,
       data: updatedstudent,
@@ -121,12 +130,19 @@ export const updateStudent = async (req: Request, res: Response) => {
 export const deleteStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
 
+  if (isNaN(Number(id))) {
+    return res.status(404).json({
+      type: 'error',
+      message: 'Invalid student Id',
+    });
+  }
+
   try {
     await prisma.student.delete({
       where: { Student_ID: Number(id) },
     });
 
-    res.json({
+    res.status(200).json({
       type: 'success',
       message: `Student with ID ${id} deleted successfully`,
       data: {},

@@ -5,6 +5,7 @@ import humanResourcesRoute from './routes/humanResources.route';
 import blockNoteRoute from './routes/blocknote.route';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
+
 import { PrismaClient } from '@prisma/client';
 import studentRoute from './routes/student.route';
 import academicsRoute from './routes/academics.route';
