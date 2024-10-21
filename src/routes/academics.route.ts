@@ -1,118 +1,204 @@
-import { Router } from "express";
-import { createAssignment, submitAssignment, getSubmissions, deleteAssignment } from "../controllers/assignment.controller";
+import { Router } from 'express';
+import {
+  createAssignment,
+  submitAssignment,
+  getSubmissions,
+  deleteAssignment,
+  createClass,
+  getClass,
+  updateClass,
+  deleteClass,
+  getCourse,
+  createCourse,
+  deleteCourse,
+  updateCourse,
+  createGrade,
+  getAllGrades,
+  getGradeById,
+  updateGrade,
+  deleteGrade,
+} from '../controllers/academics.controller';
 
 const router = Router();
 
 /**
  * @swagger
- * /api/assignment:
- *   post:
- *     summary: Create a new assignment
- *     tags: [Assignments]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               description:
- *                 type: string
- *               due_Date:
- *                 type: string
- *                 format: date-time
- *               class_id:
- *                 type: integer
- *               course_id:
- *                 type: integer
- *     responses:
- *       201:
- *         description: Assignment created successfully
+ * tags:
+ *   name: academics
+ *   description: Operations related to an academic year
  */
+
+/**
+ * @swagger
+ * paths:
+ *    /api/academics/assignment:
+ *     post:
+ *       tags: [academics]
+ *       summary: Creating an assignment
+ *       responses:
+ *         200:
+ *           description: Assignment created successfully
+ *         401:
+ *           description: Invalid credentials
+ *
+ *    /api/academics/assignment/submit:
+ *     post:
+ *       tags: [academics]
+ *       summary: Submitting an assignment
+ *       responses:
+ *         200:
+ *           description: Assignment submitted successfully
+ *         401:
+ *           description: Invalid credentials
+ *
+ *    /api/academics/assignment/{id}/submissions:
+ *     get:
+ *       tags: [academics]
+ *       summary: Retrieve submissions for an assignment
+ *       responses:
+ *         200:
+ *           description: A list of assignments submitted
+ *         404:
+ *           description: No assignment found
+ *
+ *    /api/academics/assignment/{id}/delete:
+ *     delete:
+ *       tags: [academics]
+ *       summary: Delete an assignment
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Assignment deleted successfully
+ *         401:
+ *           description: Unauthorized
+ *         404:
+ *           description: Assignment not found
+ *
+ *    /api/academics/class:
+ *     post:
+ *       tags: [academics]
+ *       summary: Creating a class
+ *       responses:
+ *         200:
+ *           description: Class created successfully
+ *         401:
+ *           description: Invalid credentials
+ *
+ *    /api/academics/get-class:
+ *     get:
+ *       tags: [academics]
+ *       summary: Retrieve information about classes
+ *       responses:
+ *         200:
+ *           description: A list of class data
+ *         404:
+ *           description: No class found
+ *
+ *    /api/academics/update-class/{id}:
+ *     put:
+ *       tags: [academics]
+ *       summary: Update class information
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Class updated successfully
+ *         401:
+ *           description: Unauthorized
+ *         404:
+ *           description: Class not found
+ *
+ *    /api/academics/class/{id}:
+ *     delete:
+ *       tags: [academics]
+ *       summary: Delete a class
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Class deleted successfully
+ */
+
+// Assignment Routes
 router.post('/assignment', createAssignment);
+router.post('/assignment/submit', submitAssignment);
+router.get('/assignment/:id/submissions', getSubmissions);
+router.delete('/assignment/:id/delete', deleteAssignment);
+
+// Class Routes
+router.post('/class', createClass);
+router.get('/get-class', getClass);
+router.put('/update-class/:id', updateClass);
+router.delete('/class/:id', deleteClass);
+
+// Course Routes
+router.post('/course', createCourse);
+router.get('/course', getCourse);
+router.put('/course/:id', updateCourse);
+router.delete('/course/:id', deleteCourse);
 
 /**
  * @swagger
- * /api/submit:
- *   post:
- *     summary: Submit an assignment
- *     tags: [Assignments]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               file_Url:
- *                 type: string
- *               submitted_at:
- *                 type: string
- *                 format: date-time
- *               Assignment_id:
- *                 type: integer
- *               Student_ID:
- *                 type: integer
- *     responses:
- *       200:
- *         description: Assignment submitted successfully
+ * paths:
+ *    /api/academics/grade:
+ *     post:
+ *       tags: [academics]
+ *       summary: Creating a grade
+ *       responses:
+ *         201:
+ *           description: Grade created successfully
+ *         400:
+ *           description: Invalid input
+ *
+ *    /api/academics/grade/{id}:
+ *     get:
+ *       tags: [academics]
+ *       summary: Get grade by ID
+ *       responses:
+ *         200:
+ *           description: Grade fetched successfully
+ *         404:
+ *           description: Grade not found
+ *
+ *    /api/academics/grades:
+ *     get:
+ *       tags: [academics]
+ *       summary: Retrieve all grades
+ *       responses:
+ *         200:
+ *           description: Grades fetched successfully
+ *         404:
+ *           description: No grades found
+ *
+ *    /api/academics/grade/{id}:
+ *     put:
+ *       tags: [academics]
+ *       summary: Update a grade
+ *       responses:
+ *         200:
+ *           description: Grade updated successfully
+ *         400:
+ *           description: Invalid input
+ *         404:
+ *           description: Grade not found
+ *
+ *    /api/academics/grade/{id}:
+ *     delete:
+ *       tags: [academics]
+ *       summary: Delete a grade
+ *       responses:
+ *         200:
+ *           description: Grade deleted successfully
+ *         404:
+ *           description: Grade not found
  */
-router.post('/submit', submitAssignment);
 
-/**
- * @swagger
- * /api/submissions/{Assignment_id}:
- *   get:
- *     summary: Get all submissions for a specific assignment
- *     tags: [Assignments]
- *     parameters:
- *       - in: path
- *         name: Assignment_id
- *         schema:
- *           type: integer
- *         required: true
- *         description: The assignment ID
- *     responses:
- *       200:
- *         description: A list of submissions
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   file_Url:
- *                     type: string
- *                   submitted_at:
- *                     type: string
- *                     format: date-time
- *                   Student_ID:
- *                     type: integer
- *                   Assignment_id:
- *                     type: integer
- */
-router.get('/submissions/:Assignment_id', getSubmissions);
-
-/**
- * @swagger
- * /api/assignment/{id}:
- *   delete:
- *     summary: Delete an assignment
- *     tags: [Assignments]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: integer
- *         required: true
- *         description: The assignment ID
- *     responses:
- *       200:
- *         description: Assignment deleted successfully
- */
-router.delete('/assignment/:id', deleteAssignment);
+// Grade Routes
+router.post('/grade', createGrade);
+router.get('/grades', getAllGrades);
+router.get('/grade/:id', getGradeById);
+router.put('/grade/:id', updateGrade);
+router.delete('/grade/:id', deleteGrade);
 
 export default router;
