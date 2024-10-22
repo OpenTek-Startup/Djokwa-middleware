@@ -18,6 +18,7 @@ import {
   updatePaySleepStatus,
   deletePaySleep,
 } from '../controllers/humanResources.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -27,20 +28,23 @@ const router = Router();
  *   name: HR
  *   description: Operations related to Human Resources Management
  */
+
 /**
  * @swagger
  * paths:
- *    /api/hr/leave/create:
+ *   /api/hr/leave/create:
  *     post:
  *       tags: [HR]
  *       summary: Creating a Leave Request
+ *       security:
+ *         - bearerAuth: []
  *       responses:
- *         200:
+ *         201:
  *           description: Leave Created Successfully
  *         401:
  *           description: Invalid credentials
  *
- *    /api/hr/leave/{:id}/delete:
+ *   /api/hr/leave/{id}/delete:
  *     delete:
  *       tags: [HR]
  *       summary: Delete a Leave Request
@@ -54,7 +58,7 @@ const router = Router();
  *         404:
  *           description: Leave Not Found
  *
- *    /api/hr/leave/all-leaves:
+ *   /api/hr/leave/all-leaves:
  *     get:
  *       tags: [HR]
  *       summary: Retrieve all Leave Requests
@@ -64,17 +68,17 @@ const router = Router();
  *         404:
  *           description: No Leave Request found
  *
- *    /api/hr/leave/{:id}/retrieve:
+ *   /api/hr/leave/{id}/retrieve:
  *     get:
  *       tags: [HR]
- *       summary: Retrieve a Leave Requests by ID
+ *       summary: Retrieve a Leave Request by ID
  *       responses:
  *         200:
- *           description: display Leave data
+ *           description: Display Leave data
  *         404:
  *           description: Leave Not Found
  *
- *    /api/hr/leave/{:id}/update:
+ *   /api/hr/leave/{id}/update:
  *     put:
  *       tags: [HR]
  *       summary: Update a Leave Information
@@ -88,54 +92,59 @@ const router = Router();
  *         404:
  *           description: Leave Not Found
  *
- *    /api/hr/leave/{:id}/status:
+ *   /api/hr/leave/{id}/status:
  *     put:
  *       tags: [HR]
  *       summary: Update the Status of a Leave Request
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: Leave data with updated status
  *         404:
  *           description: Leave Not Found
- *    /api/hr/payslip/create:
+ *
+ *   /api/hr/payslip/create:
  *     post:
  *       tags: [HR]
- *       summary: Creating a PaySleep
+ *       summary: Creating a PaySlip
+ *       security:
+ *         - bearerAuth: []
  *       responses:
- *         200:
- *           description: PaySleep Created Successfully
+ *         201:
+ *           description: PaySlip Created Successfully
  *         401:
  *           description: Invalid credentials
  *
- *    /api/hr/payslip/{:id}/update:
+ *   /api/hr/payslip/{id}/update:
  *     put:
  *       tags: [HR]
- *       summary: Update a PaySleep Information
+ *       summary: Update a PaySlip Information
  *       security:
  *         - bearerAuth: []
  *       responses:
  *         200:
- *           description: PaySleep updated successfully
+ *           description: PaySlip updated successfully
  *         401:
  *           description: Unauthorized
  *         404:
- *           description: PaySleep Not Found
+ *           description: PaySlip Not Found
  *
- *    /api/hr/payslip/{:id}/delete:
+ *   /api/hr/payslip/{id}/delete:
  *     delete:
  *       tags: [HR]
- *       summary: Delete a PaySleep
+ *       summary: Delete a PaySlip
  *       security:
  *         - bearerAuth: []
  *       responses:
  *         200:
- *           description: PaySleep deleted successfully
+ *           description: PaySlip deleted successfully
  *         401:
  *           description: Unauthorized
  *         404:
- *           description: PaySleep Not Found
+ *           description: PaySlip Not Found
  *
- *    /api/hr/payslip/all-paysleeps:
+ *   /api/hr/payslip/all-paysleeps:
  *     get:
  *       tags: [HR]
  *       summary: Retrieve all PaySleeps
@@ -143,38 +152,43 @@ const router = Router();
  *         200:
  *           description: A list of PaySleeps data
  *         404:
- *           description: No PaySleep found
+ *           description: No PaySlip found
  *
- *    /api/hr/payslip/{:id}/retrieve:
+ *   /api/hr/payslip/{id}/retrieve:
  *     get:
  *       tags: [HR]
- *       summary: Retrieve a PaySleep by ID
+ *       summary: Retrieve a PaySlip by ID
  *       responses:
  *         200:
- *           description: display PaySleep data
+ *           description: Display PaySlip data
  *         404:
- *           description: PaySleep Not Found
+ *           description: PaySlip Not Found
  *
- *    /api/hr/payslip/{:id}/status:
+ *   /api/hr/payslip/{id}/status:
  *     put:
  *       tags: [HR]
- *       summary: Update the Status of a PaySleep
+ *       summary: Update the Status of a PaySlip
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
- *           description: PaySleep data with updated status
+ *           description: PaySlip data with updated status
  *         404:
- *           description: PaySleep Not Found
- *    /api/hr/schedule/create:
+ *           description: PaySlip Not Found
+ *
+ *   /api/hr/schedule/create:
  *     post:
  *       tags: [HR]
  *       summary: Creating a Schedule
+ *       security:
+ *         - bearerAuth: []
  *       responses:
- *         200:
+ *         201:
  *           description: Schedule Created Successfully
  *         401:
  *           description: Invalid credentials
  *
- *    /api/hr/schedule/{:id}/update:
+ *   /api/hr/schedule/{id}/update:
  *     put:
  *       tags: [HR]
  *       summary: Update a Schedule Information
@@ -188,7 +202,7 @@ const router = Router();
  *         404:
  *           description: Schedule Not Found
  *
- *    /api/hr/schedule/{:id}/delete:
+ *   /api/hr/schedule/{id}/delete:
  *     delete:
  *       tags: [HR]
  *       summary: Delete a Schedule
@@ -202,49 +216,48 @@ const router = Router();
  *         404:
  *           description: Schedule Not Found
  *
- *    /api/hr/schedule/all-schedule:
+ *   /api/hr/schedule/all-schedule:
  *     get:
  *       tags: [HR]
- *       summary: Retrieve all Schedule
+ *       summary: Retrieve all Schedules
  *       responses:
  *         200:
  *           description: A list of Schedules data
  *         404:
- *           description: No PaySleep found
+ *           description: No Schedule found
  *
- *    /api/hr/schedule/{:id}/retrieve:
+ *   /api/hr/schedule/{id}/retrieve:
  *     get:
  *       tags: [HR]
  *       summary: Retrieve a Schedule by ID
  *       responses:
  *         200:
- *           description: display Schedule data
+ *           description: Display Schedule data
  *         404:
  *           description: Schedule Not Found
- *
  */
 
 // LEAVES
-router.get('/leave', getAllLeaves);
-router.post('/leave', createLeave);
-router.get('/leave/:id', getLeaveById);
-router.put('/leave/:id', updateLeave);
-router.put('/leave/:id/status', updateLeaveStatus);
-router.delete('/leave/:id', deleteLeave);
+router.get('/leave/all-leaves', getAllLeaves);
+router.post('/leave/create', authMiddleware, createLeave);
+router.get('/leave/:id/retrieve', getLeaveById);
+router.put('/leave/:id/update', authMiddleware, updateLeave);
+router.put('/leave/:id/status', authMiddleware, updateLeaveStatus);
+router.delete('/leave/:id/delete', authMiddleware, deleteLeave);
 
 // PAYSLIP
-router.get('/payslip', getAllPaySleep);
-router.post('/payslip', createPaySleep);
-router.get('/payslip/:id', getPaySleep);
-router.put('/payslip/:id', updatePaySleep);
-router.put('/payslip/:id/status', updatePaySleepStatus);
-router.delete('/payslip/:id', deletePaySleep);
+router.get('/payslip/all-paysleeps', getAllPaySleep);
+router.post('/payslip/create', authMiddleware, createPaySleep);
+router.get('/payslip/:id/retrieve', getPaySleep);
+router.put('/payslip/:id/update', authMiddleware, updatePaySleep);
+router.put('/payslip/:id/status', authMiddleware, updatePaySleepStatus);
+router.delete('/payslip/:id/delete', authMiddleware, deletePaySleep);
 
 // SCHEDULE
-router.get('/schedule', getAllSchedules);
-router.post('/schedule/', createSchedule);
-router.get('/schedule/:id', getScheduleById);
-router.put('/schedule/:id', updateSchedule);
-router.delete('/schedule/:id', deleteSchedule);
+router.get('/schedule/all-schedule', getAllSchedules);
+router.post('/schedule/create', authMiddleware, createSchedule);
+router.get('/schedule/:id/retrieve', getScheduleById);
+router.put('/schedule/:id/update', authMiddleware, updateSchedule);
+router.delete('/schedule/:id/delete', authMiddleware, deleteSchedule);
 
 export default router;

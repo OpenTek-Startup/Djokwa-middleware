@@ -20,28 +20,31 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: academics
+ *   name: Academics
  *   description: Operations related to an academic year
  */
+
 /**
  * @swagger
  * paths:
- *    /api/academics/assignment:
+ *   /api/academics/assignment:
  *     post:
- *       tags: [academics]
- *       summary: Creating an assignment
+ *       tags: [Academics]
+ *       summary: Create an assignment
  *       security:
  *         - bearerAuth: []
  *       responses:
- *         200:
+ *         201:
  *           description: Assignment created successfully
+ *         400:
+ *           description: Invalid details
  *         401:
  *           description: Invalid credentials
  *
- *    /api/academics/assignment/submit:
+ *   /api/academics/assignment/submit:
  *     post:
- *       tags: [academics]
- *       summary: Submitting an assignment
+ *       tags: [Academics]
+ *       summary: Submit an assignment
  *       security:
  *         - bearerAuth: []
  *       responses:
@@ -50,9 +53,9 @@ const router = Router();
  *         401:
  *           description: Invalid credentials
  *
- *    /api/academics/assignment/{id}/submissions:
+ *   /api/academics/assignment/{id}/submissions:
  *     get:
- *       tags: [academics]
+ *       tags: [Academics]
  *       summary: Retrieve submissions for an assignment
  *       security:
  *         - bearerAuth: []
@@ -62,9 +65,9 @@ const router = Router();
  *         404:
  *           description: No assignment found
  *
- *    /api/academics/assignment/{id}/delete:
+ *   /api/academics/assignment/{id}/delete:
  *     delete:
- *       tags: [academics]
+ *       tags: [Academics]
  *       summary: Delete an assignment
  *       security:
  *         - bearerAuth: []
@@ -76,11 +79,10 @@ const router = Router();
  *         404:
  *           description: Assignment not found
  *
- *    /api/academics/assignments/{id}:
+ *   /api/academics/assignments/{id}:
  *     put:
- *       tags: [academics]
+ *       tags: [Academics]
  *       summary: Update an existing assignment
- *       description: Updates the details of a specific assignment.
  *       security:
  *         - bearerAuth: []
  *       responses:
@@ -91,21 +93,23 @@ const router = Router();
  *         404:
  *           description: Assignment not found
  *
- *    /api/academics/class:
+ *   /api/academics/class:
  *     post:
- *       tags: [academics]
- *       summary: Creating a class
+ *       tags: [Academics]
+ *       summary: Create a class
  *       security:
  *         - bearerAuth: []
  *       responses:
- *         200:
+ *         201:
  *           description: Class created successfully
+ *         400:
+ *           description: Invalid details
  *         401:
  *           description: Invalid credentials
  *
- *    /api/academics/get-class:
+ *   /api/academics/get-class:
  *     get:
- *       tags: [academics]
+ *       tags: [Academics]
  *       summary: Retrieve information about classes
  *       security:
  *         - bearerAuth: []
@@ -115,9 +119,9 @@ const router = Router();
  *         404:
  *           description: No class found
  *
- *    /api/academics/update-class/{id}:
+ *   /api/academics/update-class/{id}:
  *     put:
- *       tags: [academics]
+ *       tags: [Academics]
  *       summary: Update class information
  *       security:
  *         - bearerAuth: []
@@ -129,15 +133,71 @@ const router = Router();
  *         404:
  *           description: Class not found
  *
- *    /api/academics/class/{id}:
+ *   /api/academics/class/{id}:
  *     delete:
- *       tags: [academics]
+ *       tags: [Academics]
  *       summary: Delete a class
  *       security:
  *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: Class deleted successfully
+ *         401:
+ *           description: Unauthorized
+ *         404:
+ *           description: Class not found
+ *
+ *   /api/academics/course/:
+ *     post:
+ *       tags: [Academics]
+ *       summary: Create a course
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         201:
+ *           description: Course created successfully
+ *         400:
+ *           description: Invalid details
+ *         401:
+ *           description: Invalid credentials
+ *
+ *   /api/academics/course:
+ *     get:
+ *       tags: [Academics]
+ *       summary: Retrieve all courses
+ *       responses:
+ *         200:
+ *           description: A list of courses
+ *         404:
+ *           description: No courses found
+ *
+ *   /api/academics/course/{id}/:
+ *     put:
+ *       tags: [Academics]
+ *       summary: Update a course
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Course updated successfully
+ *         401:
+ *           description: Unauthorized
+ *         404:
+ *           description: Course not found
+ *
+ *   /api/academics/course/{id}:
+ *     delete:
+ *       tags: [Academics]
+ *       summary: Delete a course
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Course deleted successfully
+ *         401:
+ *           description: Unauthorized
+ *         404:
+ *           description: Course not found
  */
 
 // Class Routes
