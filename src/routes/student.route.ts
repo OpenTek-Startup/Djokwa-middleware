@@ -3,8 +3,9 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 import {
   createStudent,
   deleteStudent,
-  getStudent,
+  getStudents,
   updateStudent,
+  getStudentById,
 } from '../controllers/student.controller';
 
 const router = Router();
@@ -63,6 +64,23 @@ const router = Router();
  *         404:
  *           description: Error retrieving students
  *
+ *   /api/student/{id}:
+ *     get:
+ *       tags: [Student]
+ *       summary: Retrieve a student by ID
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           required: true
+ *           schema:
+ *             type: number
+ *           description: The student's ID
+ *       responses:
+ *         200:
+ *           description: Successfully retrieved student
+ *         404:
+ *           description: Student ID not found
+ *
  *   /api/student/update/{id}:
  *     put:
  *       tags: [Student]
@@ -87,9 +105,10 @@ const router = Router();
  *           description: Error updating student
  */
 
-router.post('/create', createStudent);
-router.put('/update/:id', updateStudent);
-router.delete('/delete/:id', deleteStudent);
-router.get('/', getStudent);
+router.post('/create', authMiddleware, createStudent);
+router.get('/:id', authMiddleware, getStudentById);
+router.put('/update/:id', authMiddleware, updateStudent);
+router.delete('/delete/:id', authMiddleware, deleteStudent);
+router.get('/', getStudents);
 
 export default router;

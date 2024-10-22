@@ -12,14 +12,16 @@ import {
   createCourse,
   deleteCourse,
   updateCourse,
+  updateAssignment,
 } from '../controllers/academics.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 /**
  * @swagger
  * tags:
  *   name: academics
- *   description: Operations related an academic year
+ *   description: Operations related to an academic year
  */
 /**
  * @swagger
@@ -28,6 +30,8 @@ const router = Router();
  *     post:
  *       tags: [academics]
  *       summary: Creating an assignment
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: Assignment created successfully
@@ -38,6 +42,8 @@ const router = Router();
  *     post:
  *       tags: [academics]
  *       summary: Submitting an assignment
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: Assignment submitted successfully
@@ -48,6 +54,8 @@ const router = Router();
  *     get:
  *       tags: [academics]
  *       summary: Retrieve submissions for an assignment
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: A list of assignments submitted
@@ -68,10 +76,27 @@ const router = Router();
  *         404:
  *           description: Assignment not found
  *
+ *    /api/academics/assignments/{id}:
+ *     put:
+ *       tags: [academics]
+ *       summary: Update an existing assignment
+ *       description: Updates the details of a specific assignment.
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Assignment updated successfully
+ *         401:
+ *           description: Unauthorized
+ *         404:
+ *           description: Assignment not found
+ *
  *    /api/academics/class:
  *     post:
  *       tags: [academics]
  *       summary: Creating a class
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: Class created successfully
@@ -82,6 +107,8 @@ const router = Router();
  *     get:
  *       tags: [academics]
  *       summary: Retrieve information about classes
+ *       security:
+ *         - bearerAuth: []
  *       responses:
  *         200:
  *           description: A list of class data
@@ -113,22 +140,23 @@ const router = Router();
  *           description: Class deleted successfully
  */
 
-// Assignment Routes
-router.post('/assignment', createAssignment);
-router.post('/assignment/submit', submitAssignment);
-router.get('/assignment/:id/submissions', getSubmissions);
-router.delete('/assignment/:id/delete', deleteAssignment);
-
 // Class Routes
-router.post('/class', createClass);
+router.post('/class', authMiddleware, createClass);
 router.get('/get-class', getClass);
-router.put('/update-class/:id', updateClass);
-router.delete('/class/:id', deleteClass);
+router.put('/update-class/:id', authMiddleware, updateClass);
+router.delete('/class/:id', authMiddleware, deleteClass);
 
 // Course Routes
-router.post('/course', createCourse);
+router.post('/course', authMiddleware, createCourse);
 router.get('/course', getCourse);
-router.put('/course/:id', updateCourse);
-router.delete('/course/:id', deleteCourse);
+router.put('/course/:id', authMiddleware, updateCourse);
+router.delete('/course/:id', authMiddleware, deleteCourse);
+
+// Assignment Routes
+router.post('/assignment', authMiddleware, createAssignment);
+router.post('/assignment/submit', authMiddleware, submitAssignment);
+router.put('/assignments/:id', authMiddleware, updateAssignment);
+router.get('/assignment/:id/submissions', authMiddleware, getSubmissions);
+router.delete('/assignment/:id/delete', authMiddleware, deleteAssignment);
 
 export default router;

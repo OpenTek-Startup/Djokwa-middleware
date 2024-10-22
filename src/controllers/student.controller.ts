@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { CreateStudentDto } from '../valdators/student.validator';
+import {
+  CreateStudentDto,
+  UpdateStudentDto,
+} from '../valdators/student.validator';
 import { validate } from 'class-validator';
 
 const prisma = new PrismaClient();
 
 /*
-  @route    POST: /students
+  @route    POST: /students/create
   @access   private
   @desc     Create a new student
 */
@@ -31,7 +34,7 @@ export const createStudent = async (req: Request, res: Response) => {
       data: {
         First_Name: studentData.First_Name,
         Last_Name: studentData.Last_Name,
-        Date_Of_Birth: studentData.Date_Of_Birth, //2024-09-24T00:00:00.000Z
+        Date_Of_Birth: new Date(studentData.Date_Of_Birth),
         Address: studentData.Address,
         Gender: studentData.Gender,
         Image: studentData.Image,
@@ -56,13 +59,18 @@ export const createStudent = async (req: Request, res: Response) => {
   }
 };
 
-export const getStudent = async (req: Request, res: Response) => {
+/*
+  @route    GET: /students
+  @access   private
+  @desc     Retrieve all students
+*/
+export const getStudents = async (req: Request, res: Response) => {
   try {
     const students = await prisma.student.findMany();
 
     res.status(200).json({
       type: 'success',
-      message: 'Succesfully retrieved students',
+      message: 'Successfully retrieved students',
       data: students,
     });
   } catch (error) {
@@ -75,22 +83,69 @@ export const getStudent = async (req: Request, res: Response) => {
   }
 };
 
+/*
+  @route    GET: /students/:id
+  @access   private
+  @desc     Retrieve a student by ID
+*/
+export const getStudentById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (isNaN(Number(id))) {
+    return res.status(404).json({
+      type: 'error',
+      message: 'Invalid student ID',
+    });
+  }
+
+  try {
+    const student = await prisma.student.findUnique({
+      where: { Student_ID: Number(id) },
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        type: 'error',
+        message: 'Student not found',
+      });
+    }
+
+    res.status(200).json({
+      type: 'success',
+      message: 'Successfully retrieved student',
+      data: student,
+    });
+  } catch (error) {
+    console.error('Error retrieving student:', error);
+    res.status(500).json({
+      type: 'error',
+      message: 'Error retrieving student',
+      data: {},
+    });
+  }
+};
+
+/*
+  @route    PUT: /students/update/:id
+  @access   private
+  @desc     Update a student's information
+*/
 export const updateStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (isNaN(Number(id))) {
     return res.status(404).json({
       type: 'error',
-      message: 'Invalid student id',
+      message: 'Invalid student ID',
     });
   }
 
   try {
     const updateData = req.body;
-    const createStudentDto = new CreateStudentDto();
-    Object.assign(createStudentDto, updateData); // Assign the incoming data to the DTO
+    const updateStudentDto = new UpdateStudentDto();
+    Object.assign(updateStudentDto, updateData);
 
-    const errors = await validate(createStudentDto);
+    const errors = await validate(updateStudentDto);
     if (errors.length > 0) {
       return res.status(400).json({
         type: 'error',
@@ -99,12 +154,12 @@ export const updateStudent = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedstudent = await prisma.student.update({
+    const updatedStudent = await prisma.student.update({
       where: { Student_ID: Number(id) },
       data: {
         First_Name: updateData.First_Name,
         Last_Name: updateData.Last_Name,
-        Date_Of_Birth: updateData.Date_Of_Birth,
+        Date_Of_Birth: new Date(updateData.Date_Of_Birth),
         Gender: updateData.Gender,
         Address: updateData.Address,
         Phone: updateData.Phone,
@@ -114,8 +169,8 @@ export const updateStudent = async (req: Request, res: Response) => {
 
     res.status(200).json({
       type: 'success',
-      message: `student with ID ${id} updated successfully`,
-      data: updatedstudent,
+      message: `Student with ID ${id} updated successfully`,
+      data: updatedStudent,
     });
   } catch (error) {
     console.error('Error updating student:', error);
@@ -127,13 +182,18 @@ export const updateStudent = async (req: Request, res: Response) => {
   }
 };
 
+/*
+  @route    DELETE: /students/delete/:id
+  @access   private
+  @desc     Delete a student
+*/
 export const deleteStudent = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (isNaN(Number(id))) {
     return res.status(404).json({
       type: 'error',
-      message: 'Invalid student Id',
+      message: 'Invalid student ID',
     });
   }
 

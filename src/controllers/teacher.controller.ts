@@ -328,10 +328,8 @@ export const getClassesForTeachers = async (
     // Get Classes for this teacher
     const classes = await tx.classes.findMany({
       where: {
-        teachers: {
-          some: {
-            Teacher_ID: findTeacher.Teacher_ID,
-          },
+        Teacher: {
+          Teacher_ID: findTeacher.Teacher_ID,
         },
       },
     });

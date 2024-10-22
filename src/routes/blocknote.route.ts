@@ -6,6 +6,7 @@ import {
   updateBlockNote,
   deleteBlockNote,
 } from '../controllers/blocknotes.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -122,10 +123,10 @@ const router = Router();
  *           description: Server error
  */
 
-router.get('/all-blocknotes', getAllBlockNotes);
-router.get('/get-blocknote/:id', getBlockNoteById);
-router.post('/create', createBlockNote);
-router.put('/update/:id', updateBlockNote);
-router.delete('/delete/:id', deleteBlockNote);
+router.get('/all-blocknotes', authMiddleware, getAllBlockNotes);
+router.get('/get-blocknote/:id', authMiddleware, getBlockNoteById);
+router.post('/create', authMiddleware, createBlockNote);
+router.put('/update/:id', authMiddleware, updateBlockNote);
+router.delete('/delete/:id', authMiddleware, deleteBlockNote);
 
 export default router;
