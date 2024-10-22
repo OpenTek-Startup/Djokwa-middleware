@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { prisma } from '../app';
-import { Days, ProgressStatus } from '@prisma/client';
 import { validate } from 'class-validator';
 import {
   CreateSceduleDto,
@@ -8,317 +7,352 @@ import {
   CreatePaySleepDto,
 } from '../valdators/humanResource.validator';
 
-// creating a schedule
+/*
+  @route    POST: /schedules
+  @access   private
+  @desc     Create a new schedule
+*/
 export const createSchedule = async (req: Request, res: Response) => {
-  const scheduleData = req.body;
-  const createScheduleDTO = new CreateSceduleDto();
-
-  Object.assign(createScheduleDTO, scheduleData);
-
-  const errors = await validate(createScheduleDTO); // Correct input for validation
-
-  if (errors.length > 0) {
-    console.log(errors);
-    return res.status(400).json({
-      type: 'error',
-      message: 'Validation failed',
-      errors: errors,
-    });
-  }
-
   try {
+    const scheduleData = req.body;
+
+    // Validate incoming data
+    const createScheduleDTO = new CreateSceduleDto();
+    Object.assign(createScheduleDTO, scheduleData);
+    const errors = await validate(createScheduleDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors,
+      });
+    }
+
     const schedule = await prisma.schedule.create({
-      data: {
-        Day: scheduleData.Day,
-        Start_Time: scheduleData.Start_Time,
-        End_Time: scheduleData.End_Time,
-        Room_ID: scheduleData.Room_ID,
-        Course_ID: scheduleData.Course_ID,
-      },
+      data: scheduleData,
     });
     res.status(201).json({
+      type: 'success',
       message: 'Schedule Created Successfully',
       data: schedule,
     });
   } catch (error) {
+    console.error('Error in creating schedule', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error Creating Schedule',
     });
   }
 };
 
-// getting all schedules
-
+/*
+  @route    GET: /schedules
+  @access   private
+  @desc     Get all schedules
+*/
 export const getAllSchedules = async (req: Request, res: Response) => {
   try {
     const schedules = await prisma.schedule.findMany();
-    if (!schedules) {
+    if (!schedules.length) {
       return res.status(404).json({
-        message: 'Schedule Not Found',
+        type: 'error',
+        message: 'No Schedules Found',
       });
     }
     res.status(200).json({
+      type: 'success',
       message: 'Schedules Retrieved Successfully',
       data: schedules,
     });
   } catch (error) {
+    console.error('Error in retrieving schedules', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error Retrieving Schedules',
     });
   }
 };
 
-// getting a schedule by id
-
+/*
+  @route    GET: /schedules/:id
+  @access   private
+  @desc     Get a schedule by ID
+*/
 export const getScheduleById = async (req: Request, res: Response) => {
-  const { sid } = req.params;
+  const { id } = req.params;
   try {
     const schedule = await prisma.schedule.findUnique({
       where: {
-        Schedule_ID: Number(sid),
+        Schedule_ID: Number(id),
       },
     });
     if (!schedule) {
       return res.status(404).json({
+        type: 'error',
         message: 'Schedule Not Found',
       });
     }
     res.status(200).json({
+      type: 'success',
       message: 'Schedule Retrieved Successfully',
       data: schedule,
     });
   } catch (error) {
+    console.error('Error in retrieving schedule', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error Retrieving Schedule',
     });
   }
 };
 
-// updating a schedule
-
+/*
+  @route    PUT: /schedules/:id
+  @access   private
+  @desc     Update a schedule
+*/
 export const updateSchedule = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const {
-    Day,
-    Start_Time,
-    End_Time,
-    Room_ID,
-    Course_ID,
-  }: {
-    Day: Days;
-    Start_Time: string;
-    End_Time: string;
-    Room_ID: number;
-    Course_ID: number;
-  } = req.body;
+
   try {
-    const schedule = await prisma.schedule.update({
+    const scheduleData = req.body;
+
+    // Validate incoming data
+    const updateScheduleDTO = new CreateSceduleDto();
+    Object.assign(updateScheduleDTO, scheduleData);
+    const errors = await validate(updateScheduleDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors,
+      });
+    }
+
+    const updatedSchedule = await prisma.schedule.update({
       where: {
         Schedule_ID: Number(id),
       },
-      data: {
-        Day,
-        Start_Time,
-        End_Time,
-        Room_ID: Number(Room_ID),
-        Course_ID: Number(Course_ID),
-      },
+      data: scheduleData,
     });
-    if (!schedule) {
-      return res.status(404).json({
-        message: 'Schedule Not Found',
-      });
-    }
-    res.status(200).json({
-      message: 'Schedule Updated Successfully',
-      data: schedule,
+
+    res.json({
+      type: 'success',
+      message: `Schedule with ID ${id} updated successfully`,
+      data: updatedSchedule,
     });
   } catch (error) {
+    console.error('Error in updating schedule', error);
     res.status(500).json({
-      message: 'Error Updating Schedule',
+      type: 'error',
+      message: `Error in updating schedule with ID ${id}`,
     });
   }
 };
 
-// deleting a schedule
-
+/*
+  @route    DELETE: /schedules/:id
+  @access   private
+  @desc     Delete a schedule
+*/
 export const deleteSchedule = async (req: Request, res: Response) => {
-  const { sid } = req.params;
+  const { id } = req.params;
   try {
-    const schedule = await prisma.schedule.delete({
+    const deletedSchedule = await prisma.schedule.delete({
       where: {
-        Schedule_ID: Number(sid),
+        Schedule_ID: Number(id),
       },
     });
-    if (!schedule) {
-      return res.status(404).json({
-        message: 'Schedule Not Found',
-      });
-    }
     res.status(200).json({
+      type: 'success',
       message: 'Schedule Deleted Successfully',
-      data: schedule,
+      data: deletedSchedule,
     });
   } catch (error) {
+    console.error('Error in deleting schedule', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error Deleting Schedule',
     });
   }
 };
-// Creating Leaves
+
+/*
+  @route    POST: /leaves
+  @access   private
+  @desc     Create a new leave
+*/
 export const createLeave = async (req: Request, res: Response) => {
-  const createLeaveDTO = new CreateLeaveDto();
-  const leaveData = req.body;
-
-  Object.assign(createLeaveDTO, leaveData);
-
-  const errors = await validate(createLeaveDTO); // Correct input for validation
-
-  if (errors.length > 0) {
-    console.log(errors);
-    return res.status(400).json({
-      type: 'error',
-      message: 'Validation failed',
-      errors: errors,
-    });
-  }
-
   try {
+    const leaveData = req.body;
+
+    // Validate incoming data
+    const createLeaveDTO = new CreateLeaveDto();
+    Object.assign(createLeaveDTO, leaveData);
+    const errors = await validate(createLeaveDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors,
+      });
+    }
+
     const leave = await prisma.leaves.create({
-      data: {
-        FirstName: leaveData.FirstName, // Use camelCase if that's your schema naming
-        LastName: leaveData.LastName,
-        JerseyNum: leaveData.JerseyNum,
-        Start_Date: new Date(leaveData.Start_Date),
-        End_Date: new Date(leaveData.End_Date),
-        Type: leaveData.Type,
-        Status: leaveData.Status,
-        Personnel_ID: leaveData.Personnel_ID
-          ? Number(leaveData.Personnel_ID)
-          : null,
-        Teacher_ID: leaveData.Teacher_ID ? Number(leaveData.Teacher_ID) : null,
-      },
+      data: leaveData,
     });
     res.status(201).json({
+      type: 'success',
       message: 'Leave created successfully',
       data: leave,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error in creating leave', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error creating leave',
     });
   }
 };
 
-// Getting All Leaves
+/*
+  @route    GET: /leaves
+  @access   private
+  @desc     Get all leaves
+*/
 export const getAllLeaves = async (req: Request, res: Response) => {
   try {
     const leaves = await prisma.leaves.findMany();
     res.status(200).json({
+      type: 'success',
       message: 'Leaves retrieved successfully',
       data: leaves,
     });
   } catch (error) {
+    console.error('Error in retrieving leaves', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error retrieving leaves',
     });
   }
 };
 
-// Getting a Single Leave by ID
+/*
+  @route    GET: /leaves/:id
+  @access   private
+  @desc     Get a leave by ID
+*/
 export const getLeaveById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const leave = await prisma.leaves.findUnique({
       where: {
-        Leave_ID: Number(id), // Ensure this matches your Prisma schema field names
+        Leave_ID: Number(id),
       },
     });
     if (!leave) {
       return res.status(404).json({
+        type: 'error',
         message: 'Leave not found',
       });
     }
     res.status(200).json({
+      type: 'success',
       message: 'Leave retrieved successfully',
       data: leave,
     });
   } catch (error) {
+    console.error('Error in retrieving leave', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error retrieving leave',
     });
   }
 };
 
-// Updating a Leave by ID
+/*
+  @route    PUT: /leaves/:id
+  @access   private
+  @desc     Update a leave by ID
+*/
 export const updateLeave = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const {
-    FirstName,
-    LastName,
-    JerseyNum,
-    Start_Date,
-    End_Date,
-    Type,
-    Status,
-    Personnel_ID,
-    Teacher_ID,
-  } = req.body;
 
   try {
-    const leave = await prisma.leaves.update({
+    const leaveData = req.body;
+
+    // Validate incoming data
+    const updateLeaveDTO = new CreateLeaveDto();
+    Object.assign(updateLeaveDTO, leaveData);
+    const errors = await validate(updateLeaveDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors,
+      });
+    }
+
+    const updatedLeave = await prisma.leaves.update({
       where: {
-        Leave_ID: Number(id), // Prisma schema naming convention
+        Leave_ID: Number(id),
       },
-      data: {
-        FirstName: FirstName,
-        LastName: LastName,
-        JerseyNum: JerseyNum,
-        Start_Date: Start_Date,
-        End_Date: new Date(End_Date),
-        Type: Type,
-        // Status: Status,
-        Personnel_ID: Personnel_ID ? Number(Personnel_ID) : null,
-        Teacher_ID: Teacher_ID ? Number(Teacher_ID) : null,
-      },
+      data: leaveData,
     });
-    res.status(200).json({
-      message: 'Leave updated successfully',
-      data: leave,
+
+    res.json({
+      type: 'success',
+      message: `Leave with ID ${id} updated successfully`,
+      data: updatedLeave,
     });
   } catch (error) {
+    console.error('Error in updating leave', error);
     res.status(500).json({
-      message: 'Error updating leave',
+      type: 'error',
+      message: `Error in updating leave with ID ${id}`,
     });
   }
 };
 
-// Updating Leave Status
+/*
+  @route    PUT: /leaves/:id/status
+  @access   private
+  @desc     Update the status of a leave by ID
+*/
 export const updateLeaveStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
-  //   const { Status }: { Status: LeaveStatus } = req.body; // Could be Approved, Pending, Denied
+
   try {
-    const leave = await prisma.leaves.update({
+    const { Status } = req.body;
+
+    const updatedLeave = await prisma.leaves.update({
       where: {
         Leave_ID: Number(id),
       },
       data: {
-        // Status: Status,
+        Status,
       },
     });
-    res.status(200).json({
-      message: 'Leave status updated successfully',
-      data: leave,
+
+    res.json({
+      type: 'success',
+      message: `Leave status for ID ${id} updated successfully`,
+      data: updatedLeave,
     });
   } catch (error) {
+    console.error('Error in updating leave status', error);
     res.status(500).json({
-      message: 'Error updating leave status',
+      type: 'error',
+      message: `Error in updating leave status for ID ${id}`,
     });
   }
 };
 
-// Deleting a Leave by ID
+/*
+  @route    DELETE: /leaves/:id
+  @access   private
+  @desc     Delete a leave by ID
+*/
 export const deleteLeave = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -328,69 +362,84 @@ export const deleteLeave = async (req: Request, res: Response) => {
       },
     });
     res.status(200).json({
+      type: 'success',
       message: 'Leave deleted successfully',
       data: deletedLeave,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error in deleting leave', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error deleting leave',
     });
   }
 };
 
-// Creating PaySleeps
+/*
+  @route    POST: /paysleeps
+  @access   private
+  @desc     Create a new PaySleep
+*/
 export const createPaySleep = async (req: Request, res: Response) => {
-  const createPaySleepDTO = new CreatePaySleepDto();
-  const paysleepData = req.body;
-
-  Object.assign(createPaySleepDTO, paysleepData);
-
-  const errors = await validate(createPaySleepDTO); // Correct input for validation
-
-  if (errors.length > 0) {
-    console.log(errors);
-    return res.status(400).json({
-      type: 'error',
-      message: 'Validation failed',
-      errors: errors,
-    });
-  }
-
   try {
+    const paysleepData = req.body;
+
+    // Validate incoming data
+    const createPaySleepDTO = new CreatePaySleepDto();
+    Object.assign(createPaySleepDTO, paysleepData);
+    const errors = await validate(createPaySleepDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors,
+      });
+    }
+
     const paysleep = await prisma.paySleep.create({
-      data: {
-        FirstName: paysleepData.FirstName, // Use camelCase if that's your schema naming
-        LastName: paysleepData.LastName,
-        Pay_Date: new Date(paysleepData.Pay_Date),
-        Create_Date: new Date(paysleepData.Create_Date),
-        Amount: paysleepData.Amount,
-        Status: paysleepData.Status,
-        Personnel_ID: paysleepData.Personnel_ID
-          ? Number(paysleepData.Personnel_ID)
-          : null,
-        Teacher_ID: paysleepData.Teacher_ID
-          ? Number(paysleepData.Teacher_ID)
-          : null,
-        Budget_ID: paysleepData.Budget_ID
-          ? Number(paysleepData.Budget_ID)
-          : null,
-      },
+      data: paysleepData,
     });
     res.status(201).json({
+      type: 'success',
       message: 'PaySleep created successfully',
       data: paysleep,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error in creating PaySleep', error);
     res.status(500).json({
+      type: 'error',
       message: 'Error creating PaySleep',
     });
   }
 };
 
-// retrieving a Payrol record
+/*
+  @route    GET: /paysleeps
+  @access   private
+  @desc     Get all PaySleeps
+*/
+export const getAllPaySleep = async (req: Request, res: Response) => {
+  try {
+    const paySleeps = await prisma.paySleep.findMany();
+    res.status(200).json({
+      type: 'success',
+      message: 'PaySleeps retrieved successfully',
+      data: paySleeps,
+    });
+  } catch (error) {
+    console.error('Error in retrieving PaySleeps', error);
+    res.status(500).json({
+      type: 'error',
+      message: 'Error retrieving PaySleeps',
+    });
+  }
+};
 
+/*
+  @route    GET: /paysleeps/:id
+  @access   private
+  @desc     Get a PaySleep by ID
+*/
 export const getPaySleep = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -402,157 +451,135 @@ export const getPaySleep = async (req: Request, res: Response) => {
     });
 
     if (!paySleep) {
-      return res.status(404).json({ message: 'PaySleep not found' });
-    }
-
-    res.status(200).json({
-      message: 'PaySleep retrieved successfully',
-      data: paySleep,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
-
-// retrieving all Payrol records
-
-export const getAllPaySleep = async (req: Request, res: Response) => {
-  try {
-    const paySleeps = await prisma.paySleep.findMany();
-    res.status(200).json({
-      message: 'PaySleeps retrieved successfully',
-      data: paySleeps,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-};
-
-// updating a Payrol record
-
-export const updatePaySleep = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const {
-    FirstName,
-    LastName,
-    Pay_Date,
-    Create_Date,
-    Amount,
-    Status,
-    Personnel_ID,
-    Teacher_ID,
-    Budget,
-  }: {
-    FirstName: string;
-    LastName: string;
-    Pay_Date: string;
-    Create_Date: string;
-    Amount: number;
-    Status: ProgressStatus;
-    Personnel_ID?: number;
-    Teacher_ID?: number;
-    Budget?: number;
-  } = req.body;
-
-  try {
-    const paySleep = await prisma.paySleep.update({
-      where: {
-        PaySleep_ID: Number(id),
-      },
-      data: {
-        FirstName,
-        LastName,
-        Pay_Date: Pay_Date ? new Date(Pay_Date) : null,
-        Create_Date: Create_Date ? new Date(Create_Date) : new Date(), // Set to now if not provided
-        Amount,
-        // Status,
-        Personnel_ID: Number(Personnel_ID),
-        Teacher_ID: Number(Teacher_ID),
-        Budget_ID: Number(Budget),
-      },
-    });
-
-    if (!paySleep) {
       return res.status(404).json({
+        type: 'error',
         message: 'PaySleep not found',
       });
     }
 
     res.status(200).json({
-      message: 'PaySleep updated successfully',
+      type: 'success',
+      message: 'PaySleep retrieved successfully',
       data: paySleep,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error in retrieving PaySleep', error);
     res.status(500).json({
+      type: 'error',
       message: 'Server Error',
     });
   }
 };
 
-// updating the status of a payroll and Pay Date
-export const updatePaySleepStatus = async (req: Request, res: Response) => {
-  const { psid } = req.params;
-  const {
-    Pay_Date,
-    Status,
-  }: {
-    Pay_Date?: string;
-    Status: ProgressStatus;
-  } = req.body;
+/*
+  @route    PUT: /paysleeps/:id
+  @access   private
+  @desc     Update a PaySleep by ID
+*/
+export const updatePaySleep = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
   try {
-    const status = await prisma.paySleep.update({
-      where: {
-        PaySleep_ID: Number(psid),
-      },
-      data: {
-        Pay_Date: Pay_Date ? new Date(Pay_Date) : null, // if Pay_Date is provided, convert it to a Date object
-        Status,
-      },
-    });
-    if (!status) {
-      return res.status(404).json({
-        message: 'PaySleep not found',
+    const paysleepData = req.body;
+
+    // Validate incoming data
+    const updatePaySleepDTO = new CreatePaySleepDto();
+    Object.assign(updatePaySleepDTO, paysleepData);
+    const errors = await validate(updatePaySleepDTO);
+    if (errors.length > 0) {
+      return res.status(400).json({
+        type: 'error',
+        message: 'Validation failed',
+        errors,
       });
     }
-    res.status(200).json({
-      message: 'PaySleep status updated successfully',
-      data: status,
+
+    const updatedPaySleep = await prisma.paySleep.update({
+      where: {
+        PaySleep_ID: Number(id),
+      },
+      data: paysleepData,
+    });
+
+    res.json({
+      type: 'success',
+      message: `PaySleep with ID ${id} updated successfully`,
+      data: updatedPaySleep,
     });
   } catch (error) {
+    console.error('Error in updating PaySleep', error);
     res.status(500).json({
-      message: 'Error updating PaySleep status',
+      type: 'error',
+      message: `Error in updating PaySleep with ID ${id}`,
     });
   }
 };
 
-// deleting a Payrol record
-
-export const deletePaySleep = async (req: Request, res: Response) => {
-  const { psid } = req.params;
+/*
+  @route    PUT: /paysleeps/:id/status
+  @access   private
+  @desc     Update the status of a PaySleep by ID
+*/
+export const updatePaySleepStatus = async (req: Request, res: Response) => {
+  const { id } = req.params;
 
   try {
-    const paySleep = await prisma.paySleep.delete({
+    const { Status } = req.body;
+
+    const updatedPaySleep = await prisma.paySleep.update({
       where: {
-        PaySleep_ID: Number(psid),
+        PaySleep_ID: Number(id),
+      },
+      data: {
+        Status,
       },
     });
 
-    if (!paySleep) {
+    res.json({
+      type: 'success',
+      message: `PaySleep status for ID ${id} updated successfully`,
+      data: updatedPaySleep,
+    });
+  } catch (error) {
+    console.error('Error in updating PaySleep status', error);
+    res.status(500).json({
+      type: 'error',
+      message: `Error in updating PaySleep status for ID ${id}`,
+    });
+  }
+};
+
+/*
+  @route    DELETE: /paysleeps/:id
+  @access   private
+  @desc     Delete a PaySleep by ID
+*/
+export const deletePaySleep = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const deletedPaySleep = await prisma.paySleep.delete({
+      where: {
+        PaySleep_ID: Number(id),
+      },
+    });
+
+    if (!deletedPaySleep) {
       return res.status(404).json({
+        type: 'error',
         message: 'PaySleep not found',
       });
     }
 
     res.status(200).json({
+      type: 'success',
       message: 'PaySleep deleted successfully',
-      data: paySleep,
+      data: deletedPaySleep,
     });
   } catch (error) {
-    console.log(error);
+    console.error('Error in deleting PaySleep', error);
     res.status(500).json({
+      type: 'error',
       message: 'Server Error',
     });
   }
