@@ -105,7 +105,7 @@ const router = Router();
  *           description: Error updating student
  */
 
-router.post('/create', authMiddleware, createStudent);
+router.post('/create', authMiddleware(['teacher', 'admin']), createStudent);
 router.get('/:id', authMiddleware, getStudentById);
 router.put('/update/:id', authMiddleware, updateStudent);
 router.delete('/delete/:id', authMiddleware, deleteStudent);

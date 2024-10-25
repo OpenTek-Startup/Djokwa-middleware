@@ -71,7 +71,7 @@ enum LeaveType {
 }
 
 model SchoolYear {
-  Academic_ID Int      @id @default(autoincrement())
+  Id Int      @id @default(autoincrement())
   Start_date  DateTime
   End_date    DateTime
   year        String //e.g. "2024-2025"
@@ -80,17 +80,20 @@ model SchoolYear {
 }
 
 model Registration {
-  Registration_ID   Int      @id @default(autoincrement())
+  Id   Int      @id @default(autoincrement())
   Registration_Date DateTime
   Student_ID        Int
   Academic_ID       Int
 
-  Student       Student    @relation(fields: [Student_ID], references: [Student_ID])
-  Academic_Year SchoolYear @relation(fields: [Academic_ID], references: [Academic_ID])
+  Student       Student    @relation(fields: [Student_ID], references: [Id])
+  Academic_Year SchoolYear @relation(fields: [Academic_ID], references: [Id])
+
+  @@index([Student_ID])
+  @@index([Academic_ID])
 }
 
 model Student {
-  Student_ID    Int      @id @default(autoincrement())
+  Id    Int      @id @default(autoincrement())
   First_Name    String
   Last_Name     String
   Date_Of_Birth DateTime
@@ -113,38 +116,45 @@ model Student {
   Disciplines     Discipline[]
   Transcripts     Transcript[]
   payment         Payment[]
-  user_roles      user_roles[]
+  user_role       user_roles[]
 
-  classes  Classes    @relation(fields: [classId], references: [Class_id])
+  classes  Classes    @relation(fields: [classId], references: [Id])
   Incident Incident[]
+
+  @@index([classId])
 }
 
 model ParentRelation {
-  ParentRelation_ID Int          @id @default(autoincrement())
+  Id Int          @id @default(autoincrement())
   Parent_ID         Int
   Student_ID        Int
   Relation_Type     RelationType
 
-  Parent  Parent  @relation(fields: [Parent_ID], references: [Parent_ID])
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
+  Parent  Parent  @relation(fields: [Parent_ID], references: [Id])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+
+  @@index([Parent_ID])
+  @@index([Student_ID])
 }
 
 model Parent {
-  Parent_ID       Int              @id @default(autoincrement())
+  Id       Int              @id @default(autoincrement())
   Last_Name       String
   First_Name      String
   Profession      String?
   Address         String
-  Email           String?
+  Email           String           @unique
   Phone           String?
   NIC_Information String?
   password        String
+
   Relations       ParentRelation[]
+  user_role          user_roles[]
 }
 
 // Teacher Model
 model Teacher {
-  Teacher_ID  Int      @id @default(autoincrement())
+  Id  Int      @id @default(autoincrement())
   Last_Name   String
   First_Name  String
   Email       String   @unique
@@ -157,7 +167,7 @@ model Teacher {
   gender      Gender
   address     String
 
-  user_roles    user_roles[]
+  user_role    user_roles[]
   Courses       Course[]
   Leaves        Leaves[]
   Assignment    Assignment[]
@@ -171,30 +181,38 @@ model Teacher {
 
 // User's role
 model user_roles {
-  id         Int  @id @default(autoincrement())
+  Id         Int  @id @default(autoincrement())
   teacher_id Int? @unique
   student_id Int? @unique
   staff_id   Int? @unique
+  parent_id   Int? @unique
   role_id    Int
 
-  teachers Teacher?   @relation(fields: [teacher_id], references: [Teacher_ID], onDelete: Cascade)
-  roles    roles      @relation(fields: [role_id], references: [id])
-  students Student?   @relation(fields: [student_id], references: [Student_ID], onDelete: Cascade)
-  staffs   Personnel? @relation(fields: [staff_id], references: [Staff_ID], onDelete: Cascade)
+  teachers Teacher?   @relation(fields: [teacher_id], references: [Id], onDelete: Cascade)
+  roles    roles      @relation(fields: [role_id], references: [Id])
+  students Student?   @relation(fields: [student_id], references: [Id], onDelete: Cascade)
+  staffs   Personnel? @relation(fields: [staff_id], references: [Id], onDelete: Cascade)
+  parents Parent?     @relation(fields: [parent_id], references: [Id], onDelete: Cascade)
+
+  @@index([teacher_id])
+  @@index([staff_id])
+  @@index([student_id])
+  @@index([parent_id])
+  @@index([role_id])
 }
 
 // Roles
 model roles {
-  id         Int      @id @default(autoincrement())
+  Id         Int      @id @default(autoincrement())
   name       String   @unique
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  user_roles user_roles[]
+  user_role user_roles[]
 }
 
 model Chapter {
-  Chapter_ID      Int            @id @default(autoincrement())
+  Id      Int            @id @default(autoincrement())
   Name            String
   Description     String?
   Coefficient     Int
@@ -203,44 +221,54 @@ model Chapter {
   Progress_Status ProgressStatus
   Course_ID       Int
 
-  Course Course @relation(fields: [Course_ID], references: [Course_ID])
+  Course Course @relation(fields: [Course_ID], references: [Id])
+
+  @@index([Course_ID])
 }
 
 model Grade {
-  Grade_ID     Int   @id @default(autoincrement())
+  Id     Int   @id @default(autoincrement())
   Value        Float
   Student_ID   Int
   Course_ID    Int
   assignmentId Int
 
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
-  Course  Course  @relation(fields: [Course_ID], references: [Course_ID])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+  Course  Course  @relation(fields: [Course_ID], references: [Id])
+
+  @@index([Student_ID])
+  @@index([Course_ID])
 }
 
 model Evaluation {
-  Evaluation_ID Int            @id @default(autoincrement())
+  Id Int            @id @default(autoincrement())
   Type          EvaluationType
   Start_Date    DateTime
   End_Date      DateTime
   Description   String?
   Student_ID    Int
 
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+
+  @@index([Student_ID])
 }
 
 model Transcript {
-  Transcript_ID Int     @id @default(autoincrement())
+  Id Int     @id @default(autoincrement())
   Name          String
   Logo          String?
   Student_ID    Int
   Course_ID     Int
 
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
-  Course  Course  @relation(fields: [Course_ID], references: [Course_ID])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+  Course  Course  @relation(fields: [Course_ID], references: [Id])
+
+  @@index([Student_ID])
+  @@index([Course_ID])
 }
 
 model Absence {
-  Absence_ID    Int           @id @default(autoincrement())
+  Id    Int           @id @default(autoincrement())
   Absence_Date  DateTime
   Absence_Time  Float?
   class_id      Int
@@ -253,64 +281,79 @@ model Absence {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
-  Teacher Teacher @relation(fields: [teacher_id], references: [Teacher_ID])
-  class   Classes @relation(fields: [class_id], references: [Class_id], onDelete: Cascade)
+  Student Student @relation(fields: [Student_ID], references: [Id])
+  Teacher Teacher @relation(fields: [teacher_id], references: [Id])
+  class   Classes @relation(fields: [class_id], references: [Id], onDelete: Cascade)
+
+  @@index([Student_ID])
+  @@index([teacher_id])
+  @@index([class_id])
 }
 
 model Lateness {
-  Lateness_ID   Int      @id @default(autoincrement())
+  Id   Int      @id @default(autoincrement())
   Lateness_Date DateTime
   Lateness_Time Float?
   Justification String?
   Student_ID    Int
 
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+
+  @@index([Student_ID])
 }
 
 model Discipline {
-  Discipline_ID Int     @id @default(autoincrement())
+  Id Int     @id @default(autoincrement())
   Sanction      String?
   Justification String?
   Student_ID    Int
   Teacher_ID    Int
 
-  Teacher Teacher @relation(fields: [Teacher_ID], references: [Teacher_ID])
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
+  Teacher Teacher @relation(fields: [Teacher_ID], references: [Id])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+
+  @@index([Teacher_ID])
+  @@index([Student_ID])
 }
 
 model Schedule {
-  Schedule_ID Int      @id @default(autoincrement())
+  Id Int      @id @default(autoincrement())
   Day         Days
   Start_Time  DateTime
   End_Time    DateTime
   Room_ID     Int
   Course_ID   Int
 
-  Room   Room   @relation(fields: [Room_ID], references: [Room_ID])
-  Course Course @relation(fields: [Course_ID], references: [Course_ID])
+  Room   Room   @relation(fields: [Room_ID], references: [Id])
+  Course Course @relation(fields: [Course_ID], references: [Id])
+
+  @@index([Room_ID])
+  @@index([Course_ID])
 }
 
 model Room {
-  Room_ID Int    @id @default(autoincrement())
+  Id Int    @id @default(autoincrement())
   Name    String
 
   Schedules Schedule[]
 }
 
 model Payment {
-  Payment_ID   Int      @id @default(autoincrement())
+  Id   Int      @id @default(autoincrement())
   Amount       Float
   Payment_Date DateTime
   Student_ID   Int
   Service_ID   Int
 
-  Student Student @relation(fields: [Student_ID], references: [Student_ID])
-  Service Service @relation(fields: [Service_ID], references: [Service_ID])
+  Student Student @relation(fields: [Student_ID], references: [Id])
+  Service Service @relation(fields: [Service_ID], references: [Id])
+
+  @@index([Student_ID])
+  @@index([Service_ID])
 }
 
 model Service {
-  Service_ID Int     @id @default(autoincrement())
+  Id Int     @id @default(autoincrement())
   Name       String
   Logo       String?
 
@@ -318,27 +361,27 @@ model Service {
 }
 
 model Event {
-  Event_ID Int     @id @default(autoincrement())
+  Id Int     @id @default(autoincrement())
   Name     String
   Logo     String?
 }
 
 // Personnel Model 
 model Personnel {
-  Staff_ID   Int    @id @default(autoincrement())
-  Email      String
+  Id   Int    @id @default(autoincrement())
+  Email      String @unique
   Staff_Role String
   password   String
 
   Leaves        Leaves[]
   RHEvaluations RHEvaluation[]
   PaySleeps     PaySleep[]
-  role          user_roles[]
+  user_role     user_roles[]
 }
 
 // PaySleep Model (Payroll or Salary Slips)
 model PaySleep {
-  PaySleep_ID  Int            @id @default(autoincrement())
+  Id  Int            @id @default(autoincrement())
   FirstName    String
   LastName     String
   //JerseyNum    String
@@ -351,14 +394,18 @@ model PaySleep {
   Teacher_ID   Int?
   Budget_ID    Int?
 
-  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) // Link to Personnel
-  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) // Link to Teacher
-  Budget    Budget?    @relation(fields: [Budget_ID], references: [Budget_ID]) // Optional link to Budget
+  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
+  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
+  Budget    Budget?    @relation(fields: [Budget_ID], references: [Id])
+
+  @@index([Personnel_ID])
+  @@index([Teacher_ID])
+  @@index([Budget_ID])
 }
 
 // Warehouse Model (Storage locations)
 model Warehouse {
-  Warehouse_ID Int       @id @default(autoincrement())
+  Id Int       @id @default(autoincrement())
   Name         String
   Location     String
   Products     Product[]
@@ -366,19 +413,21 @@ model Warehouse {
 
 // Product Model (Items stored in the warehouse)
 model Product {
-  Product_ID   Int    @id @default(autoincrement())
+  Id   Int    @id @default(autoincrement())
   Name         String
   Category     String
   Quantity     Int
   Price        Float
   Warehouse_ID Int
 
-  Warehouse Warehouse @relation(fields: [Warehouse_ID], references: [Warehouse_ID])
+  Warehouse Warehouse @relation(fields: [Warehouse_ID], references: [Id])
+
+  @@index([Warehouse_ID])
 }
 
 // Leaves Model (Employee leave records)
 model Leaves {
-  Leave_ID     Int         @id @default(autoincrement())
+  Id     Int         @id @default(autoincrement())
   FirstName    String
   LastName     String
   JerseyNum    String?
@@ -388,13 +437,16 @@ model Leaves {
   Personnel_ID Int?
   Teacher_ID   Int?
   Status       LeaveStatus
-  Personnel    Personnel?  @relation(fields: [Personnel_ID], references: [Staff_ID])
-  Teacher      Teacher?    @relation(fields: [Teacher_ID], references: [Teacher_ID])
+  Personnel    Personnel?  @relation(fields: [Personnel_ID], references: [Id])
+  Teacher      Teacher?    @relation(fields: [Teacher_ID], references: [Id])
+
+  @@index([Personnel_ID])
+  @@index([Teacher_ID])
 }
 
 // RHEvaluation Model (Human resource evaluations)
 model RHEvaluation {
-  RHEvaluation_ID Int      @id @default(autoincrement())
+  Id Int      @id @default(autoincrement())
   FirstName       String
   LastName        String
   JerseyNum       String
@@ -405,13 +457,16 @@ model RHEvaluation {
   Personnel_ID    Int?
   Teacher_ID      Int?
 
-  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Staff_ID]) // Link to Personnel
-  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Teacher_ID]) // Link to Teacher
+  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
+  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
+
+  @@index([Personnel_ID])
+  @@index([Teacher_ID])
 }
 
 // Budget Model (Financial allocation)
 model Budget {
-  Budget_ID   Int        @id @default(autoincrement())
+  Id   Int        @id @default(autoincrement())
   Name        String
   Description String
   Amount      Float
@@ -422,19 +477,21 @@ model Budget {
 
 // Expenses Model (Tracking expenses)
 model Expenses {
-  Expense_ID  Int      @id @default(autoincrement())
+  Id  Int      @id @default(autoincrement())
   Name        String
   Description String?
   Amount      Float
   Date        DateTime
   Budget_ID   Int
 
-  Budget Budget @relation(fields: [Budget_ID], references: [Budget_ID])
+  Budget Budget @relation(fields: [Budget_ID], references: [Id])
+
+  @@index([Budget_ID])
 }
 
 // Income Model (Tracking revenue)
 model Income {
-  Income_ID   Int      @id @default(autoincrement())
+  Id   Int      @id @default(autoincrement())
   Name        String
   Description String?
   Amount      Float
@@ -442,7 +499,7 @@ model Income {
 }
 
 model Classes {
-  Class_id          Int    @id @default(autoincrement())
+  Id          Int    @id @default(autoincrement())
   name              String
   classCode         String @unique
   teacherId         Int
@@ -453,13 +510,16 @@ model Classes {
   Assignment Assignment[]
   class_attendance Absence[]
   Student    Student[]
-  Teacher    Teacher      @relation(fields: [teacherId], references: [Teacher_ID])
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
+
+  Teacher    Teacher      @relation(fields: [teacherId], references: [Id])
+
+  @@index([teacherId])
 }
 
 model Course {
-  Course_ID   Int      @id @default(autoincrement())
+  Id   Int      @id @default(autoincrement())
   Name        String
   courseCode  Int
   Coefficient Int
@@ -475,12 +535,15 @@ model Course {
   Grades     Grade[]
   transcript Transcript[]
   Assignment Assignment[]
-  Teacher    Teacher      @relation(fields: [Teacher_ID], references: [Teacher_ID])
-  classes      Classes      @relation(fields: [Class_ID], references: [Class_id])
+  Teacher    Teacher      @relation(fields: [Teacher_ID], references: [Id])
+  classes      Classes      @relation(fields: [Class_ID], references: [Id])
+
+  @@index([Teacher_ID])
+  @@index([Class_ID])
 }
 
 model Assignment {
-  Assignment_id Int      @id @default(autoincrement())
+  Id Int      @id @default(autoincrement())
   dueDate       DateTime
   title         String
   description   String
@@ -490,30 +553,39 @@ model Assignment {
 
   Submission Submission[]
   Student    Student[]
-  Teacher    Teacher      @relation(fields: [teacherId], references: [Teacher_ID])
-  Class      Classes        @relation(fields: [classId], references: [Class_id])
-  Course     Course       @relation(fields: [courseId], references: [Course_ID])
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
+
+  Teacher    Teacher      @relation(fields: [teacherId], references: [Id])
+  Class      Classes        @relation(fields: [classId], references: [Id])
+  Course     Course       @relation(fields: [courseId], references: [Id])
+
+  @@index([teacherId])
+  @@index([classId])
+  @@index([courseId])
 }
 
 model Submission {
-  submissionId Int      @id @default(autoincrement())
-  teacherId    Int
+  Id Int      @id @default(autoincrement())
+  teacherId    Int  
   studentId    Int
   assignmentId Int
   fileUrl      String
   submittedAt  DateTime @default(now())
-
-  teacher    Teacher    @relation(fields: [teacherId], references: [Teacher_ID])
-  student    Student    @relation(fields: [studentId], references: [Student_ID])
-  assignment Assignment @relation(fields: [assignmentId], references: [Assignment_id])
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+
+  teacher    Teacher    @relation(fields: [teacherId], references: [Id])
+  student    Student    @relation(fields: [studentId], references: [Id])
+  assignment Assignment @relation(fields: [assignmentId], references: [Id])
+
+  @@index([teacherId])
+  @@index([studentId])
+  @@index([assignmentId])
 }
 
 model BlockNote {
-  id         Int       @id @default(autoincrement())
+  Id         Int       @id @default(autoincrement())
   task       String
   isComplete Boolean   @default(false)
   deadline   DateTime?
@@ -523,7 +595,7 @@ model BlockNote {
 }
 
 model Incident {
-  Incident_ID                Int      @id @default(autoincrement())
+  Id                Int      @id @default(autoincrement())
   Student_ID                 Int
   place                      String
   witness                    String
@@ -533,14 +605,22 @@ model Incident {
   updatedAt                  DateTime @updatedAt
 
   // Foreign key relationship
-  student Student @relation(fields: [Student_ID], references: [Student_ID])
+  student Student @relation(fields: [Student_ID], references: [Id])
+
+  @@index([Student_ID])
 }
 
 model SchoolEvent {
-  Event_ID    Int       @id @default(autoincrement())
+  Id    Int       @id @default(autoincrement())
   venue       String
   organizer   String
   date        DateTime
   description String
   fieldTrip   String
+}
+
+model TokenBlacklist {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  createdAt DateTime @default(now())
 }

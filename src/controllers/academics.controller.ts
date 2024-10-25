@@ -37,9 +37,9 @@ export const createAssignment = async (req: Request, res: Response) => {
       data: {
         dueDate: new Date(assignmentData.dueDate),
         title: assignmentData.title,
-        Course: { connect: { Course_ID: assignmentData.courseId } },
-        Teacher: { connect: { Teacher_ID: assignmentData.teacherId } },
-        Class: { connect: { Class_id: assignmentData.classId } },
+        Course: { connect: { Id: assignmentData.courseId } },
+        Teacher: { connect: { Id: assignmentData.teacherId } },
+        Class: { connect: { Id: assignmentData.classId } },
         description: assignmentData.description,
         Submission: assignmentData.Submission,
       },
@@ -83,15 +83,15 @@ export const updateAssignment = async (req: Request, res: Response) => {
     }
 
     const updatedAssignment = await prisma.assignment.update({
-      where: { Assignment_id: Number(id) },
+      where: { Id: Number(id) },
       data: {
         dueDate: new Date(assignmentData.dueDate),
         title: assignmentData.title,
         description: assignmentData.description,
         Submission: assignmentData.Submission,
-        Course: { connect: { Course_ID: assignmentData.courseId } },
-        Teacher: { connect: { Teacher_ID: assignmentData.teacherId } },
-        Class: { connect: { Class_id: assignmentData.classId } },
+        Course: { connect: { Id: assignmentData.courseId } },
+        Teacher: { connect: { Id: assignmentData.teacherId } },
+        Class: { connect: { Id: assignmentData.classId } },
       },
     });
 
@@ -121,9 +121,9 @@ export const submitAssignment = async (req: Request, res: Response) => {
     const submission = await prisma.submission.create({
       data: {
         fileUrl,
-        student: { connect: { Student_ID: studentId } },
-        assignment: { connect: { Assignment_id: assignmentId } },
-        teacher: { connect: { Teacher_ID: teacherId } },
+        student: { connect: { Id: studentId } },
+        assignment: { connect: { Id: assignmentId } },
+        teacher: { connect: { Id: teacherId } },
       },
     });
 
@@ -179,7 +179,7 @@ export const deleteAssignment = async (req: Request, res: Response) => {
 
   try {
     const deletedAssignment = await prisma.assignment.delete({
-      where: { Assignment_id: Number(id) },
+      where: { Id: Number(id) },
     });
 
     res.json({
@@ -221,7 +221,7 @@ export const createClass = async (req: Request, res: Response) => {
       data: {
         name: classData.name,
         classCode: classData.classCode,
-        Teacher: { connect: { Teacher_ID: classData.teacherId } },
+        Teacher: { connect: { Id: classData.teacherId } },
         capacity: classData.capacity,
         currentEnrollment: classData.currentEnrollment,
       },
@@ -290,11 +290,11 @@ export const updateClass = async (req: Request, res: Response) => {
     }
 
     const updatedClass = await prisma.classes.update({
-      where: { Class_id: Number(id) },
+      where: { Id: Number(id) },
       data: {
         name: classData.name,
         classCode: classData.classCode,
-        Teacher: { connect: { Teacher_ID: classData.teacherId } },
+        Teacher: { connect: { Id: classData.teacherId } },
         capacity: classData.capacity,
         currentEnrollment: classData.currentEnrollment,
       },
@@ -324,7 +324,7 @@ export const deleteClass = async (req: Request, res: Response) => {
 
   try {
     const deletedClass = await prisma.classes.delete({
-      where: { Class_id: Number(id) },
+      where: { Id: Number(id) },
     });
 
     res.json({
@@ -367,13 +367,13 @@ export const createCourse = async (req: Request, res: Response) => {
         Name: courseData.Name,
         courseCode: courseData.courseCode,
         Coefficient: courseData.Coefficient,
-        Teacher: { connect: { Teacher_ID: courseData.Teacher_ID } },
+        Teacher: { connect: { Id: courseData.Teacher_ID } },
         End_Date: new Date(courseData.End_Date),
         Start_Date: new Date(courseData.Start_Date),
         Chapters: courseData.Chapters,
         Class_Level: courseData.Class_Level,
         Assignment: courseData.Assignment,
-        classes: { connect: { Class_id: courseData.Class_ID } },
+        classes: { connect: { Id: courseData.Class_ID } },
       },
     });
 
@@ -440,17 +440,17 @@ export const updateCourse = async (req: Request, res: Response) => {
     }
 
     const updatedCourse = await prisma.course.update({
-      where: { Course_ID: Number(id) },
+      where: { Id: Number(id) },
       data: {
         Name: courseData.Name,
         Coefficient: courseData.Coefficient,
-        Teacher: { connect: { Teacher_ID: courseData.Teacher_ID } },
+        Teacher: { connect: { Id: courseData.Teacher_ID } },
         courseCode: courseData.courseCode,
         End_Date: new Date(courseData.End_Date),
         Start_Date: new Date(courseData.Start_Date),
         Chapters: courseData.Chapters,
         Assignment: courseData.Assignment,
-        classes: { connect: { Class_id: courseData.Class_ID } },
+        classes: { connect: { Id: courseData.Class_ID } },
       },
     });
 
@@ -477,7 +477,7 @@ export const deleteCourse = async (req: Request, res: Response) => {
 
   try {
     const deletedCourse = await prisma.course.delete({
-      where: { Course_ID: Number(id) },
+      where: { Id: Number(id) },
     });
 
     res.json({
