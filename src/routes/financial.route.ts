@@ -1,8 +1,8 @@
 import express from 'express';
-import { createBudget, getAllBudgets, updateBudget, deleteBudget, createAnnualBudget, getAnnualBudget } from '../controllers/budget.controller.js';
-import { createExpense, getAllExpenses, updateExpense, deleteExpense } from '../controllers/expenses.controller.js';
-import { recordTuitionPayment } from '../controllers/income.controller.js';
-import { createProduct, getAllProducts, updateProduct, deleteProduct } from '../controllers/product.controller.js';
+import { createBudget, getAllBudgets, updateBudget, deleteBudget, createAnnualBudget, getAnnualBudget } from '../controllers/budget.controller';
+import { createExpense, getAllExpenses, updateExpense, deleteExpense } from '../controllers/expenses.controller';
+import { recordTuitionPayment } from '../controllers/income.controller';
+import { createProduct, getAllProducts, updateProduct, deleteProduct } from '../controllers/product.controller';
 
 const router = express.Router();
 
