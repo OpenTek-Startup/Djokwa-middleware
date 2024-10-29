@@ -437,7 +437,7 @@ export const createGrade = async (req: Request, res: Response) => {
         errors,
       });
     }
-    const { value, studentId, courseId, assignmentId } = req.body;
+    const { value, studentId, courseId, assignmentId , sequence} = req.body;
 
     const newGrade = await prisma.grade.create({
       data: {
@@ -453,15 +453,72 @@ export const createGrade = async (req: Request, res: Response) => {
       message: 'Grade created successfully',
       data: newGrade,
     });
-  } catch (error) {
-    console.error('Error creating grade:', error);
-    res.status(500).json({
-      type: 'error',
-      message: 'Error creating grade',
-      data: {},
+    
+    const calculateGrade = (average: number) => {
+  if (average >= 90) return 'A';
+  else if (average >= 80) return 'B';
+  else if (average >= 70) return 'C';
+  else if (average >= 60) return 'D';
+  else return 'F';
+};
+
+const calculateAverage = (grades: number[]) => {
+  const sum = grades.reduce((a, b) => a + b, 0);
+  return sum / grades.length;
+};
+
+// Mock function for determining student position based on averages
+const determinePosition = (averages: number[], studentAverage: number) => {
+  const sortedAverages = averages.sort((a, b) => b - a);
+  return sortedAverages.indexOf(studentAverage) + 1;
+};
+
+ 
+    // Calculate sequence average
+    const studentGrades = await prisma.grade.findMany({
+      where: { Student_ID: studentId, Course_ID: courseId, sequence },
     });
+
+    const average = calculateAverage(studentGrades.map(g => g.Value));
+    const letterGrade = calculateGrade(average);
+    const passed = average >= 60;
+
+    // Calculate year-end if needed
+    if (sequence === 'Final') {
+      const allSequences = await prisma.grade.findMany({
+        where: { Student_ID: studentId, Course_ID: courseId },
+      });
+
+      const yearAverage = calculateAverage(allSequences.map(g => g.Value));
+      const yearGrade = calculateGrade(yearAverage);
+      const yearPassed = yearAverage >= 60;
+
+      // Update student class if passed
+      if (yearPassed) {
+        await prisma.student.update({
+          where: { Student_ID: studentId },
+          data: { 
+            classId:{
+              increment: 1
+            }
+           }, 
+        });
+      }
+
+      res.json({
+        message: `Grade created. Year-end average: ${yearAverage}, Grade: ${yearGrade}, Passed: ${yearPassed}`,
+      });
+    } else {
+      res.json({
+        message: `Grade created. Sequence average: ${average}, Grade: ${letterGrade}, Passed: ${passed}`,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error creating grade' });
   }
 };
+
+
 
 // Read all Grades
 export const getAllGrades = async (req: Request, res: Response) => {
@@ -591,3 +648,4 @@ export const deleteGrade = async (req: Request, res: Response) => {
     });
   }
 };
+

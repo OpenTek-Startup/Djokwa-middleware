@@ -90,26 +90,6 @@ model Registration {
 }
 
 model Student {
-<<<<<<< HEAD
-  Student_ID     Int       @id @default(autoincrement())
-  First_Name     String
-  Last_Name      String
-  Date_Of_Birth  DateTime
-  Gender         Gender
-  Address        String
-  Phone          String?
-  Medical_Info   String?
-  Image          String?
-  password       String
-  Class_ID       Int
-  Enrollment_id  Int
-  admissionYear     Int
-  Program_id        Int
-  gpa             Float?
-  cummulativeCredit Int ?
-  classRank         Int?
-  Graduation_id      Int
-=======
   Student_ID    Int      @id @default(autoincrement())
   First_Name    String
   Last_Name     String
@@ -120,27 +100,8 @@ model Student {
   Phone         String?
   Medical_Info  String?
   Image         String?
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 
-  Graduation       Graduation  @relation(fields: [Graduation_id], references:[Graduation_id])
-  AcademicProgram          AcademicProgram @relation(fields: [Program_id], references:[Program_id])
-  Class       Class @relation(fields: [Class_ID], references: [Class_id])
-  Enrollment        Enrollment @relation(fields: [Enrollment_id], references: [Enrollment_id])
   ParentRelations ParentRelation[]
-<<<<<<< HEAD
-  Extracurricular   Extracurricular[]
-
-  Assessment       Assessment[]
-  Registrations  Registration[]
-  Submission    Submission[]
-  Grades         Grade[]
-  Evaluations    Evaluation[]
-  Absences       Absence[]
-  Latenesses     Lateness[]
-  Disciplines    Discipline[]
-  Transcripts    Transcript[]
-  payment        Payment[]
-=======
   assignments     Assignment[]
   submissions     Submission[]
   course          Course[]
@@ -152,19 +113,11 @@ model Student {
   Disciplines     Discipline[]
   Transcripts     Transcript[]
   payment         Payment[]
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
   user_roles      user_roles[]
  
-  Presence       Presence[]
-  Attendance     Attendance[]
 
-<<<<<<< HEAD
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
-=======
   classes  Classes    @relation(fields: [classId], references: [Class_id])
   Incident Incident[]
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model ParentRelation {
@@ -205,19 +158,6 @@ model Teacher {
   gender      Gender
   address     String
 
-<<<<<<< HEAD
-
-  user_roles  user_roles[]
-  Extracurricular Extracurricular[]
-
-  Leaves      Leaves[]
-  RHEvaluations RHEvaluation[]
-  PaySleeps   PaySleep[]
-
- 
-  abscences Absence[]
-  
-=======
   user_roles    user_roles[]
   Courses       Course[]
   Leaves        Leaves[]
@@ -228,7 +168,6 @@ model Teacher {
   Disciplines   Discipline[]
   classes       Classes[]
   abscences     Absence[]
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 // User's role
@@ -252,11 +191,7 @@ model roles {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-<<<<<<< HEAD
-  user_roles       user_roles[]
-=======
   user_roles user_roles[]
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model Chapter {
@@ -267,23 +202,6 @@ model Chapter {
   Start_Date      DateTime
   End_Date        DateTime
   Progress_Status ProgressStatus
-<<<<<<< HEAD
-
-}
-
-model Grade {
-  Grade_ID      Int      @id @default(autoincrement())
-  Value         Float
-  Student_ID    Int
-  Course_ID     Int
-  Assignment_id  Int
-
-  Student       Student  @relation(fields: [Student_ID], references: [Student_ID])
- Assignment     Assignment @relation(fields: [Assignment_id], references: [Assignment_id])
-  Course     Course@relation(fields: [Course_ID], references: [Course_ID])
-  createdAt           DateTime @default(now())
-  updated_at           DateTime @updatedAt
-=======
   Course_ID       Int
 
   Course Course @relation(fields: [Course_ID], references: [Course_ID])
@@ -295,10 +213,10 @@ model Grade {
   Student_ID   Int
   Course_ID    Int
   assignmentId Int
-
+  sequence   String?
+  
   Student Student @relation(fields: [Student_ID], references: [Student_ID])
   Course  Course  @relation(fields: [Course_ID], references: [Course_ID])
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model Evaluation {
@@ -320,13 +238,8 @@ model Transcript {
   Course_ID   Int
 
 
-<<<<<<< HEAD
-  Student       Student  @relation(fields: [Student_ID], references: [Student_ID])
-  Course      Course  @relation(fields: [Course_ID], references: [Course_ID])
-=======
   Student Student @relation(fields: [Student_ID], references: [Student_ID])
   Course  Course  @relation(fields: [Course_ID], references: [Course_ID])
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model Absence {
@@ -343,25 +256,9 @@ model Absence {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-<<<<<<< HEAD
-  Student          Student  @relation(fields: [Student_ID], references: [Student_ID])
-  Teacher           Teacher @relation(fields: [teacher_id], references: [Teacher_ID])
-
-}
-
-model Presence{
-  Presence_id        Int @id @default(autoincrement())
-  Presence_Date      DateTime
-  Presence_time      Float?
-  Student_ID        Int
-
-  Student           Student  @relation(fields: [Student_ID], references: [Student_ID])
-
-=======
   Student Student @relation(fields: [Student_ID], references: [Student_ID])
   Teacher Teacher @relation(fields: [teacher_id], references: [Teacher_ID])
   class   Classes @relation(fields: [class_id], references: [Class_id], onDelete: Cascade)
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model Lateness {
@@ -371,18 +268,6 @@ model Lateness {
   Justification String?
   Student_ID    Int
 
-<<<<<<< HEAD
-  Student           Student  @relation(fields: [Student_ID], references: [Student_ID])
-
-}
-
-model Discipline {
-  Discipline_ID   Int      @id @default(autoincrement())
-  Sanction        String?
-  Justification   String?
-
- Student         Student[]
-=======
   Student Student @relation(fields: [Student_ID], references: [Student_ID])
 }
 
@@ -395,7 +280,6 @@ model Discipline {
 
   Teacher Teacher @relation(fields: [Teacher_ID], references: [Teacher_ID])
   Student Student @relation(fields: [Student_ID], references: [Student_ID])
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model Schedule {
@@ -406,13 +290,8 @@ model Schedule {
   Room_ID     Int
   Course_ID   Int
 
-<<<<<<< HEAD
-  Room         Room    @relation(fields: [Room_ID], references: [Room_ID])
- Course       Course    @relation(fields: [Course_ID], references: [Course_ID])
-=======
   Room   Room   @relation(fields: [Room_ID], references: [Room_ID])
   Course Course @relation(fields: [Course_ID], references: [Course_ID])
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
 }
 
 model Room {
@@ -565,130 +444,6 @@ model Income {
   Date        DateTime
 }
 
-<<<<<<< HEAD
-// Class Model
-model Class {
-  Class_id             Int      @id @default(autoincrement())
-  Class_name           String   
-  Class_code           String    @unique
-  capacity             Int
-  currentEnrollment    Int
-
- 
-  Student         Student[]
-  Course          Course[]
-  Assignment      Assignment[]
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
-}
-
-model Course {
-  Course_ID     Int      @id @default(autoincrement())
-  Course_name          String
-  Course_Code   String
-  Coefficient   Int
-  Start_Date    DateTime
-  End_Date      DateTime
-  Class_id    Int   @default(1)
-  Title        String 
-
-  Grade     Grade[]
-  Schedule    Schedule[]
-  Transcript   Transcript[]
-  Attendance   Attendance[]
-  Assignment  Assignment[]
-  Class     Class @relation(fields:  [Class_id], references:[Class_id])
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
-}
-
-model Assignment {
-  Assignment_id         Int @id @default(autoincrement())
-  due_Date              DateTime
-  title                 String
-  description           String
-  course_id        Int
-  class_id      Int
-
-  
-  created_at           DateTime @default(now())
- Course        Course @relation(fields: [course_id], references: [Course_ID])
-  Class       Class @relation(fields: [class_id], references: [Class_id])
-  Submission           Submission[]
-  Grade              Grade[]
-  updated_at           DateTime @updatedAt
-}
-
-model Submission{
-  Submission_Id    Int @id @default(autoincrement())
-  submitted_at     DateTime
-  assignment_id    Int
-  file_Url         String
-  student_id        Int
-
-  Assignment        Assignment @relation(fields: [assignment_id], references: [Assignment_id]) 
- Student        Student @relation(fields: [student_id], references: [Student_ID])
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
-}
-
-model Attendance{
-  Attendance_id     Int @id @default(autoincrement())
-  student_id       Int
-  course_id        Int
-  date             DateTime
-  permission      String?
-Student        Student @relation(fields: [student_id], references: [Student_ID])
-Course       Course @relation(fields: [course_id], references: [Course_ID])
-  Absence        String?
-  Lateness       String?
-  Presence       String?
- 
-}
-
-model Enrollment{
-  Enrollment_id       Int   @id @default(autoincrement())
-  Status              String
-
- Student         Student[]
- 
-}
-
-model AcademicProgram{
-  Program_id        Int       @id @default(autoincrement())
-  Name              String
-  Duration           String
-  Year               Int
-
-  Student         Student[]
-}
-
-model Extracurricular{
-  Extracurricular_id    Int    @id @default(autoincrement())
-  Activity              String
-  student_id            Int
-  teacher_id            Int
-
-  Student         Student  @relation(fields: [student_id], references: [Student_ID])
-  Teacher         Teacher  @relation(fields: [teacher_id], references: [Teacher_ID])
-}
-
-model Assessment{
-  Assessment_id      Int @id @default(autoincrement())
-  ExamScore         Float
-  student_id         Int
-
-  Student         Student  @relation(fields: [student_id], references: [Student_ID])
-}
-
-model Graduation{
-  Graduation_id     Int @id @default(autoincrement())
-  Graduation_Year    String
-  Degree           String
- 
- Student         Student[]
-}
-=======
 model Classes {
   Class_id          Int    @id @default(autoincrement())
   name              String
@@ -792,4 +547,3 @@ model SchoolEvent {
   description String
   fieldTrip   String
 }
->>>>>>> e39927d33f190c5477496b00c73e6f7a6f799ec4
