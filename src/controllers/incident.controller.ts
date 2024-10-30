@@ -16,7 +16,7 @@ export const createIncident = async (req: Request, res: Response) => {
   try {
     const incident = await prisma.incident.create({
       data: {
-        Incident_ID,
+        Id: Incident_ID,
         Student_ID,
         place,
         witness,
@@ -51,7 +51,7 @@ export const getIncidentById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const incident = await prisma.incident.findUnique({
-      where: { Incident_ID: Number(id) },
+      where: { Id: Number(id) },
       include: { student: true },
     });
     if (!incident) {
@@ -71,7 +71,7 @@ export const updateIncident = async (req: Request, res: Response) => {
   const { description, disciplinary_recomendation } = req.body;
   try {
     const updatedIncident = await prisma.incident.update({
-      where: { Incident_ID: Number(id) },
+      where: { Id: Number(id) },
       data: {
         description,
         disciplinary_recomendation,
@@ -90,7 +90,7 @@ export const deleteIncident = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     await prisma.incident.delete({
-      where: { Incident_ID: Number(id) },
+      where: { Id: Number(id) },
     });
     res.status(204).json({ type: 'success', message: 'Account deleted' });
   } catch (error) {

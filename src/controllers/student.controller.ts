@@ -15,6 +15,15 @@ const prisma = new PrismaClient();
 */
 export const createStudent = async (req: Request, res: Response) => {
   try {
+    const user = req.user;
+
+    // Check if the user is a teacher
+    if (!user || !user.roles.some((role) => role.name === 'teacher')) {
+      return res.status(403).json({
+        type: 'error',
+        message: 'Only Teachers can create a student record.',
+      });
+    }
     const studentData = req.body;
 
     // Validate the incoming data
@@ -100,7 +109,7 @@ export const getStudentById = async (req: Request, res: Response) => {
 
   try {
     const student = await prisma.student.findUnique({
-      where: { Student_ID: Number(id) },
+      where: { Id: Number(id) },
     });
 
     if (!student) {
@@ -155,7 +164,7 @@ export const updateStudent = async (req: Request, res: Response) => {
     }
 
     const updatedStudent = await prisma.student.update({
-      where: { Student_ID: Number(id) },
+      where: { Id: Number(id) },
       data: {
         First_Name: updateData.First_Name,
         Last_Name: updateData.Last_Name,
@@ -199,7 +208,7 @@ export const deleteStudent = async (req: Request, res: Response) => {
 
   try {
     await prisma.student.delete({
-      where: { Student_ID: Number(id) },
+      where: { Id: Number(id) },
     });
 
     res.status(200).json({

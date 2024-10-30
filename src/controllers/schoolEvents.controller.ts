@@ -39,7 +39,7 @@ export const getSchoolEventById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const event = await prisma.schoolEvent.findUnique({
-      where: { Event_ID: Number(id) },
+      where: { Id: Number(id) },
     });
 
     if (!event) {
@@ -59,7 +59,7 @@ export const updateSchoolEvent = async (req: Request, res: Response) => {
     const { venue, organizer, date, description, fieldTrip } = req.body;
 
     const event = await prisma.schoolEvent.update({
-      where: { Event_ID: Number(id) },
+      where: { Id: Number(id) },
       data: {
         venue,
         organizer,
@@ -80,7 +80,7 @@ export const deleteSchoolEvent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.schoolEvent.delete({
-      where: { Event_ID: Number(id) },
+      where: { Id: Number(id) },
     });
 
     res.status(200).json({ message: 'Event deleted successfully' });

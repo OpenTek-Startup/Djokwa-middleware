@@ -21,7 +21,7 @@ export const getBlockNoteById = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const blockNote = await prisma.blockNote.findUnique({
-      where: { id: Number(id) },
+      where: { Id: Number(id) },
     });
     if (!blockNote)
       return res.status(404).json({ error: 'BlockNote not found' });
@@ -87,7 +87,7 @@ export const updateBlockNote = async (req: Request, res: Response) => {
 
     // Update the block note in the database
     const updatedBlockNote = await prisma.blockNote.update({
-      where: { id: Number(id) },
+      where: { Id: Number(id) },
       data: updateData, // Spread the update data directly
     });
 
@@ -104,7 +104,7 @@ export const updateBlockNote = async (req: Request, res: Response) => {
 export const deleteBlockNote = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    await prisma.blockNote.delete({ where: { id: Number(id) } });
+    await prisma.blockNote.delete({ where: { Id: Number(id) } });
     res.status(204).send({ message: 'Block note deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete block note' });

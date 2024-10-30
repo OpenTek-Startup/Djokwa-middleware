@@ -7,6 +7,8 @@ import {
 import { validate } from 'class-validator';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
+import { getUserWithRoles } from '../middlewares/getAuthUser.middleware';
+import { generateToken } from '../middlewares/auth.middleware';
 
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET || '';
@@ -85,16 +87,43 @@ export const signUpTeacher = async (req: Request, res: Response) => {
         Leaves: {},
         PaySleeps: {},
         RHEvaluations: {},
-        user_roles: {},
+        user_role: {},
         abscences: {},
         classes: {},
       },
     });
-    res.status(201).json({
-      type: 'success',
-      message: 'Teacher created successfully',
-      data: newTeacher,
+
+    // Assign the role to the new teacher
+    const role = await prisma.roles.findUnique({
+      where: { name: 'teacher' },
     });
+
+    if (role) {
+      await prisma.user_roles.create({
+        data: {
+          teacher_id: newTeacher.Id,
+          role_id: role.Id,
+        },
+      });
+    }
+
+    // get the user with role
+    const userRole = role?.name;
+    if (userRole) {
+      const user = await getUserWithRoles(userRole, teacherData.Email);
+      if (user) {
+        const token = generateToken(user); // Generate token with roles
+        res.status(201).json({
+          type: 'success',
+          message: 'Teacher created successfully',
+          token: token,
+        });
+      } else {
+        res.status(404).json({ message: 'User not found' });
+      }
+    } else {
+      res.status(400).json({ message: 'Invalid role' });
+    }
   } catch (error) {
     console.error('Error creating teacher:', error);
     res.status(500).json({
@@ -118,8 +147,14 @@ export const signInTeacher = async (req: Request, res: Response) => {
     // Find the teacher by email
     const teacher = await prisma.teacher.findUnique({
       where: { Email: email },
+      include: {
+        user_role: {
+          include: {
+            roles: true,
+          },
+        },
+      },
     });
-    console.log(teacher);
 
     if (!teacher) {
       return res
@@ -135,9 +170,17 @@ export const signInTeacher = async (req: Request, res: Response) => {
         .json({ message: 'The password provided is invalid' });
     }
 
+    // Prepare roles array
+    const roles = teacher.user_role
+      ? teacher.user_role.map((ur) => ({
+          id: ur.roles.Id,
+          name: ur.roles.name,
+        }))
+      : [];
+
     // Create JWT token
     const token = jwt.sign(
-      { id: teacher.Teacher_ID, email: teacher.Email },
+      { id: teacher.Id, email: teacher.Email, roles },
       SECRET_KEY,
       { expiresIn: '1h' }
     );
@@ -147,12 +190,12 @@ export const signInTeacher = async (req: Request, res: Response) => {
       message: 'Login successful',
       token,
       teacher: {
-        Teacher_ID: teacher.Teacher_ID,
+        Teacher_ID: teacher.Id,
         First_Name: teacher.First_Name,
         Last_Name: teacher.Last_Name,
         Email: teacher.Email,
         Phone: teacher.Phone,
-        // Other fields as necessary
+        roles,
       },
     });
   } catch (error) {
@@ -163,7 +206,6 @@ export const signInTeacher = async (req: Request, res: Response) => {
     });
   }
 };
-
 /*
   @route    PUT: /teacher/update
   @access   private
@@ -191,31 +233,56 @@ export const updateTeacher = async (req: Request, res: Response) => {
       });
     }
 
-    // Verify the password before updating other fields
+    // Fetch the existing teacher record
     const teacher = await prisma.teacher.findUnique({
-      where: { Teacher_ID: teacherId },
+      where: { Id: teacherId },
+      include: {
+        user_role: {
+          include: {
+            roles: true,
+          },
+        },
+      },
     });
 
     if (!teacher) {
       return res.status(404).json({ message: 'Teacher not found' });
     }
 
-    // const isPasswordValid = await argon2.verify(
-    //   teacher.password,
-    //   updateData.password
-    // );
-    // if (!isPasswordValid) {
-    //   return res.status(401).json({ message: 'Invalid password' });
-    // }
+    // Handle password update if provided
+    if (updateData.password) {
+      const isPasswordValid = await argon2.verify(
+        teacher.password,
+        updateData.currentPassword
+      );
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: 'Invalid current password' });
+      }
+      // Hash the new password before saving
+      updateData.password = await argon2.hash(updateData.password);
+    } else {
+      updateData.password = teacher.password; //keep existing pwd
+    }
 
     // Update teacher information
     const updatedTeacher = await prisma.teacher.update({
-      where: { Teacher_ID: teacherId },
+      where: { Id: teacherId },
       data: {
         ...updateData,
-        password: teacher.password, // Keep the existing password
       },
     });
+
+    // Handle role updates if roles are included in updateData
+    if (updateData.roles) {
+      await prisma.user_roles.deleteMany({
+        where: { teacher_id: teacherId },
+      });
+      const newRoles = updateData.roles.map((roleId: number) => ({
+        teacherId: teacherId,
+        roleId: roleId,
+      }));
+      await prisma.user_roles.createMany({ data: newRoles });
+    }
 
     res.status(200).json({
       type: 'success',
@@ -223,7 +290,7 @@ export const updateTeacher = async (req: Request, res: Response) => {
       data: updatedTeacher,
     });
   } catch (error) {
-    // console.error('Error updating teacher:', error);
+    console.error('Error updating teacher:', error);
     res.status(500).json({
       type: 'error',
       message: 'Error updating teacher information',
@@ -243,9 +310,23 @@ export const deleteTeacher = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
+    // Check if the teacher exists before deletion
+    const teacher = await prisma.teacher.findUnique({
+      where: { Id: teacherId },
+    });
+
+    if (!teacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    // Delete associated roles if necessary
+    await prisma.user_roles.deleteMany({
+      where: { teacher_id: teacherId },
+    });
+
     // Delete the teacher from the database
     await prisma.teacher.delete({
-      where: { Teacher_ID: teacherId },
+      where: { Id: teacherId },
     });
 
     res.status(200).json({
@@ -254,6 +335,10 @@ export const deleteTeacher = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error deleting teacher:', error);
+    res.status(500).json({
+      type: 'error',
+      message: 'Error deleting teacher',
+    });
   }
 };
 
@@ -262,11 +347,31 @@ export const deleteTeacher = async (req: Request, res: Response) => {
   @access   private
   @desc     logout a teacher
 */
-export const logoutTeacher = (req: Request, res: Response) => {
-  res.status(200).json({
-    type: 'success',
-    message: 'Logged out successfully',
-  });
+export const logoutTeacher = async (req: Request, res: Response) => {
+  try {
+    const token = req.headers['authorization']?.split(' ')[1] || '';
+    const Hashtoken = await argon2.hash(token);
+    if (Hashtoken) {
+      // Add the token to the blacklist
+      await prisma.tokenBlacklist.create({
+        data: {
+          token: Hashtoken,
+          createdAt: new Date(),
+        },
+      });
+    }
+
+    res.status(200).json({
+      type: 'success',
+      message: 'Logout successful',
+    });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    res.status(500).json({
+      type: 'error',
+      message: 'Error during logout',
+    });
+  }
 };
 
 /*
@@ -317,7 +422,7 @@ export const getClassesForTeachers = async (
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -329,7 +434,7 @@ export const getClassesForTeachers = async (
     const classes = await tx.classes.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });
@@ -349,7 +454,7 @@ export const getSubjectsForTeacher = async (req: Request, res: Response) => {
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -361,7 +466,7 @@ export const getSubjectsForTeacher = async (req: Request, res: Response) => {
     const subjects = await tx.course.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });
@@ -376,7 +481,7 @@ export const getAbsencesForTeacher = async (req: Request, res: Response) => {
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -388,7 +493,7 @@ export const getAbsencesForTeacher = async (req: Request, res: Response) => {
     const absences = await tx.absence.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });
@@ -403,7 +508,7 @@ export const getDisciplineForTeacher = async (req: Request, res: Response) => {
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -415,7 +520,7 @@ export const getDisciplineForTeacher = async (req: Request, res: Response) => {
     const disciplines = await tx.discipline.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });
@@ -430,7 +535,7 @@ export const getPaysleepsForTeacher = async (req: Request, res: Response) => {
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -442,7 +547,7 @@ export const getPaysleepsForTeacher = async (req: Request, res: Response) => {
     const paysleep = await tx.paySleep.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });
@@ -460,7 +565,7 @@ export const getRHEvaluationForTeacher = async (
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -472,7 +577,7 @@ export const getRHEvaluationForTeacher = async (
     const rhevaluations = await tx.rHEvaluation.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });
@@ -487,7 +592,7 @@ export const getLeavesForTeacher = async (req: Request, res: Response) => {
   await prisma.$transaction(async (tx) => {
     const findTeacher = await tx.teacher.findUnique({
       where: {
-        Teacher_ID: id,
+        Id: id,
       },
     });
 
@@ -499,7 +604,7 @@ export const getLeavesForTeacher = async (req: Request, res: Response) => {
     const leaves = await tx.leaves.findMany({
       where: {
         Teacher: {
-          Teacher_ID: findTeacher.Teacher_ID,
+          Id: findTeacher.Id,
         },
       },
     });

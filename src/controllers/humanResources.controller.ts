@@ -83,7 +83,7 @@ export const getScheduleById = async (req: Request, res: Response) => {
   try {
     const schedule = await prisma.schedule.findUnique({
       where: {
-        Schedule_ID: Number(id),
+        Id: Number(id),
       },
     });
     if (!schedule) {
@@ -131,7 +131,7 @@ export const updateSchedule = async (req: Request, res: Response) => {
 
     const updatedSchedule = await prisma.schedule.update({
       where: {
-        Schedule_ID: Number(id),
+        Id: Number(id),
       },
       data: scheduleData,
     });
@@ -160,7 +160,7 @@ export const deleteSchedule = async (req: Request, res: Response) => {
   try {
     const deletedSchedule = await prisma.schedule.delete({
       where: {
-        Schedule_ID: Number(id),
+        Id: Number(id),
       },
     });
     res.status(200).json({
@@ -247,7 +247,7 @@ export const getLeaveById = async (req: Request, res: Response) => {
   try {
     const leave = await prisma.leaves.findUnique({
       where: {
-        Leave_ID: Number(id),
+        Id: Number(id),
       },
     });
     if (!leave) {
@@ -295,7 +295,7 @@ export const updateLeave = async (req: Request, res: Response) => {
 
     const updatedLeave = await prisma.leaves.update({
       where: {
-        Leave_ID: Number(id),
+        Id: Number(id),
       },
       data: leaveData,
     });
@@ -327,7 +327,7 @@ export const updateLeaveStatus = async (req: Request, res: Response) => {
 
     const updatedLeave = await prisma.leaves.update({
       where: {
-        Leave_ID: Number(id),
+        Id: Number(id),
       },
       data: {
         Status,
@@ -358,7 +358,7 @@ export const deleteLeave = async (req: Request, res: Response) => {
   try {
     const deletedLeave = await prisma.leaves.delete({
       where: {
-        Leave_ID: Number(id),
+        Id: Number(id),
       },
     });
     res.status(200).json({
@@ -446,7 +446,7 @@ export const getPaySleep = async (req: Request, res: Response) => {
   try {
     const paySleep = await prisma.paySleep.findUnique({
       where: {
-        PaySleep_ID: Number(id),
+        Id: Number(id),
       },
     });
 
@@ -496,7 +496,7 @@ export const updatePaySleep = async (req: Request, res: Response) => {
 
     const updatedPaySleep = await prisma.paySleep.update({
       where: {
-        PaySleep_ID: Number(id),
+        Id: Number(id),
       },
       data: paysleepData,
     });
@@ -528,7 +528,7 @@ export const updatePaySleepStatus = async (req: Request, res: Response) => {
 
     const updatedPaySleep = await prisma.paySleep.update({
       where: {
-        PaySleep_ID: Number(id),
+        Id: Number(id),
       },
       data: {
         Status,
@@ -560,7 +560,7 @@ export const deletePaySleep = async (req: Request, res: Response) => {
   try {
     const deletedPaySleep = await prisma.paySleep.delete({
       where: {
-        PaySleep_ID: Number(id),
+        Id: Number(id),
       },
     });
 
