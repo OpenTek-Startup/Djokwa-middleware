@@ -7,7 +7,7 @@ import {
 import { validate } from 'class-validator';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
-import { getUserWithRoles } from '../utils/getAuthUser';
+import { getUserWithRoles } from '../middlewares/getAuthUser.middleware';
 import { generateToken } from '../middlewares/auth.middleware';
 
 const prisma = new PrismaClient();
@@ -349,13 +349,13 @@ export const deleteTeacher = async (req: Request, res: Response) => {
 */
 export const logoutTeacher = async (req: Request, res: Response) => {
   try {
-    const token = req.headers['authorization']?.split(' ')[1];
-
-    if (token) {
+    const token = req.headers['authorization']?.split(' ')[1] || '';
+    const Hashtoken = await argon2.hash(token);
+    if (Hashtoken) {
       // Add the token to the blacklist
       await prisma.tokenBlacklist.create({
         data: {
-          token,
+          token: Hashtoken,
           createdAt: new Date(),
         },
       });
