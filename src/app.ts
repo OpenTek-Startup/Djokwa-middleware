@@ -38,11 +38,30 @@ app.get('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
 });
 
+
+async function startServer() {
+  try {
+      // Test the database connection
+      await prisma.$connect();
+      console.log('✅ Successfully connected to the database');
+      
+      // Start your server here
+      // Example server start (using Express or another framework)
+      app.listen(PORT, () => {
+          console.log(`Server is running on http://localhost:${PORT}`);
+      });
+  } catch (error) {
+      console.error('❌ Error connecting to the database:', error);
+      process.exit(1); // Exit the process if the connection fails
+  } finally {
+      // Disconnect when the app is closed
+      await prisma.$disconnect();
+  }
+}
+
+// Call startServer to initiate connection and server
+startServer();
 // Start server
-app.listen(PORT, () => {
-  console.log(
-    `Server is running on http://localhost:${PORT} \n access the endpoints on http://localhost:${PORT}/api-docs`
-  );
-});
+
 
 module.exports = app;
