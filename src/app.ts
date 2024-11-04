@@ -64,7 +64,7 @@ async function startServer() {
   }
 }
 
-// Call startServer to initiate connection and server
+
 startServer();
 // Start server
 
