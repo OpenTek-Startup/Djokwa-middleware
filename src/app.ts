@@ -1,3 +1,4 @@
+import "express-async-errors";
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
@@ -11,6 +12,7 @@ import studentRoute from './routes/student.route';
 import academicsRoute from './routes/academics.route';
 import incidentRoute from './routes/incident.route';
 import schoolEventRoute from './routes/schoolEvent.route';
+import errorHandlerMiddleware from './middlewares/errorHandlerMiddleware';
 
 export const prisma = new PrismaClient();
 
@@ -37,25 +39,28 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.get('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
 });
-
+app.use("*", async (req, res) => {
+  res.status(404).send("HELLO BROTHERMAN , CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒 AUBIM SAID SO ");
+});
+app.use(errorHandlerMiddleware);
 
 async function startServer() {
   try {
-      // Test the database connection
-      await prisma.$connect();
-      console.log('✅ Successfully connected to the database');
-      
-      // Start your server here
-      // Example server start (using Express or another framework)
-      app.listen(PORT, () => {
-          console.log(`Server is running on http://localhost:${PORT}`);
-      });
+    // Test the database connection
+    await prisma.$connect();
+    console.log('✅ Successfully connected to the database');
+
+    // Start your server here
+    // Example server start (using Express or another framework)
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
   } catch (error) {
-      console.error('❌ Error connecting to the database:', error);
-      process.exit(1); // Exit the process if the connection fails
+    console.error('❌ Error connecting to the database:', error);
+    process.exit(1); // Exit the process if the connection fails
   } finally {
-      // Disconnect when the app is closed
-      await prisma.$disconnect();
+    // Disconnect when the app is closed
+    await prisma.$disconnect();
   }
 }
 
