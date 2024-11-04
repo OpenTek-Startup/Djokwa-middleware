@@ -20,14 +20,14 @@ export const createStudent = async (req: Request, res: Response) => {
 
     // Check if the user is a teacher
     // console.log("...",user)
-    // if (!user || !user.roles.some((role) => role.name === 'teacher')) {
-    //   // authentication error here
-    //   throw new UnauthorizedError("please only teachers are require to create a new student ")
-    //   // return res.status(403).json({
-    //   //   type: 'error',
-    //   //   message: 'Only Teachers can create a student record.',
-    //   // });
-    // }
+    if (!user || !user.roles.some((role) => role.name === 'teacher')) {
+      // authentication error here
+      throw new UnauthorizedError("please only teachers are require to create a new student ")
+      // return res.status(403).json({
+      //   type: 'error',
+      //   message: 'Only Teachers can create a student record.',
+      // });
+    }
     const studentData = req.body;
 
     // Validate the incoming data
