@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { validate } from 'class-validator';
+import { Request, Response } from 'express';
+import { BadRequestError, UnauthorizedError } from '../errors/customErrors';
 import {
   CreateStudentDto,
   UpdateStudentDto,
 } from '../valdators/student.validator';
-import { validate } from 'class-validator';
 
 const prisma = new PrismaClient();
 
@@ -14,15 +15,18 @@ const prisma = new PrismaClient();
   @desc     Create a new student
 */
 export const createStudent = async (req: Request, res: Response) => {
-  try {
+  // try {
     const user = req.user;
 
     // Check if the user is a teacher
+    // console.log("...",user)
     if (!user || !user.roles.some((role) => role.name === 'teacher')) {
-      return res.status(403).json({
-        type: 'error',
-        message: 'Only Teachers can create a student record.',
-      });
+      // authentication error here
+      throw new UnauthorizedError("please only teachers are require to create a new student ")
+      // return res.status(403).json({
+      //   type: 'error',
+      //   message: 'Only Teachers can create a student record.',
+      // });
     }
     const studentData = req.body;
 
@@ -52,20 +56,21 @@ export const createStudent = async (req: Request, res: Response) => {
         Medical_Info: studentData.Medical_Info,
       },
     });
-
+if(!newStudent) throw new BadRequestError("fail to create student with credentials"+studentData?.data)
     res.status(201).json({
       type: 'success',
       message: 'Student created successfully',
       data: newStudent,
     });
-  } catch (error) {
-    console.error('Error creating student:', error);
-    res.status(500).json({
-      type: 'error',
-      message: 'Error creating student',
-      data: {},
-    });
-  }
+  // } catch (error) {
+    // console.error('Error creating student:', error);
+    // throw new BadRequestError("fail creating student ,AUBIM Said so 😁")
+    // res.status(500).json({
+    //   type: 'error',
+    //   message: 'Error creating student',
+    //   data: {},
+    // });
+  // }
 };
 
 /*
@@ -75,12 +80,31 @@ export const createStudent = async (req: Request, res: Response) => {
 */
 export const getStudents = async (req: Request, res: Response) => {
   try {
-    const students = await prisma.student.findMany();
+    // Parse query parameters with defaults
+    const page = parseInt(req.query.page as string, 10) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit as string, 10) || 10; // Default to 10 items per page
+    const skip = (page - 1) * limit; // Calculate the offset
+
+    // Retrieve students with pagination
+    const students = await prisma.student.findMany({
+      take: limit,
+      skip: skip,
+    });
+
+    // Optionally, get the total count for pagination metadata
+    const totalStudents = await prisma.student.count();
+    const totalPages = Math.ceil(totalStudents / limit);
 
     res.status(200).json({
       type: 'success',
       message: 'Successfully retrieved students',
       data: students,
+      pagination: {
+        totalStudents,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
     });
   } catch (error) {
     console.error('Error retrieving students:', error);
@@ -91,6 +115,7 @@ export const getStudents = async (req: Request, res: Response) => {
     });
   }
 };
+
 
 /*
   @route    GET: /students/:id
