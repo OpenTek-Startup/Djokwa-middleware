@@ -1,10 +1,9 @@
-import { PrismaClient, Personnel, Teacher, Parent } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
 interface UserWithRoles {
-  // Structure of the user with roles based on Prisma schema
   id: number;
   email: string;
   roles: {
@@ -13,99 +12,37 @@ interface UserWithRoles {
   }[];
 }
 
-// Type guard to check if user has user_roles
-const hasUserRoles = (
+// Type guard to ensure user has user_role as an array
+const hasUserRolesArray = (
   user: any
-): user is { user_roles: { roles: { id: number; name: string } }[] } => {
-  return Array.isArray(user.user_roles);
+): user is { user_role: { roles: { id: number; name: string } }[] } => {
+  return Array.isArray(user.user_role);
 };
 
+// Helper function to fetch user with roles based on a role string
 export const getUserWithRoles = async (
   role: string,
   email: string
 ): Promise<UserWithRoles | null> => {
-  let user: Personnel | Teacher | Parent | null;
   try {
-    switch (role) {
-      case 'admin':
-        user = await prisma.personnel.findUnique({
-          where: { Email: email },
+    // Adjust query according to role
+    const user = await prisma.user.findUnique({
+      where: { Email: email },
+      include: {
+        user_role: {
           include: {
-            user_role: {
-              include: {
-                roles: true,
-              },
-            },
+            roles: true,
           },
-        });
-        break;
-      case 'teacher':
-        user = await prisma.teacher.findUnique({
-          where: { Email: email },
-          include: {
-            user_role: {
-              include: {
-                roles: true,
-              },
-            },
-          },
-        });
-        break;
-      // case 'student':
-      //   user = await prisma.student.findUnique({
-      //     where: { ParentRelations: { Parent: { Email: email } } },
-      //     include: {
-      //       user_roles: {
-      //         include: {
-      //           roles: true,
-      //         },
-      //       },
-      //     },
-      //   });
-      //   break;
-      case 'parent':
-        user = await prisma.parent.findUnique({
-          where: { Email: email },
-          include: {
-            Relations: {
-              include: {
-                Student: {
-                  include: {
-                    user_role: {
-                      include: {
-                        roles: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
-        break;
-      case 'staff':
-        user = await prisma.personnel.findUnique({
-          where: { Email: email },
-          include: {
-            user_role: {
-              include: {
-                roles: true,
-              },
-            },
-          },
-        });
-        break;
-      default:
-        throw new Error('Invalid role');
-    }
+        },
+      },
+    });
 
-    if (user) {
-      const roles = hasUserRoles(user)
-        ? user.user_roles.map((ur) => ({
-            id: ur.roles.id,
-            name: ur.roles.name,
-          }))
-        : [];
+    // If the user exists and has user roles, map them into an array
+    if (user && hasUserRolesArray(user)) {
+      const roles = user.user_role.map((ur) => ({
+        id: ur.roles.id,
+        name: ur.roles.name,
+      }));
 
       return {
         id: user.Id,
@@ -113,16 +50,21 @@ export const getUserWithRoles = async (
         roles,
       };
     }
+
+    return null;
   } catch (err) {
     console.error('Error fetching user with roles:', err);
     return null;
   }
-
-  return null;
 };
 
+// Middleware to fetch user data by role and email
 export const authUserMiddleware = async (req: Request, res: Response) => {
   const { role, email } = req.body;
+
+  if (!role || !email) {
+    return res.status(400).json({ error: 'Role and email are required' });
+  }
 
   try {
     const user = await getUserWithRoles(role, email);

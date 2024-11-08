@@ -9,6 +9,14 @@ import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import { getUserWithRoles } from '../middlewares/getAuthUser.middleware';
 import { generateToken } from '../middlewares/auth.middleware';
+import { User } from '@prisma/client';
+
+// Type guard to ensure user_role is an array
+const isUserRoleArray = (
+  userRole: any
+): userRole is Array<{ roles: { Id: number; name: string } }> => {
+  return Array.isArray(userRole);
+};
 
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET || '';
@@ -24,14 +32,14 @@ export const signUpTeacher = async (req: Request, res: Response) => {
 
     // Validate the incoming data
     const createTeacherDto = new CreateTeacherDto();
-    Object.assign(createTeacherDto, teacherData); // Assign the incoming data to the DTO
+    Object.assign(createTeacherDto, teacherData);
 
     const errors = await validate(createTeacherDto);
     if (errors.length > 0) {
       return res.status(400).json({
         type: 'error',
         message: 'Failed signing up',
-        // errors: errors,
+        errors,
       });
     }
 
@@ -43,8 +51,8 @@ export const signUpTeacher = async (req: Request, res: Response) => {
       });
     }
 
-    // // Check for unique email
-    // const existingEmail = await prisma.teacher.findUnique({
+    // Check for unique email
+    // const existingEmail = await prisma.user.findUnique({
     //   where: { Email: teacherData.email },
     // });
     // if (existingEmail) {
@@ -54,8 +62,8 @@ export const signUpTeacher = async (req: Request, res: Response) => {
     //   });
     // }
 
-    // // Check for unique phone number
-    // const existingPhone = await prisma.teacher.findUnique({
+    // Check for unique phone number
+    // const existingPhone = await prisma.user.findUnique({
     //   where: { Phone: teacherData.Phone },
     // });
     // if (existingPhone) {
@@ -66,71 +74,73 @@ export const signUpTeacher = async (req: Request, res: Response) => {
     // }
 
     // encrypt password
-    const hash = await argon2.hash(teacherData.password);
+    const hashedPassword = await argon2.hash(teacherData.password);
 
-    const newTeacher = await prisma.teacher.create({
+    // Create the user in the `User` table
+    const createdUser = await prisma.user.create({
       data: {
         First_Name: teacherData.First_Name,
         Last_Name: teacherData.Last_Name,
-        Hiring_Date: teacherData.Hiring_Date, //2024-09-24T00:00:00.000Z
+        Email: teacherData.Email,
+        Phone: teacherData.Phone,
+        password: hashedPassword,
+        Gender: teacherData.gender,
+        role: 'teacher',
+        createdAt: new Date(),
+      },
+    });
+
+    // Now create the teacher entry, linking to the created user
+    const newTeacher = await prisma.teacher.create({
+      data: {
+        UserId: createdUser.Id, // Link the teacher to the user
+        Hiring_Date: teacherData.Hiring_Date,
         Salary: teacherData.Salary,
         Specialty: teacherData.Specialty,
-        Email: teacherData.Email,
         Image: teacherData.Image,
-        Phone: teacherData.Phone,
-        password: hash,
-        gender: teacherData.gender,
         address: teacherData.address,
-
-        Courses: {},
-        Disciplines: {},
-        Leaves: {},
-        PaySleeps: {},
-        RHEvaluations: {},
-        user_role: {},
-        abscences: {},
-        classes: {},
       },
     });
 
     // Assign the role to the new teacher
-    const role = await prisma.roles.findUnique({
+    const teacherRole = await prisma.roles.findUnique({
       where: { name: 'teacher' },
     });
 
-    if (role) {
+    if (teacherRole) {
       await prisma.user_roles.create({
         data: {
-          teacher_id: newTeacher.Id,
-          role_id: role.Id,
+          user_id: createdUser.Id,
+          role_id: teacherRole.Id,
         },
       });
     }
 
-    // get the user with role
-    const userRole = role?.name;
-    if (userRole) {
-      const user = await getUserWithRoles(userRole, teacherData.Email);
-      if (user) {
-        const token = generateToken(user); // Generate token with roles
-        res.status(201).json({
-          type: 'success',
-          message: 'Teacher created successfully',
-          token: token,
-        });
-      } else {
-        res.status(404).json({ message: 'User not found' });
-      }
+    // Fetch user with roles and generate a token
+    const userWithRoles = await getUserWithRoles('teacher', teacherData.Email);
+    if (userWithRoles) {
+      const token = generateToken(userWithRoles);
+      return res.status(201).json({
+        type: 'success',
+        message: 'Teacher account created successfully',
+        token,
+        data: {
+          id: newTeacher.Id,
+          email: createdUser.Email,
+          name: `${createdUser.First_Name} ${createdUser.Last_Name}`,
+        },
+      });
     } else {
-      res.status(400).json({ message: 'Invalid role' });
+      return res.status(404).json({
+        type: 'error',
+        message: 'User not found after account creation',
+      });
     }
   } catch (error) {
     console.error('Error creating teacher:', error);
     res.status(500).json({
       type: 'error',
-      message:
-        'Credentials have already been taken, use different email and/or different phone number',
-      data: {},
+      message: 'Error when creating the teacher',
     });
   }
 };
@@ -145,7 +155,7 @@ export const signInTeacher = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     // Find the teacher by email
-    const teacher = await prisma.teacher.findUnique({
+    const teacher = await prisma.user.findUnique({
       where: { Email: email },
       include: {
         user_role: {
@@ -171,7 +181,7 @@ export const signInTeacher = async (req: Request, res: Response) => {
     }
 
     // Prepare roles array
-    const roles = teacher.user_role
+    const roles = isUserRoleArray(teacher.user_role)
       ? teacher.user_role.map((ur) => ({
           id: ur.roles.Id,
           name: ur.roles.name,
@@ -234,7 +244,7 @@ export const updateTeacher = async (req: Request, res: Response) => {
     }
 
     // Fetch the existing teacher record
-    const teacher = await prisma.teacher.findUnique({
+    const teacher = await prisma.user.findUnique({
       where: { Id: teacherId },
       include: {
         user_role: {
@@ -249,36 +259,46 @@ export const updateTeacher = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Teacher not found' });
     }
 
-    // Handle password update if provided
-    if (updateData.password) {
-      const isPasswordValid = await argon2.verify(
-        teacher.password,
-        updateData.currentPassword
-      );
-      if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Invalid current password' });
-      }
-      // Hash the new password before saving
-      updateData.password = await argon2.hash(updateData.password);
-    } else {
-      updateData.password = teacher.password; //keep existing pwd
-    }
+    // // Handle password update if provided
+    // if (updateData.password) {
+    //   const isPasswordValid = await argon2.verify(
+    //     teacher.password,
+    //     updateData.currentPassword
+    //   );
+    //   if (!isPasswordValid) {
+    //     return res.status(401).json({ message: 'Invalid current password' });
+    //   }
+    //   // Hash the new password before saving
+    //   updateData.password = await argon2.hash(updateData.password);
+    // } else {
+    //   updateData.password = teacher.password; //keep existing pwd
+    // }
 
-    // Update teacher information
-    const updatedTeacher = await prisma.teacher.update({
+    // Update user information
+    const updatedUser = await prisma.user.update({
       where: { Id: teacherId },
       data: {
-        ...updateData,
+        password: updateData.password,
+        Email: updateData.Email,
+        Phone: updateData.Phone,
+      },
+    });
+    // Update teacher information
+    const updatedTeacher = await prisma.teacher.update({
+      where: { Id: updatedUser.Id },
+      data: {
+        Salary: updateData.Salary,
+        Image: updateData.Image,
       },
     });
 
     // Handle role updates if roles are included in updateData
     if (updateData.roles) {
       await prisma.user_roles.deleteMany({
-        where: { teacher_id: teacherId },
+        where: { user_id: teacherId },
       });
       const newRoles = updateData.roles.map((roleId: number) => ({
-        teacherId: teacherId,
+        user_id: teacherId,
         roleId: roleId,
       }));
       await prisma.user_roles.createMany({ data: newRoles });
@@ -294,6 +314,7 @@ export const updateTeacher = async (req: Request, res: Response) => {
     res.status(500).json({
       type: 'error',
       message: 'Error updating teacher information',
+      error,
     });
   }
 };
@@ -321,11 +342,16 @@ export const deleteTeacher = async (req: Request, res: Response) => {
 
     // Delete associated roles if necessary
     await prisma.user_roles.deleteMany({
-      where: { teacher_id: teacherId },
+      where: { user_id: teacherId },
     });
 
     // Delete the teacher from the database
     await prisma.teacher.delete({
+      where: { Id: teacherId },
+    });
+
+    // Delete the user from the database
+    await prisma.user.delete({
       where: { Id: teacherId },
     });
 

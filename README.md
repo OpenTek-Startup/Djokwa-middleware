@@ -2,11 +2,17 @@
 
 ## Getting Started
 
+- **Perequisites: make sure you have docker & docker compose installed
+  locally**
+- Clone the staging branch of this repository.
+- Open the project in your favourite code editor _preferrably Visual Studio
+  Code_.
+
 ### # ENV Variables
 
 1. Create a .env file <br>
    Create a .env file in the root directory. See .env.example for variables naming! <br/>
-2. You have to download and install PgAdmin to configure the database URL
+2. You have to download and install PgAdmin to configure the database URL, or install docker, and start the docker application: `npm run db:dev:up`,
 
 3. Generate Public and Private keys <br />
    `Public and private key are used to generate JWT Tokens more securely`.
@@ -42,14 +48,6 @@ Open up your terminal, and type <br >
 
 `yarn build`, if you are using yarn
 <br>
-
-## Getting Started
-
-- **Perequisites: make sure you have docker & docker compose installed
-  locally**
-- Clone the staging branch of this repository.
-- Open the project in your favourite code editor _preferrably Visual Studio
-  Code_.
 
 ## Rules or Folders and Files Naming Conventions
 
