@@ -15,19 +15,7 @@ const prisma = new PrismaClient();
   @desc     Create a new student
 */
 export const createStudent = async (req: Request, res: Response) => {
-  // try {
-    const user = req.user;
-
-    // Check if the user is a teacher
-    // console.log("...",user)
-    if (!user || !user.roles.some((role) => role.name === 'teacher')) {
-      // authentication error here
-      throw new UnauthorizedError("please only teachers are require to create a new student ")
-      // return res.status(403).json({
-      //   type: 'error',
-      //   message: 'Only Teachers can create a student record.',
-      // });
-    }
+  try {
     const studentData = req.body;
 
     // Validate the incoming data
@@ -43,34 +31,40 @@ export const createStudent = async (req: Request, res: Response) => {
       });
     }
 
-    const newStudent = await prisma.student.create({
+    const newStudent = await prisma.user.create({
       data: {
+        Email: 'email',
+        password: 'pwd',
+        role: 'student',
         First_Name: studentData.First_Name,
         Last_Name: studentData.Last_Name,
-        Date_Of_Birth: new Date(studentData.Date_Of_Birth),
-        Address: studentData.Address,
+        // Date_Of_Birth: new Date(studentData.Date_Of_Birth),
+        // Address: studentData.Address,
         Gender: studentData.Gender,
-        Image: studentData.Image,
+        // Image: studentData.Image,
         Phone: studentData.Phone,
-        classId: studentData.classId,
-        Medical_Info: studentData.Medical_Info,
+        // classId: studentData.classId,
+        // Medical_Info: studentData.Medical_Info,
       },
     });
-if(!newStudent) throw new BadRequestError("fail to create student with credentials"+studentData?.data)
+    if (!newStudent)
+      throw new BadRequestError(
+        'fail to create student with credentials' + studentData?.data
+      );
     res.status(201).json({
       type: 'success',
       message: 'Student created successfully',
       data: newStudent,
     });
-  // } catch (error) {
-    // console.error('Error creating student:', error);
-    // throw new BadRequestError("fail creating student ,AUBIM Said so 😁")
-    // res.status(500).json({
-    //   type: 'error',
-    //   message: 'Error creating student',
-    //   data: {},
-    // });
-  // }
+  } catch (error) {
+    console.error('Error creating student:', error);
+    throw new BadRequestError('fail creating student ,AUBIM Said so 😁');
+    res.status(500).json({
+      type: 'error',
+      message: 'Error creating student',
+      data: {},
+    });
+  }
 };
 
 /*
@@ -115,7 +109,6 @@ export const getStudents = async (req: Request, res: Response) => {
     });
   }
 };
-
 
 /*
   @route    GET: /students/:id
@@ -191,12 +184,12 @@ export const updateStudent = async (req: Request, res: Response) => {
     const updatedStudent = await prisma.student.update({
       where: { Id: Number(id) },
       data: {
-        First_Name: updateData.First_Name,
-        Last_Name: updateData.Last_Name,
+        // First_Name: updateData.First_Name,
+        // Last_Name: updateData.Last_Name,
         Date_Of_Birth: new Date(updateData.Date_Of_Birth),
-        Gender: updateData.Gender,
+        // Gender: updateData.Gender,
         Address: updateData.Address,
-        Phone: updateData.Phone,
+        // Phone: updateData.Phone,
         Medical_Info: updateData.Medical_Info,
       },
     });

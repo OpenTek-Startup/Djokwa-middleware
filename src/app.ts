@@ -1,4 +1,4 @@
-import "express-async-errors";
+import 'express-async-errors';
 import express from 'express';
 import cors from 'cors';
 import teacherRoute from './routes/teacher.route';
@@ -39,8 +39,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.get('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
 });
-app.use("*", async (req, res) => {
-  res.status(404).send("HELLO BROTHERMAN , CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒 AUBIM SAID SO ");
+app.use('*', async (req, res) => {
+  res
+    .status(404)
+    .send(
+      'HELLO BROTHERMAN , CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒 AUBIN SAID SO '
+    );
 });
 app.use(errorHandlerMiddleware);
 
@@ -64,9 +68,7 @@ async function startServer() {
   }
 }
 
-
 startServer();
 // Start server
-
 
 module.exports = app;

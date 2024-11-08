@@ -92,17 +92,53 @@ model Registration {
   @@index([Academic_ID])
 }
 
+// Unified User Model
+model User {
+  Id          Int      @id @default(autoincrement())
+  First_Name  String
+  Last_Name   String
+  Email       String   @unique
+  Phone       String?
+  password    String
+  role        String   // e.g. "student", "teacher", "parent", etc.
+  Gender      Gender
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user_role   user_roles[]
+  
+  personnel   Personnel?
+  student     Student?
+  teacher     Teacher?
+  parent      Parent?
+}
+
+// Donation Model
+model Donation {
+  Id           Int      @id @default(autoincrement())
+  Amount       Float
+  DonationDate DateTime @default(now())
+  Reason       String
+  Type         String
+ 
+  First_Name  String?
+  Last_Name   String?
+  Email       String?   @unique
+  Phone       String?
+  Gender      Gender?
+}
+
+// Student Model
 model Student {
-  Id    Int      @id @default(autoincrement())
-  First_Name    String
-  Last_Name     String
-  Date_Of_Birth DateTime
-  Gender        Gender
-  Address       String
-  classId       Int
-  Phone         String?
-  Medical_Info  String?
-  Image         String?
+  Id             Int     @id @default(autoincrement())
+  UserId         Int     @unique
+  Date_Of_Birth  DateTime
+  Address        String
+  classId        Int
+  Medical_Info   String?
+  Image          String?
+
+  user           User      @relation(fields: [UserId], references: [Id])
 
   ParentRelations ParentRelation[]
   assignments     Assignment[]
@@ -115,11 +151,9 @@ model Student {
   Latenesses      Lateness[]
   Disciplines     Discipline[]
   Transcripts     Transcript[]
+  Incident        Incident[]
   payment         Payment[]
-  user_role       user_roles[]
-
-  classes  Classes    @relation(fields: [classId], references: [Id])
-  Incident Incident[]
+  classes         Classes  @relation(fields: [classId], references: [Id])
 
   @@index([classId])
 }
@@ -138,36 +172,29 @@ model ParentRelation {
 }
 
 model Parent {
-  Id       Int              @id @default(autoincrement())
-  Last_Name       String
-  First_Name      String
-  Profession      String?
-  Address         String
-  Email           String           @unique
-  Phone           String?
+  Id             Int     @id @default(autoincrement())
+  UserId         Int     @unique
+  Profession     String?
+  Address        String
   NIC_Information String?
-  password        String
-
-  Relations       ParentRelation[]
-  user_role          user_roles[]
+  
+  user           User     @relation(fields: [UserId], references: [Id])
+  
+  Relations      ParentRelation[]
 }
 
 // Teacher Model
 model Teacher {
-  Id  Int      @id @default(autoincrement())
-  Last_Name   String
-  First_Name  String
-  Email       String   @unique
-  Phone       String   @unique
-  Specialty   String
-  Hiring_Date DateTime
-  Image       String?
-  Salary      Float
-  password    String
-  gender      Gender
-  address     String
+  Id             Int     @id @default(autoincrement())
+  UserId         Int     @unique
+  Specialty      String
+  Hiring_Date    DateTime
+  Salary         Float
+  Image          String?
+  address        String
+  
+  user           User     @relation(fields: [UserId], references: [Id])
 
-  user_role    user_roles[]
   Courses       Course[]
   Leaves        Leaves[]
   Assignment    Assignment[]
@@ -179,25 +206,15 @@ model Teacher {
   abscences     Absence[]
 }
 
-// User's role
 model user_roles {
   Id         Int  @id @default(autoincrement())
-  teacher_id Int? @unique
-  student_id Int? @unique
-  staff_id   Int? @unique
-  parent_id   Int? @unique
+  user_id    Int  @unique
   role_id    Int
+  
+  user       User  @relation(fields: [user_id], references: [Id], onDelete: Cascade)
+  roles      roles @relation(fields: [role_id], references: [Id])
 
-  teachers Teacher?   @relation(fields: [teacher_id], references: [Id], onDelete: Cascade)
-  roles    roles      @relation(fields: [role_id], references: [Id])
-  students Student?   @relation(fields: [student_id], references: [Id], onDelete: Cascade)
-  staffs   Personnel? @relation(fields: [staff_id], references: [Id], onDelete: Cascade)
-  parents Parent?     @relation(fields: [parent_id], references: [Id], onDelete: Cascade)
-
-  @@index([teacher_id])
-  @@index([staff_id])
-  @@index([student_id])
-  @@index([parent_id])
+  @@index([user_id])
   @@index([role_id])
 }
 
@@ -368,15 +385,15 @@ model Event {
 
 // Personnel Model 
 model Personnel {
-  Id   Int    @id @default(autoincrement())
-  Email      String @unique
-  Staff_Role String
-  password   String
+  Id             Int     @id @default(autoincrement())
+  UserId         Int     @unique
+  Staff_Role     String
+  
+  user           User     @relation(fields: [UserId], references: [Id])
 
   Leaves        Leaves[]
   RHEvaluations RHEvaluation[]
   PaySleeps     PaySleep[]
-  user_role     user_roles[]
 }
 
 // PaySleep Model (Payroll or Salary Slips)

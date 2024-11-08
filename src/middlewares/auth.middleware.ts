@@ -9,8 +9,8 @@ interface JwtPayloadCustom extends JwtPayload {
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key';
 
-// Check for permissions based on user roles
-export const authMiddleware = (requiredRoles: String[]) => {
+// Middleware to check for required permissions based on user roles
+export const authMiddleware = (requiredRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers['authorization']?.split(' ')[1];
 
@@ -27,14 +27,13 @@ export const authMiddleware = (requiredRoles: String[]) => {
 
       const user = decoded as JwtPayloadCustom;
 
-      // Check if roles exist
-      if (!user.roles) {
+      if (!user.roles || user.roles.length === 0) {
         return res
           .status(403)
           .json({ message: 'Access forbidden: no roles found' });
       }
 
-      // Check if the user has at least one of the required roles
+      // Check if the user has any of the required roles
       const hasPermission = user.roles.some((role) =>
         requiredRoles.includes(role.name)
       );
@@ -51,7 +50,7 @@ export const authMiddleware = (requiredRoles: String[]) => {
   };
 };
 
-// generate the token
+// Token generation function
 export const generateToken = (user: {
   id: number;
   email: string;

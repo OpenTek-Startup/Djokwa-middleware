@@ -23,40 +23,40 @@ const assignRole = asyncHandler(
       switch (role.name) {
         case 'admin':
           await prisma.user_roles.upsert({
-            where: { teacher_id: userId },
-            create: { teacher_id: userId, role_id: role.Id },
+            where: { user_id: userId },
+            create: { user_id: userId, role_id: role.Id },
             update: { role_id: role.Id },
           });
           break;
 
         case 'teacher':
           await prisma.user_roles.upsert({
-            where: { teacher_id: userId },
-            create: { teacher_id: userId, role_id: role.Id },
+            where: { user_id: userId },
+            create: { user_id: userId, role_id: role.Id },
             update: { role_id: role.Id },
           });
           break;
 
-        // case 'student':
-        //   await prisma.user_roles.upsert({
-        //     where: { student_id: userId },
-        //     create: { student_id: userId, role_id: role.Id },
-        //     update: { role_id: role.Id },
-        //   });
-        //   break;
+        case 'student':
+          await prisma.user_roles.upsert({
+            where: { user_id: userId },
+            create: { user_id: userId, role_id: role.Id },
+            update: { role_id: role.Id },
+          });
+          break;
 
         case 'staff':
           await prisma.user_roles.upsert({
-            where: { staff_id: userId },
-            create: { staff_id: userId, role_id: role.Id },
+            where: { user_id: userId },
+            create: { user_id: userId, role_id: role.Id },
             update: { role_id: role.Id },
           });
           break;
 
         case 'parent':
           await prisma.user_roles.upsert({
-            where: { student_id: userId },
-            create: { student_id: userId, role_id: role.Id },
+            where: { user_id: userId },
+            create: { user_id: userId, role_id: role.Id },
             update: { role_id: role.Id },
           });
           break;
