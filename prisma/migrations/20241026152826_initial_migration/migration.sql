@@ -384,13 +384,29 @@ CREATE TABLE "Expenses" (
 -- CreateTable
 CREATE TABLE "Income" (
     "Income_ID" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
     "Description" TEXT,
     "Amount" DOUBLE PRECISION NOT NULL,
     "Date" TIMESTAMP(3) NOT NULL,
     "IncomeType" TEXT NOT NULL,
+    "User_ID" INTEGER NOT NULL,
 
     CONSTRAINT "Income_pkey" PRIMARY KEY ("Income_ID")
+);
+
+-- CreateTable
+CREATE TABLE "User" (
+    "User_ID" SERIAL NOT NULL,
+    "First_Name" TEXT NOT NULL,
+    "Last_Name" TEXT NOT NULL,
+    "Email" TEXT NOT NULL,
+    "Phone" TEXT,
+    "Address" TEXT,
+    "Password" TEXT NOT NULL,
+    "Gender" "Gender" NOT NULL,
+    "Created_At" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "Updated_At" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "User_pkey" PRIMARY KEY ("User_ID")
 );
 
 -- CreateTable
@@ -419,6 +435,9 @@ CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "classes_class_name_key" ON "classes"("class_name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_Email_key" ON "User"("Email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_TeacherToclasses_AB_unique" ON "_TeacherToclasses"("A", "B");
@@ -533,6 +552,9 @@ ALTER TABLE "RHEvaluation" ADD CONSTRAINT "RHEvaluation_Teacher_ID_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "Expenses" ADD CONSTRAINT "Expenses_Budget_ID_fkey" FOREIGN KEY ("Budget_ID") REFERENCES "Budget"("Budget_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Income" ADD CONSTRAINT "Income_User_ID_fkey" FOREIGN KEY ("User_ID") REFERENCES "User"("User_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_TeacherToclasses" ADD CONSTRAINT "_TeacherToclasses_A_fkey" FOREIGN KEY ("A") REFERENCES "Teacher"("Teacher_ID") ON DELETE CASCADE ON UPDATE CASCADE;

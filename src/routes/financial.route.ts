@@ -1,32 +1,63 @@
 import express from 'express';
-import { createBudget, getAllBudgets, updateBudget, deleteBudget, createAnnualBudget, getAnnualBudget } from '../controllers/budget.controller';
-import { createExpense, getAllExpenses, updateExpense, deleteExpense } from '../controllers/expenses.controller';
-import { recordTuitionPayment } from '../controllers/income.controller';
-import { createProduct, getAllProducts, updateProduct, deleteProduct } from '../controllers/product.controller';
-
+import { createBudget,  compareExpensesToBudget } from '../controllers/budget.controller';
+import { createExpense, approveExpense, generateExpenseReport, } from '../controllers/expenses.controller';
+import { filterIncome, createIncome, generateReceipt } from '../controllers/income.controller';
+import { createProduct, getAllProducts, updateProduct, deleteProduct, getProductById, checkInventoryLevels, recordSale } from '../controllers/product.controller';
+import {
+    generateBalanceSheet,
+    generateCashFlowReport,
+    exportReportToPDF,
+    exportReportToExcel,
+  } from '../controllers/financialReport.controller';
 const router = express.Router();
 
-// Budget Routes
+// Route to create a new budget
 router.post('/budget', createBudget);
-router.get('/budgets', getAllBudgets);
-router.put('/budget/:id', updateBudget);
-router.delete('/budget/:id', deleteBudget);
-router.post('/budget/annual', createAnnualBudget);
-router.get('/budget/annual/:year', getAnnualBudget);
+
+// Route to compare actual expenses against a specific budget
+router.get('/budget/:budgetId/compare', compareExpensesToBudget);
+
 
 // Expense Routes
+// Route to create a new expense
 router.post('/expense', createExpense);
-router.get('/expenses', getAllExpenses);
-router.put('/expense/:id', updateExpense);
-router.delete('/expense/:id', deleteExpense);
+
+// Route to approve or reject an expense
+router.put('/expense/:id/approve', approveExpense);
+
+// Route to generate an expense report
+router.get('/expense/report', generateExpenseReport);
+
+
+
 
 // Income Routes
-router.post('/income/tuition', recordTuitionPayment);
+// Route to manually input income data
+router.post('/income', createIncome);
 
-// Product Routes
-router.post('/product', createProduct);
+// Route to generate receipt for specific income entry
+router.get('/income/:id/receipt', generateReceipt);
+
+// Route to filter income data by criteria
+router.get('/income/filter', filterIncome);
+
+// CRUD Routes for Products
+router.post('/products', createProduct);
 router.get('/products', getAllProducts);
-router.put('/product/:id', updateProduct);
-router.delete('/product/:id', deleteProduct);
+router.get('/products/:id', getProductById);
+router.put('/products/:id', updateProduct);
+router.delete('/products/:id', deleteProduct);
 
+// Inventory Management Routes
+router.get('/products/inventory/check', checkInventoryLevels);
+router.post('/products/sale', recordSale);
+
+
+// Generate financial reports
+router.get('/reports/balance-sheet', generateBalanceSheet);
+router.get('/reports/cash-flow', generateCashFlowReport);
+
+// Export reports to different formats
+router.get('/reports/export/pdf', exportReportToPDF);
+router.get('/reports/export/excel', exportReportToExcel);
 export default router;

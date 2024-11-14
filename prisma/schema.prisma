@@ -330,7 +330,13 @@ model Payment {
 model Service {
   Service_ID   Int      @id @default(autoincrement())
   Name         String
-  Logo         String?
+  Description    String?
+  Price          Float
+  Revenue        Float     @default(0) // Total revenue generated from this service
+  CreatedAt      DateTime  @default(now())
+  UpdatedAt      DateTime  @updatedAt
+
+  Transactions   Transaction[]
 
   Payments     Payment[]
 }
@@ -352,6 +358,7 @@ model Personnel {
   RHEvaluations RHEvaluation[]
   PaySleeps    PaySleep[]
   role user_roles[]
+  Expenses Expenses[]
 }
 
 // PaySleep Model (Payroll or Salary Slips)
@@ -382,15 +389,48 @@ model Warehouse {
 
 // Product Model (Items stored in the warehouse)
 model Product {
-  Product_ID   Int      @id @default(autoincrement())
-  Name         String
-  Category     String
-  Quantity     Int
-  Price        Float
-  Warehouse_ID Int
+  Product_ID     Int       @id @default(autoincrement())
+  Name           String
+  Description    String?
+  Category       String    // e.g., "Textbook", "Uniform"
+  Price          Float
+  Quantity       Int       // Current stock level
+  LowStockAlert  Int       // Minimum quantity before low stock alert
+  Warehouse_ID   Int       // Link to warehouse
+  CreatedAt      DateTime  @default(now())
+  UpdatedAt      DateTime  @updatedAt
 
-  Warehouse    Warehouse @relation(fields: [Warehouse_ID], references: [Warehouse_ID])
+  Warehouse      Warehouse @relation(fields: [Warehouse_ID], references: [Warehouse_ID])
+  Transactions   Transaction[]
 }
+
+
+
+
+// model Service {
+//   Service_ID     Int       @id @default(autoincrement())
+//   Name           String
+//   Description    String?
+//   Price          Float
+//   Revenue        Float     @default(0) // Total revenue generated from this service
+//   CreatedAt      DateTime  @default(now())
+//   UpdatedAt      DateTime  @updatedAt
+
+//   Transactions   Transaction[]
+// }
+
+model Transaction {
+  Transaction_ID Int       @id @default(autoincrement())
+  Product_ID     Int?      // For product-related transactions
+  Service_ID     Int?      // For service-related transactions
+  Quantity       Int?      // Quantity of product sold, if applicable
+  TotalAmount    Float
+  TransactionDate DateTime @default(now())
+
+  Product        Product?  @relation(fields: [Product_ID], references: [Product_ID])
+  Service        Service?  @relation(fields: [Service_ID], references: [Service_ID])
+}
+
 
 // Leaves Model (Employee leave records)
 model Leaves {
@@ -427,15 +467,28 @@ model RHEvaluation {
 }
 
 // Budget Model (Financial allocation)
-model Budget {
-  Budget_ID   Int      @id @default(autoincrement())
-  Name        String
-  Description String
-  Amount      Float
-  Year        String   // e.g., "2024"
-  Expenses    Expenses[]
-  PaySleeps   PaySleep[]
+enum TimeFrame {
+  Daily
+  Weekly
+  Monthly
+  Annual
 }
+
+model Budget {
+  Budget_ID     Int         @id @default(autoincrement())
+  Name          String
+  Description   String?
+  Amount        Float       // Total allocated budget amount
+  ActualExpenses Float?     // Tracks actual expenses against the budget
+  Year          String      // e.g., "2024"
+  TimeFrame String @default("default_value")   // "Daily", "Weekly", "Monthly", "Annual"
+  CreatedAt     DateTime    @default(now())
+  UpdatedAt     DateTime     @default(now())
+
+  Expenses      Expenses[]  // Relation to Expenses
+  Paysleeps     PaySleep[]
+}
+
 
 // Expenses Model (Tracking expenses)
 model Expenses {
@@ -444,17 +497,56 @@ model Expenses {
   Description String?
   Amount      Float
   Date        DateTime
+  Department  String
+  Type        ExpenseType
+  Vendor      String?
+  Status      ApprovalStatus
+  ApprovedBy  Int?
   Budget_ID   Int
-  Budget      Budget   @relation(fields: [Budget_ID], references: [Budget_ID]) 
- 
+  
+  Budget      Budget   @relation(fields: [Budget_ID], references: [Budget_ID])
+  Approver    Personnel? @relation(fields: [ApprovedBy], references: [Staff_ID])
+}
+
+enum ExpenseType {
+  PAYROLL
+  UTILITIES
+  MAINTENANCE
+  SUPPLIES
+  OTHER
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // Income Model (Tracking revenue)
 model Income {
-  Income_ID   Int      @id @default(autoincrement())
-  Name        String
-  Description String?
-  Amount      Float
-  Date        DateTime
-  IncomeType  String
+  Income_ID    Int       @id @default(autoincrement())
+  Description  String?
+  Amount       Float
+  Date         DateTime
+  IncomeType   String   // e.g., "Tuition", "Donation", "Grant", etc.
+  User_ID      Int      // Link to the user who made the payment
+  User         User     @relation("IncomeUser", fields: [User_ID], references: [User_ID])
+}
+
+
+// user model
+model User {
+  User_ID      Int       @id @default(autoincrement())
+  First_Name   String
+  Last_Name    String
+  Email        String    @unique
+  Phone        String?
+  Address      String?
+  Password     String
+  //Role         UserRole  // e.g., "Student", "Parent", etc.
+  Gender       Gender
+  Created_At   DateTime  @default(now())
+  Updated_At   DateTime  @updatedAt
+
+  Incomes      Income[]  @relation("IncomeUser")
 }
