@@ -46,6 +46,7 @@
     "@typescript-eslint/parser": "^5.57.0",
     "argon2": "^0.41.1",
     "autoprefixer": "^10.4.19",
+    "axios": "^1.7.7",
     "babel-plugin-named-exports-order": "^0.0.2",
     "bcrypt": "^5.1.1",
     "chartjs-node-canvas": "^4.1.6",
