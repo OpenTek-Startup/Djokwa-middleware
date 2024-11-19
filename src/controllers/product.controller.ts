@@ -7,6 +7,17 @@ const prisma = new PrismaClient();
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   const { Name, Description, Category, Price, Quantity, LowStockAlert, Warehouse_ID } = req.body;
   try {
+    // Check if the warehouse exists
+    const warehouseExists = await prisma.warehouse.findUnique({
+      where: { Warehouse_ID },
+    });
+
+    if (!warehouseExists) {
+      res.status(400).json({ error: "Warehouse does not exist" });
+      return;
+    }
+
+    // Create the new product
     const newProduct = await prisma.product.create({
       data: {
         Name,
@@ -20,7 +31,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
     });
     res.status(201).json(newProduct);
   } catch (error: any) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 

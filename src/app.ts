@@ -22,6 +22,7 @@ app.use('/api/teacher', teacherRoute);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
+
 // Health check endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
