@@ -2,12 +2,19 @@
 
 ## Getting Started
 
+- **Perequisites: make sure you have docker & docker compose installed
+  locally**
+- Clone the staging branch of this repository.
+- Open the project in your favourite code editor _preferrably Visual Studio
+  Code_.
+
 ### # ENV Variables
 
 1. Create a .env file <br>
-   Create a .env file in the root directory. See .env.example for variables naming! You have to download and install PgAdmin to configure the database URL
+   Create a .env file in the root directory. See .env.example for variables naming! <br/>
+2. You have to download and install PgAdmin to configure the database URL, or install docker, and start the docker application: `npm run db:dev:up`,
 
-2. Generate Public and Private keys <br />
+3. Generate Public and Private keys <br />
    `Public and private key are used to generate JWT Tokens more securely`.
    You can easily generate them in here <br />
    https://app.id123.io/free-tools/key-generator/. <br />
@@ -41,14 +48,6 @@ Open up your terminal, and type <br >
 
 `yarn build`, if you are using yarn
 <br>
-
-## Getting Started
-
-- **Perequisites: make sure you have docker & docker compose installed
-  locally**
-- Clone the staging branch of this repository.
-- Open the project in your favourite code editor _preferrably Visual Studio
-  Code_.
 
 ## Rules or Folders and Files Naming Conventions
 
@@ -116,7 +115,7 @@ OR
     $ npm run commit
 ```
 
-Please follow the questionaires that follow to commit your work (please make sure to provide descriptive commit messages).
+Please follow the questionaires that follow to commit your work (please make sure to provide .descriptive commit messages).
 
 ## Branch Naming Convention
 

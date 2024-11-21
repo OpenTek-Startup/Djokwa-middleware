@@ -85,7 +85,7 @@ export class UpdateTeacherDto {
   @IsOptional()
   Phone?: string;
 
-  // @IsString({ message: 'Password must be a string.' })
-  // @IsNotEmpty({ message: 'Password is required to update your information.' })
-  // password!: string;
+  @IsString({ message: 'Password must be a string.' })
+  @IsNotEmpty({ message: 'Password is required to update your information.' })
+  password?: string;
 }

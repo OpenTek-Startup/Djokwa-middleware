@@ -128,15 +128,23 @@ const router = Router();
  */
 router.post('/sign-in', signInTeacher);
 router.post('/sign-up', signUpTeacher);
-router.put('/update', authMiddleware, updateTeacher);
-router.delete('/delete', authMiddleware, deleteTeacher);
-router.post('/logout', authMiddleware, logoutTeacher);
+router.put('/update', authMiddleware(['teacher', 'admin']), updateTeacher);
+router.delete('/delete', authMiddleware(['teacher']), deleteTeacher);
+router.post('/logout', authMiddleware(['teacher']), logoutTeacher);
 router.get('/all-teachers', getTeachers);
 router.get('/:id/classes', getClassesForTeachers);
 router.get('/:id/subjects', getSubjectsForTeacher);
-router.get('/:id/absences', getAbsencesForTeacher);
-router.get('/:id/disciplines', getDisciplineForTeacher);
-router.get('/:id/pay-sleeps', getPaysleepsForTeacher);
+router.get('/:id/absences', authMiddleware(['teacher']), getAbsencesForTeacher);
+router.get(
+  '/:id/disciplines',
+  authMiddleware(['teacher']),
+  getDisciplineForTeacher
+);
+router.get(
+  '/:id/pay-sleeps',
+  authMiddleware(['teacher']),
+  getPaysleepsForTeacher
+);
 router.get('/:id/rhevaluations', getRHEvaluationForTeacher);
 router.get('/:id/leaves', getLeavesForTeacher);
 

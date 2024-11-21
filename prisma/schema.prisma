@@ -39,6 +39,12 @@ enum ProgressStatus {
   Completed
 }
 
+enum LeaveStatus {
+  Pending
+  Approved
+  Denied
+}
+
 enum AbsenceStatus {
   PRESENT
   ABSENT
@@ -65,31 +71,64 @@ enum LeaveType {
 }
 
 model SchoolYear {
-  Academic_ID Int      @id @default(autoincrement())
+  Id Int      @id @default(autoincrement())
   Start_date  DateTime
   End_date    DateTime
-  year        String  //e.g. "2024-2025"
+  year        String //e.g. "2024-2025"
 
   Registrations Registration[]
 }
 
 model Registration {
-  Registration_ID Int    @id @default(autoincrement())
+  Id   Int      @id @default(autoincrement())
   Registration_Date DateTime
-  Student_ID       Int
-  Academic_ID      Int
+  Student_ID        Int
+  Academic_ID       Int
 
-  Student          Student @relation(fields: [Student_ID], references: [Id])
-  Academic_Year    SchoolYear  @relation(fields: [Academic_ID], references: [Academic_ID])
+  Student       Student    @relation(fields: [Student_ID], references: [Id])
+  Academic_Year SchoolYear @relation(fields: [Academic_ID], references: [Id])
+
+  @@index([Student_ID])
+  @@index([Academic_ID])
 }
 
+// Unified User Model
+model User {
+  Id          Int      @id @default(autoincrement())
+  First_Name  String
+  Last_Name   String
+  Email       String   @unique
+  Phone       String?
+  password    String
+  role        String   // e.g. "student", "teacher", "parent", etc.
+  Gender      Gender
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user_role   user_roles[]
+  
+  personnel   Personnel?
+  student     Student?
+  teacher     Teacher?
+  parent      Parent?
+}
 
+// Donation Model
+model Donation {
+  Id           Int      @id @default(autoincrement())
+  Amount       Float
+  DonationDate DateTime @default(now())
+  Reason       String
+  Type         String
+ 
+  First_Name  String?
+  Last_Name   String?
+  Email       String?   @unique
+  Phone       String?
+  Gender      Gender?
+}
 
-
-
-
-
-// Teacher Model
+// Student Model
 model Student {
   Id             Int     @id @default(autoincrement())
   UserId         Int     @unique
@@ -117,21 +156,6 @@ model Student {
   classes         Classes  @relation(fields: [classId], references: [Id])
 
   @@index([classId])
-}
-model Incident {
-  Id                Int      @id @default(autoincrement())
-  Student_ID                 Int
-  place                      String
-  witness                    String
-  description                String   @default("Pending")
-  disciplinary_recomendation String?
-  DateTime                   DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
-
-  // Foreign key relationship
-  student Student @relation(fields: [Student_ID], references: [Id])
-
-  @@index([Student_ID])
 }
 
 model ParentRelation {
@@ -339,58 +363,10 @@ model Payment {
   Service_ID   Int
 
   Student Student @relation(fields: [Student_ID], references: [Id])
-  Service Service @relation(fields: [Service_ID], references: [Service_ID])
- @@index([Student_ID])
+  Service Service @relation(fields: [Service_ID], references: [Id])
+
+  @@index([Student_ID])
   @@index([Service_ID])
-}
-
-
-
-
-
-// Class Management
-model Classes {
-  Id          Int    @id @default(autoincrement())
-  name              String
-  classCode         String @unique
-  teacherId         Int
-  capacity          Int
-  currentEnrollment Int    @default(0)
-
-  Courses     Course[]
-  Assignment Assignment[]
-  class_attendance Absence[]
-  Student    Student[]
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-
-  Teacher    Teacher      @relation(fields: [teacherId], references: [Id])
-
-  @@index([teacherId])
-}
-
-model Course {
-  Id   Int      @id @default(autoincrement())
-  Name        String
-  courseCode  Int
-  Coefficient Int
-  Start_Date  DateTime
-  End_Date    DateTime
-  Teacher_ID  Int
-  Class_Level Int
-  Class_ID    Int
-
-  Chapters   Chapter[]
-  Schedules  Schedule[]
-  Student    Student[]
-  Grades     Grade[]
-  transcript Transcript[]
-  Assignment Assignment[]
-  Teacher    Teacher      @relation(fields: [Teacher_ID], references: [Id])
-  classes      Classes      @relation(fields: [Class_ID], references: [Id])
-
-  @@index([Teacher_ID])
-  @@index([Class_ID])
 }
 model Assignment {
   Id Int      @id @default(autoincrement())
@@ -463,13 +439,13 @@ model Service {
 
   Transactions   Transaction[]
 
-  Payments     Payment[]
+  Payments Payment[]
 }
 
 model Event {
-  Event_ID     Int      @id @default(autoincrement())
-  Name         String
-  Logo         String?
+  Id Int     @id @default(autoincrement())
+  Name     String
+  Logo     String?
 }
 
 // Personnel Model 
@@ -514,7 +490,7 @@ model PaySleep {
 
 // Warehouse Model (Storage locations)
 model Warehouse {
-  Warehouse_ID Int      @id @default(autoincrement())
+  Id Int       @id @default(autoincrement())
   Name         String
   Location     String
   Products     Product[]
@@ -557,16 +533,18 @@ model Transaction {
 
 // Leaves Model (Employee leave records)
 model Leaves {
-  Leave_ID     Int      @id @default(autoincrement())
+  Id     Int         @id @default(autoincrement())
   FirstName    String
   LastName     String
-  JerseyNum    String
-  Position     String
-  Start_Date   DateTime
+  JerseyNum    String?
+  Start_Date   DateTime    @default(now())
   End_Date     DateTime
-  Type         LeaveType 
+  Type         LeaveType
   Personnel_ID Int?
   Teacher_ID   Int?
+  Status       LeaveStatus
+  Personnel    Personnel?  @relation(fields: [Personnel_ID], references: [Id])
+  Teacher      Teacher?    @relation(fields: [Teacher_ID], references: [Id])
 
   Personnel    Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
   Teacher      Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
@@ -574,19 +552,22 @@ model Leaves {
 
 // RHEvaluation Model (Human resource evaluations)
 model RHEvaluation {
-  RHEvaluation_ID Int      @id @default(autoincrement())
+  Id Int      @id @default(autoincrement())
   FirstName       String
   LastName        String
   JerseyNum       String
   Position        String
   Evaluation_Date DateTime
-  Score           Int     
+  Score           Int
   Comments        String?
   Personnel_ID    Int?
   Teacher_ID      Int?
 
-  Personnel       Personnel? @relation(fields: [Personnel_ID], references: [Id]) // Link to Personnel
-  Teacher         Teacher?   @relation(fields: [Teacher_ID], references: [Id]) // Link to Teacher
+  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
+  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
+
+  @@index([Personnel_ID])
+  @@index([Teacher_ID])
 }
 
 // Budget Model (Financial allocation)
@@ -615,7 +596,7 @@ model Budget {
 
 // Expenses Model (Tracking expenses)
 model Expenses {
-  Expense_ID  Int      @id @default(autoincrement())
+  Id  Int      @id @default(autoincrement())
   Name        String
   Description String?
   Amount      Float
