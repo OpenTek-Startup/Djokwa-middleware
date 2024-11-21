@@ -17,9 +17,9 @@ const router = express.Router();
 
 /**
  * @swagger
- * tags:[]
- *   name: Financial module
- *   description: Operations related to finances
+ * tags:
+ *   - name: Financial module
+ *     description: Financial operations and management
  */
     
 

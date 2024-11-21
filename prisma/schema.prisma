@@ -111,6 +111,7 @@ model User {
   student     Student?
   teacher     Teacher?
   parent      Parent?
+   Incomes      Income[]  @relation("IncomeUser")
 }
 
 // Donation Model
@@ -363,11 +364,56 @@ model Payment {
   Service_ID   Int
 
   Student Student @relation(fields: [Student_ID], references: [Id])
-  Service Service @relation(fields: [Service_ID], references: [Id])
+  Service Service @relation(fields: [Service_ID], references: [Service_ID])
 
   @@index([Student_ID])
   @@index([Service_ID])
 }
+
+model Classes {
+  Id          Int    @id @default(autoincrement())
+  name              String
+  classCode         String @unique
+  teacherId         Int
+  capacity          Int
+  currentEnrollment Int    @default(0)
+
+  Courses     Course[]
+  Assignment Assignment[]
+  class_attendance Absence[]
+  Student    Student[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  Teacher    Teacher      @relation(fields: [teacherId], references: [Id])
+
+  @@index([teacherId])
+}
+
+model Course {
+  Id   Int      @id @default(autoincrement())
+  Name        String
+  courseCode  Int
+  Coefficient Int
+  Start_Date  DateTime
+  End_Date    DateTime
+  Teacher_ID  Int
+  Class_Level Int
+  Class_ID    Int
+
+  Chapters   Chapter[]
+  Schedules  Schedule[]
+  Student    Student[]
+  Grades     Grade[]
+  transcript Transcript[]
+  Assignment Assignment[]
+  Teacher    Teacher      @relation(fields: [Teacher_ID], references: [Id])
+  classes      Classes      @relation(fields: [Class_ID], references: [Id])
+
+  @@index([Teacher_ID])
+  @@index([Class_ID])
+}
+
 model Assignment {
   Id Int      @id @default(autoincrement())
   dueDate       DateTime
@@ -409,7 +455,54 @@ model Submission {
   @@index([studentId])
   @@index([assignmentId])
 }
+model BlockNote {
+  Id         Int       @id @default(autoincrement())
+  task       String
+  isComplete Boolean   @default(false)
+  deadline   DateTime?
+  note       String?
+  title      String
+  createdAt  DateTime  @default(now())
+}
 
+model Incident {
+  Id                Int      @id @default(autoincrement())
+  Student_ID                 Int
+  place                      String
+  witness                    String
+  description                String   @default("Pending")
+  disciplinary_recomendation String?
+  DateTime                   DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  // Foreign key relationship
+  student Student @relation(fields: [Student_ID], references: [Id])
+
+  @@index([Student_ID])
+}
+
+model SchoolEvent {
+  Id    Int       @id @default(autoincrement())
+  venue       String
+  organizer   String
+  date        DateTime
+  description String
+  fieldTrip   String
+}
+
+model TokenBlacklist {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  Id      Int       @id @default(autoincrement())
+  title   String
+  time    DateTime
+  message String
+  type    String
+}
 
 
 
@@ -490,7 +583,7 @@ model PaySleep {
 
 // Warehouse Model (Storage locations)
 model Warehouse {
-  Id Int       @id @default(autoincrement())
+  Warehouse_ID Int       @id @default(autoincrement())
   Name         String
   Location     String
   Products     Product[]
@@ -546,8 +639,7 @@ model Leaves {
   Personnel    Personnel?  @relation(fields: [Personnel_ID], references: [Id])
   Teacher      Teacher?    @relation(fields: [Teacher_ID], references: [Id])
 
-  Personnel    Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
-  Teacher      Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
+ 
 }
 
 // RHEvaluation Model (Human resource evaluations)
@@ -640,36 +732,4 @@ model Income {
 
 // user model
 
-model User {
-  Id          Int      @id @default(autoincrement())
-  First_Name  String
-  Last_Name   String
-  Email       String   @unique
-  Phone       String?
-  password    String
-  role        String   // e.g. "student", "teacher", "parent", etc.
-  Gender      Gender
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  user_role   user_roles[]
-  
-  personnel   Personnel?
-  student     Student?
-  teacher     Teacher?
-  parent      Parent?
-  Incomes      Income[]  @relation("IncomeUser")
-}
-model Donation {
-  Id           Int      @id @default(autoincrement())
-  Amount       Float
-  DonationDate DateTime @default(now())
-  Reason       String
-  Type         String
- 
-  First_Name  String?
-  Last_Name   String?
-  Email       String?   @unique
-  Phone       String?
-  Gender      Gender?
-}
+
