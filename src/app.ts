@@ -14,15 +14,27 @@ import incidentRoute from './routes/incident.route';
 import schoolEventRoute from './routes/schoolEvent.route';
 import errorHandlerMiddleware from './middlewares/errorHandlerMiddleware';
 import NotificationRoute from './routes/notification.route';
+import cookieParser from 'cookie-parser';
 export const prisma = new PrismaClient();
 
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+  'http://127.0.0.1:3000',
+];
+const corsOptions = {
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // Allow cookies to be sent
+};
 
 // Middleware
 app.use(express.json()); // Parse JSON bodies
-app.use(cors());
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 // main route
 app.use('/api/teacher', teacherRoute);
