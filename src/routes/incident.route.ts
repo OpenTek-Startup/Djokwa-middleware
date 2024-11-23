@@ -13,7 +13,7 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: Incidents
+ *   name: Admin
  *   description: Operations related to disciplinary incidents
  */
 
@@ -22,7 +22,7 @@ const router = Router();
  * paths:
  *   /api/admin/incident/create:
  *     post:
- *       tags: [Incidents]
+ *       tags: [Admin]
  *       summary: Create a new disciplinary incident
  *       requestBody:
  *         required: true
@@ -65,7 +65,7 @@ const router = Router();
  * @swagger
  *   /api/admin/incident:
  *     get:
- *       tags: [Incidents]
+ *       tags: [Admin]
  *       summary: Retrieve all incidents
  *       responses:
  *         200:
@@ -78,7 +78,7 @@ const router = Router();
  * @swagger
  *   /api/admin/incident/{id}:
  *     get:
- *       tags: [Incidents]
+ *       tags: [Admin]
  *       summary: Get incident details by ID
  *       parameters:
  *         - name: id
@@ -98,7 +98,7 @@ const router = Router();
  * @swagger
  *   /api/admin/incident/{id}:
  *     put:
- *       tags: [Incidents]
+ *       tags: [Admin]
  *       summary: Update incident by ID
  *       parameters:
  *         - name: id
@@ -133,7 +133,7 @@ const router = Router();
  * @swagger
  *   /api/admin/incident/{id}:
  *     delete:
- *       tags: [Incidents]
+ *       tags: [Admin]
  *       summary: Delete incident by ID
  *       parameters:
  *         - name: id

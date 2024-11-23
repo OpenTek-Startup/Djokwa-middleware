@@ -201,7 +201,7 @@ const router = Router();
  */
 
 // Class Routes
-router.post('/class', authMiddleware, createClass);
+router.post('/class', authMiddleware(['admin', 'teacher']), createClass);
 router.get('/get-class', getClass);
 router.put('/update-class/:id', authMiddleware, updateClass);
 router.delete('/class/:id', authMiddleware, deleteClass);

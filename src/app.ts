@@ -6,6 +6,8 @@ import humanResourcesRoute from './routes/humanResources.route';
 import blockNoteRoute from './routes/blocknote.route';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from '../swagger';
+// Financial Module Routes
+import financialRoutes from './routes/financial.route';
 
 import { PrismaClient } from '@prisma/client';
 import studentRoute from './routes/student.route';
@@ -45,6 +47,7 @@ app.use('/api/blocknotes', blockNoteRoute);
 app.use('/api/incident', incidentRoute);
 app.use('/api/schoolEvents', schoolEventRoute);
 app.use('/api/notification', NotificationRoute);
+app.use('/api/financial', financialRoutes);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

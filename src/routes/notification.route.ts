@@ -13,7 +13,7 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: Notifications
+ *   name: Admin
  *   description: Operations related to disciplinary Notifications
  */
 
@@ -22,7 +22,7 @@ const router = Router();
  * paths:
  *   /api/admin/Notification/create:
  *     post:
- *       tags: [Notifications]
+ *       tags: [Admin]
  *       summary: Create a new disciplinary Notification
  *       requestBody:
  *         required: true
@@ -65,7 +65,7 @@ const router = Router();
  * @swagger
  *   /api/admin/Notification:
  *     get:
- *       tags: [Notifications]
+ *       tags: [Admin]
  *       summary: Retrieve all Notifications
  *       responses:
  *         200:
@@ -78,7 +78,7 @@ const router = Router();
  * @swagger
  *   /api/admin/Notification/{id}:
  *     get:
- *       tags: [Notifications]
+ *       tags: [Admin]
  *       summary: Get Notification details by ID
  *       parameters:
  *         - name: id
@@ -98,7 +98,7 @@ const router = Router();
  * @swagger
  *   /api/admin/Notification/{id}:
  *     put:
- *       tags: [Notifications]
+ *       tags: [Admin]
  *       summary: Update Notification by ID
  *       parameters:
  *         - name: id
@@ -133,7 +133,7 @@ const router = Router();
  * @swagger
  *   /api/admin/Notification/{id}:
  *     delete:
- *       tags: [Notifications]
+ *       tags: [Admin]
  *       summary: Delete Notification by ID
  *       parameters:
  *         - name: id

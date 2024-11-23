@@ -39,12 +39,6 @@ enum ProgressStatus {
   Completed
 }
 
-enum LeaveStatus {
-  Pending
-  Approved
-  Denied
-}
-
 enum AbsenceStatus {
   PRESENT
   ABSENT
@@ -68,6 +62,27 @@ enum LeaveType {
   MaternityLeave
   PaternityLeave
   Other
+}
+
+enum ExpenseType {
+  PAYROLL
+  UTILITIES
+  MAINTENANCE
+  SUPPLIES
+  OTHER
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TimeFrame {
+  Daily
+  Weekly
+  Monthly
+  Annual
 }
 
 model SchoolYear {
@@ -111,6 +126,7 @@ model User {
   student     Student?
   teacher     Teacher?
   parent      Parent?
+   Incomes      Income[]  @relation("IncomeUser")
 }
 
 // Donation Model
@@ -369,152 +385,6 @@ model Payment {
   @@index([Service_ID])
 }
 
-model Service {
-  Id Int     @id @default(autoincrement())
-  Name       String
-  Logo       String?
-
-  Payments Payment[]
-}
-
-model Event {
-  Id Int     @id @default(autoincrement())
-  Name     String
-  Logo     String?
-}
-
-// Personnel Model 
-model Personnel {
-  Id             Int     @id @default(autoincrement())
-  UserId         Int     @unique
-  Staff_Role     String
-  
-  user           User     @relation(fields: [UserId], references: [Id])
-
-  Leaves        Leaves[]
-  RHEvaluations RHEvaluation[]
-  PaySleeps     PaySleep[]
-}
-
-// PaySleep Model (Payroll or Salary Slips)
-model PaySleep {
-  Id  Int            @id @default(autoincrement())
-  FirstName    String
-  LastName     String
-  //JerseyNum    String
-  //Position     String
-  Pay_Date     DateTime? // Optional and populated only when payment is done Completed
-  Create_Date  DateTime       @default(now())
-  Amount       Float
-  Status       ProgressStatus
-  Personnel_ID Int?
-  Teacher_ID   Int?
-  Budget_ID    Int?
-
-  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
-  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
-  Budget    Budget?    @relation(fields: [Budget_ID], references: [Id])
-
-  @@index([Personnel_ID])
-  @@index([Teacher_ID])
-  @@index([Budget_ID])
-}
-
-// Warehouse Model (Storage locations)
-model Warehouse {
-  Id Int       @id @default(autoincrement())
-  Name         String
-  Location     String
-  Products     Product[]
-}
-
-// Product Model (Items stored in the warehouse)
-model Product {
-  Id   Int    @id @default(autoincrement())
-  Name         String
-  Category     String
-  Quantity     Int
-  Price        Float
-  Warehouse_ID Int
-
-  Warehouse Warehouse @relation(fields: [Warehouse_ID], references: [Id])
-
-  @@index([Warehouse_ID])
-}
-
-// Leaves Model (Employee leave records)
-model Leaves {
-  Id     Int         @id @default(autoincrement())
-  FirstName    String
-  LastName     String
-  JerseyNum    String?
-  Start_Date   DateTime    @default(now())
-  End_Date     DateTime
-  Type         LeaveType
-  Personnel_ID Int?
-  Teacher_ID   Int?
-  Status       LeaveStatus
-  Personnel    Personnel?  @relation(fields: [Personnel_ID], references: [Id])
-  Teacher      Teacher?    @relation(fields: [Teacher_ID], references: [Id])
-
-  @@index([Personnel_ID])
-  @@index([Teacher_ID])
-}
-
-// RHEvaluation Model (Human resource evaluations)
-model RHEvaluation {
-  Id Int      @id @default(autoincrement())
-  FirstName       String
-  LastName        String
-  JerseyNum       String
-  Position        String
-  Evaluation_Date DateTime
-  Score           Int
-  Comments        String?
-  Personnel_ID    Int?
-  Teacher_ID      Int?
-
-  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
-  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
-
-  @@index([Personnel_ID])
-  @@index([Teacher_ID])
-}
-
-// Budget Model (Financial allocation)
-model Budget {
-  Id   Int        @id @default(autoincrement())
-  Name        String
-  Description String
-  Amount      Float
-  Year        String // e.g., "2024"
-  Expenses    Expenses[]
-  PaySleeps   PaySleep[]
-}
-
-// Expenses Model (Tracking expenses)
-model Expenses {
-  Id  Int      @id @default(autoincrement())
-  Name        String
-  Description String?
-  Amount      Float
-  Date        DateTime
-  Budget_ID   Int
-
-  Budget Budget @relation(fields: [Budget_ID], references: [Id])
-
-  @@index([Budget_ID])
-}
-
-// Income Model (Tracking revenue)
-model Income {
-  Id   Int      @id @default(autoincrement())
-  Name        String
-  Description String?
-  Amount      Float
-  Date        DateTime
-}
-
 model Classes {
   Id          Int    @id @default(autoincrement())
   name              String
@@ -600,7 +470,6 @@ model Submission {
   @@index([studentId])
   @@index([assignmentId])
 }
-
 model BlockNote {
   Id         Int       @id @default(autoincrement())
   task       String
@@ -649,3 +518,184 @@ model Notification {
   message String
   type    String
 }
+
+model Service {
+  Id   Int      @id @default(autoincrement())
+  Name         String
+  Description    String?
+  Price          Float
+  Revenue        Float     @default(0) // Total revenue generated from this service
+  CreatedAt      DateTime  @default(now())
+  UpdatedAt      DateTime  @updatedAt
+
+  Transactions   Transaction[]
+
+  Payments Payment[]
+}
+
+model Event {
+  Id Int     @id @default(autoincrement())
+  Name     String
+  Logo     String?
+}
+
+// Personnel Model 
+model Personnel {
+  Id             Int     @id @default(autoincrement())
+  UserId         Int     @unique
+  Staff_Role     String
+  
+  user           User     @relation(fields: [UserId], references: [Id])
+
+  Leaves        Leaves[]
+  RHEvaluations RHEvaluation[]
+  PaySleeps     PaySleep[]
+  Approvals Expenses[] @relation("ApproverRelation")
+}
+
+
+// PaySleep Model (Payroll or Salary Slips)
+model PaySleep {
+  Id  Int            @id @default(autoincrement())
+  FirstName    String
+  LastName     String
+  //JerseyNum    String
+  //Position     String
+  Pay_Date     DateTime? // Optional and populated only when payment is done Completed
+  Create_Date  DateTime       @default(now())
+  Amount       Float
+  Status       ProgressStatus
+  Personnel_ID Int?
+  Teacher_ID   Int?
+  Budget_ID    Int?
+
+  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
+  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
+  Budget    Budget?    @relation(fields: [Budget_ID], references: [Budget_ID])
+
+  @@index([Personnel_ID])
+  @@index([Teacher_ID])
+  @@index([Budget_ID])
+}
+
+// Warehouse Model (Storage locations)
+model Warehouse {
+  Id Int       @id @default(autoincrement())
+  Name         String
+  Location     String
+  Products     Product[]
+}
+
+// Product Model (Items stored in the warehouse)
+model Product {
+  Id     Int       @id @default(autoincrement())
+  Name           String
+  Description    String?
+  Category       String    // e.g., "Textbook", "Uniform"
+  Price          Float
+  Quantity       Int       // Current stock level
+  LowStockAlert  Int       // Minimum quantity before low stock alert
+  Warehouse_ID   Int       // Link to warehouse
+  CreatedAt      DateTime  @default(now())
+  UpdatedAt      DateTime  @updatedAt
+
+  Warehouse      Warehouse @relation(fields: [Warehouse_ID], references: [Id])
+  Transactions   Transaction[]
+}
+
+model Transaction {
+  Id Int       @id @default(autoincrement())
+  Product_ID     Int?      // For product-related transactions
+  Service_ID     Int?      // For service-related transactions
+  Quantity       Int?      // Quantity of product sold, if applicable
+  TotalAmount    Float
+  TransactionDate DateTime @default(now())
+
+  Product        Product?  @relation(fields: [Product_ID], references: [Id])
+  Service        Service?  @relation(fields: [Service_ID], references: [Id])
+}
+
+
+// Leaves Model (Employee leave records)
+model Leaves {
+  Id     Int         @id @default(autoincrement())
+  FirstName    String
+  LastName     String
+  JerseyNum    String?
+  Start_Date   DateTime    @default(now())
+  End_Date     DateTime
+  Type         LeaveType
+  Personnel_ID Int?
+  Teacher_ID   Int?
+  Status       ApprovalStatus
+  Personnel    Personnel?  @relation(fields: [Personnel_ID], references: [Id])
+  Teacher      Teacher?    @relation(fields: [Teacher_ID], references: [Id])
+}
+
+// RHEvaluation Model (Human resource evaluations)
+model RHEvaluation {
+  Id Int      @id @default(autoincrement())
+  FirstName       String
+  LastName        String
+  JerseyNum       String
+  Position        String
+  Evaluation_Date DateTime
+  Score           Int
+  Comments        String?
+  Personnel_ID    Int?
+  Teacher_ID      Int?
+
+  Personnel Personnel? @relation(fields: [Personnel_ID], references: [Id]) 
+  Teacher   Teacher?   @relation(fields: [Teacher_ID], references: [Id]) 
+
+  @@index([Personnel_ID])
+  @@index([Teacher_ID])
+}
+
+// Budget Model (Financial allocation)
+
+model Budget {
+  Budget_ID     Int         @id @default(autoincrement())
+  Name          String
+  Description   String?
+  Amount        Float       // Total allocated budget amount
+  ActualExpenses Float?     // Tracks actual expenses against the budget
+  Year          String      // e.g., "2024"
+  TimeFrame String @default("default_value")   // "Daily", "Weekly", "Monthly", "Annual"
+  CreatedAt     DateTime    @default(now())
+  UpdatedAt     DateTime     @default(now())
+
+  Expenses      Expenses[]  // Relation to Expenses
+  Paysleeps     PaySleep[]
+}
+
+
+// Expenses Model (Tracking expenses)
+model Expenses {
+  Id  Int      @id @default(autoincrement())
+  Name        String
+  Description String?
+  Amount      Float
+  Date        DateTime
+  Department  String
+  Type        ExpenseType
+  Vendor      String?
+  Status      ApprovalStatus
+  ApprovedBy  Int?
+  Budget_ID   Int
+  
+  Budget      Budget   @relation(fields: [Budget_ID], references: [Budget_ID])
+  Approver    Personnel? @relation(fields: [ApprovedBy], references: [Id], name: "ApproverRelation")
+}
+
+// Income Model (Tracking revenue)
+model Income {
+  Income_ID    Int       @id @default(autoincrement())
+  Description  String?
+  Amount       Float
+  Date         DateTime
+  IncomeType   String   // e.g., "Tuition", "Donation", "Grant", etc.
+  User_ID      Int      // Link to the user who made the payment
+  User         User     @relation("IncomeUser", fields: [User_ID], references: [Id])
+}
+

@@ -58,12 +58,7 @@ export const createStudent = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error creating student:', error);
-    throw new BadRequestError('fail creating student ,AUBIM Said so 😁');
-    res.status(500).json({
-      type: 'error',
-      message: 'Error creating student',
-      data: {},
-    });
+    throw new BadRequestError('fail creating student 😁');
   }
 };
 

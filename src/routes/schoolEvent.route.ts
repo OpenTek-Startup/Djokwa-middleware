@@ -12,7 +12,7 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: School Events
+ *   name: Admin
  *   description: Operations related to school events
  */
 
@@ -21,7 +21,7 @@ const router = Router();
  * paths:
  *   /api/admin/school-events/create:
  *     post:
- *       tags: [School Events]
+ *       tags: [Admin]
  *       summary: Create a new school event
  *       requestBody:
  *         required: true
@@ -48,7 +48,7 @@ const router = Router();
  *           description: Invalid input
  *   /api/admin/school-events:
  *     get:
- *       tags: [School Events]
+ *       tags: [Admin]
  *       summary: Retrieve all school events
  *       responses:
  *         200:
@@ -57,7 +57,7 @@ const router = Router();
  *           description: No school events found
  *   /api/admin/school-events/{id}:
  *     get:
- *       tags: [School Events]
+ *       tags: [Admin]
  *       summary: Retrieve a school event by ID
  *       parameters:
  *         - name: id
@@ -73,7 +73,7 @@ const router = Router();
  *           description: School event not found
  *   /api/admin/school-events/{id}/update:
  *     put:
- *       tags: [School Events]
+ *       tags: [Admin]
  *       summary: Update a school event by ID
  *       parameters:
  *         - name: id
@@ -109,7 +109,7 @@ const router = Router();
  *           description: Invalid input
  *   /api/admin/school-events/{id}/delete:
  *     delete:
- *       tags: [School Events]
+ *       tags: [Admin]
  *       summary: Delete a school event by ID
  *       parameters:
  *         - name: id

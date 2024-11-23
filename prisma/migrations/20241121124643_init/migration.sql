@@ -22,6 +22,15 @@ CREATE TYPE "Days" AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 -- CreateEnum
 CREATE TYPE "LeaveType" AS ENUM ('Vacation', 'SickLeave', 'MaternityLeave', 'PaternityLeave', 'Other');
 
+-- CreateEnum
+CREATE TYPE "TimeFrame" AS ENUM ('Daily', 'Weekly', 'Monthly', 'Annual');
+
+-- CreateEnum
+CREATE TYPE "ExpenseType" AS ENUM ('PAYROLL', 'UTILITIES', 'MAINTENANCE', 'SUPPLIES', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "ApprovalStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+
 -- CreateTable
 CREATE TABLE "SchoolYear" (
     "Id" SERIAL NOT NULL,
@@ -259,136 +268,6 @@ CREATE TABLE "Payment" (
 );
 
 -- CreateTable
-CREATE TABLE "Service" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Logo" TEXT,
-
-    CONSTRAINT "Service_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Event" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Logo" TEXT,
-
-    CONSTRAINT "Event_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Personnel" (
-    "Id" SERIAL NOT NULL,
-    "UserId" INTEGER NOT NULL,
-    "Staff_Role" TEXT NOT NULL,
-
-    CONSTRAINT "Personnel_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "PaySleep" (
-    "Id" SERIAL NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT NOT NULL,
-    "Pay_Date" TIMESTAMP(3),
-    "Create_Date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "Amount" DOUBLE PRECISION NOT NULL,
-    "Status" "ProgressStatus" NOT NULL,
-    "Personnel_ID" INTEGER,
-    "Teacher_ID" INTEGER,
-    "Budget_ID" INTEGER,
-
-    CONSTRAINT "PaySleep_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Warehouse" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Location" TEXT NOT NULL,
-
-    CONSTRAINT "Warehouse_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Product" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Category" TEXT NOT NULL,
-    "Quantity" INTEGER NOT NULL,
-    "Price" DOUBLE PRECISION NOT NULL,
-    "Warehouse_ID" INTEGER NOT NULL,
-
-    CONSTRAINT "Product_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Leaves" (
-    "Id" SERIAL NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT NOT NULL,
-    "JerseyNum" TEXT,
-    "Start_Date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "End_Date" TIMESTAMP(3) NOT NULL,
-    "Type" "LeaveType" NOT NULL,
-    "Personnel_ID" INTEGER,
-    "Teacher_ID" INTEGER,
-    "Status" "LeaveStatus" NOT NULL,
-
-    CONSTRAINT "Leaves_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "RHEvaluation" (
-    "Id" SERIAL NOT NULL,
-    "FirstName" TEXT NOT NULL,
-    "LastName" TEXT NOT NULL,
-    "JerseyNum" TEXT NOT NULL,
-    "Position" TEXT NOT NULL,
-    "Evaluation_Date" TIMESTAMP(3) NOT NULL,
-    "Score" INTEGER NOT NULL,
-    "Comments" TEXT,
-    "Personnel_ID" INTEGER,
-    "Teacher_ID" INTEGER,
-
-    CONSTRAINT "RHEvaluation_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Budget" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Description" TEXT NOT NULL,
-    "Amount" DOUBLE PRECISION NOT NULL,
-    "Year" TEXT NOT NULL,
-
-    CONSTRAINT "Budget_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Expenses" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Description" TEXT,
-    "Amount" DOUBLE PRECISION NOT NULL,
-    "Date" TIMESTAMP(3) NOT NULL,
-    "Budget_ID" INTEGER NOT NULL,
-
-    CONSTRAINT "Expenses_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
-CREATE TABLE "Income" (
-    "Id" SERIAL NOT NULL,
-    "Name" TEXT NOT NULL,
-    "Description" TEXT,
-    "Amount" DOUBLE PRECISION NOT NULL,
-    "Date" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "Income_pkey" PRIMARY KEY ("Id")
-);
-
--- CreateTable
 CREATE TABLE "Classes" (
     "Id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -495,6 +374,177 @@ CREATE TABLE "TokenBlacklist" (
 );
 
 -- CreateTable
+CREATE TABLE "Notification" (
+    "Id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "time" TIMESTAMP(3) NOT NULL,
+    "message" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "Service" (
+    "Service_ID" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT,
+    "Price" DOUBLE PRECISION NOT NULL,
+    "Revenue" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "UpdatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Service_pkey" PRIMARY KEY ("Service_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Event" (
+    "Id" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Logo" TEXT,
+
+    CONSTRAINT "Event_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "Personnel" (
+    "Id" SERIAL NOT NULL,
+    "UserId" INTEGER NOT NULL,
+    "Staff_Role" TEXT NOT NULL,
+
+    CONSTRAINT "Personnel_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "PaySleep" (
+    "Id" SERIAL NOT NULL,
+    "FirstName" TEXT NOT NULL,
+    "LastName" TEXT NOT NULL,
+    "Pay_Date" TIMESTAMP(3),
+    "Create_Date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "Amount" DOUBLE PRECISION NOT NULL,
+    "Status" "ProgressStatus" NOT NULL,
+    "Personnel_ID" INTEGER,
+    "Teacher_ID" INTEGER,
+    "Budget_ID" INTEGER,
+
+    CONSTRAINT "PaySleep_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "Warehouse" (
+    "Warehouse_ID" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Location" TEXT NOT NULL,
+
+    CONSTRAINT "Warehouse_pkey" PRIMARY KEY ("Warehouse_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Product" (
+    "Product_ID" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT,
+    "Category" TEXT NOT NULL,
+    "Price" DOUBLE PRECISION NOT NULL,
+    "Quantity" INTEGER NOT NULL,
+    "LowStockAlert" INTEGER NOT NULL,
+    "Warehouse_ID" INTEGER NOT NULL,
+    "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "UpdatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("Product_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Transaction" (
+    "Transaction_ID" SERIAL NOT NULL,
+    "Product_ID" INTEGER,
+    "Service_ID" INTEGER,
+    "Quantity" INTEGER,
+    "TotalAmount" DOUBLE PRECISION NOT NULL,
+    "TransactionDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Transaction_pkey" PRIMARY KEY ("Transaction_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Leaves" (
+    "Id" SERIAL NOT NULL,
+    "FirstName" TEXT NOT NULL,
+    "LastName" TEXT NOT NULL,
+    "JerseyNum" TEXT,
+    "Start_Date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "End_Date" TIMESTAMP(3) NOT NULL,
+    "Type" "LeaveType" NOT NULL,
+    "Personnel_ID" INTEGER,
+    "Teacher_ID" INTEGER,
+    "Status" "LeaveStatus" NOT NULL,
+
+    CONSTRAINT "Leaves_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "RHEvaluation" (
+    "Id" SERIAL NOT NULL,
+    "FirstName" TEXT NOT NULL,
+    "LastName" TEXT NOT NULL,
+    "JerseyNum" TEXT NOT NULL,
+    "Position" TEXT NOT NULL,
+    "Evaluation_Date" TIMESTAMP(3) NOT NULL,
+    "Score" INTEGER NOT NULL,
+    "Comments" TEXT,
+    "Personnel_ID" INTEGER,
+    "Teacher_ID" INTEGER,
+
+    CONSTRAINT "RHEvaluation_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "Budget" (
+    "Budget_ID" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT,
+    "Amount" DOUBLE PRECISION NOT NULL,
+    "ActualExpenses" DOUBLE PRECISION,
+    "Year" TEXT NOT NULL,
+    "TimeFrame" TEXT NOT NULL DEFAULT 'default_value',
+    "CreatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "UpdatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Budget_pkey" PRIMARY KEY ("Budget_ID")
+);
+
+-- CreateTable
+CREATE TABLE "Expenses" (
+    "Id" SERIAL NOT NULL,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT,
+    "Amount" DOUBLE PRECISION NOT NULL,
+    "Date" TIMESTAMP(3) NOT NULL,
+    "Department" TEXT NOT NULL,
+    "Type" "ExpenseType" NOT NULL,
+    "Vendor" TEXT,
+    "Status" "ApprovalStatus" NOT NULL,
+    "ApprovedBy" INTEGER,
+    "Budget_ID" INTEGER NOT NULL,
+
+    CONSTRAINT "Expenses_pkey" PRIMARY KEY ("Id")
+);
+
+-- CreateTable
+CREATE TABLE "Income" (
+    "Income_ID" SERIAL NOT NULL,
+    "Description" TEXT,
+    "Amount" DOUBLE PRECISION NOT NULL,
+    "Date" TIMESTAMP(3) NOT NULL,
+    "IncomeType" TEXT NOT NULL,
+    "User_ID" INTEGER NOT NULL,
+
+    CONSTRAINT "Income_pkey" PRIMARY KEY ("Income_ID")
+);
+
+-- CreateTable
 CREATE TABLE "_CourseToStudent" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -597,36 +647,6 @@ CREATE INDEX "Payment_Student_ID_idx" ON "Payment"("Student_ID");
 CREATE INDEX "Payment_Service_ID_idx" ON "Payment"("Service_ID");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Personnel_UserId_key" ON "Personnel"("UserId");
-
--- CreateIndex
-CREATE INDEX "PaySleep_Personnel_ID_idx" ON "PaySleep"("Personnel_ID");
-
--- CreateIndex
-CREATE INDEX "PaySleep_Teacher_ID_idx" ON "PaySleep"("Teacher_ID");
-
--- CreateIndex
-CREATE INDEX "PaySleep_Budget_ID_idx" ON "PaySleep"("Budget_ID");
-
--- CreateIndex
-CREATE INDEX "Product_Warehouse_ID_idx" ON "Product"("Warehouse_ID");
-
--- CreateIndex
-CREATE INDEX "Leaves_Personnel_ID_idx" ON "Leaves"("Personnel_ID");
-
--- CreateIndex
-CREATE INDEX "Leaves_Teacher_ID_idx" ON "Leaves"("Teacher_ID");
-
--- CreateIndex
-CREATE INDEX "RHEvaluation_Personnel_ID_idx" ON "RHEvaluation"("Personnel_ID");
-
--- CreateIndex
-CREATE INDEX "RHEvaluation_Teacher_ID_idx" ON "RHEvaluation"("Teacher_ID");
-
--- CreateIndex
-CREATE INDEX "Expenses_Budget_ID_idx" ON "Expenses"("Budget_ID");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Classes_classCode_key" ON "Classes"("classCode");
 
 -- CreateIndex
@@ -661,6 +681,24 @@ CREATE INDEX "Incident_Student_ID_idx" ON "Incident"("Student_ID");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "TokenBlacklist_token_key" ON "TokenBlacklist"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Personnel_UserId_key" ON "Personnel"("UserId");
+
+-- CreateIndex
+CREATE INDEX "PaySleep_Personnel_ID_idx" ON "PaySleep"("Personnel_ID");
+
+-- CreateIndex
+CREATE INDEX "PaySleep_Teacher_ID_idx" ON "PaySleep"("Teacher_ID");
+
+-- CreateIndex
+CREATE INDEX "PaySleep_Budget_ID_idx" ON "PaySleep"("Budget_ID");
+
+-- CreateIndex
+CREATE INDEX "RHEvaluation_Personnel_ID_idx" ON "RHEvaluation"("Personnel_ID");
+
+-- CreateIndex
+CREATE INDEX "RHEvaluation_Teacher_ID_idx" ON "RHEvaluation"("Teacher_ID");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_CourseToStudent_AB_unique" ON "_CourseToStudent"("A", "B");
@@ -750,37 +788,7 @@ ALTER TABLE "Schedule" ADD CONSTRAINT "Schedule_Course_ID_fkey" FOREIGN KEY ("Co
 ALTER TABLE "Payment" ADD CONSTRAINT "Payment_Student_ID_fkey" FOREIGN KEY ("Student_ID") REFERENCES "Student"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Payment" ADD CONSTRAINT "Payment_Service_ID_fkey" FOREIGN KEY ("Service_ID") REFERENCES "Service"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Personnel" ADD CONSTRAINT "Personnel_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "User"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PaySleep" ADD CONSTRAINT "PaySleep_Personnel_ID_fkey" FOREIGN KEY ("Personnel_ID") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PaySleep" ADD CONSTRAINT "PaySleep_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "PaySleep" ADD CONSTRAINT "PaySleep_Budget_ID_fkey" FOREIGN KEY ("Budget_ID") REFERENCES "Budget"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_Warehouse_ID_fkey" FOREIGN KEY ("Warehouse_ID") REFERENCES "Warehouse"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Leaves" ADD CONSTRAINT "Leaves_Personnel_ID_fkey" FOREIGN KEY ("Personnel_ID") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Leaves" ADD CONSTRAINT "Leaves_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "RHEvaluation" ADD CONSTRAINT "RHEvaluation_Personnel_ID_fkey" FOREIGN KEY ("Personnel_ID") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "RHEvaluation" ADD CONSTRAINT "RHEvaluation_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Expenses" ADD CONSTRAINT "Expenses_Budget_ID_fkey" FOREIGN KEY ("Budget_ID") REFERENCES "Budget"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_Service_ID_fkey" FOREIGN KEY ("Service_ID") REFERENCES "Service"("Service_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Classes" ADD CONSTRAINT "Classes_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "Teacher"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -811,6 +819,48 @@ ALTER TABLE "Submission" ADD CONSTRAINT "Submission_assignmentId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "Incident" ADD CONSTRAINT "Incident_Student_ID_fkey" FOREIGN KEY ("Student_ID") REFERENCES "Student"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Personnel" ADD CONSTRAINT "Personnel_UserId_fkey" FOREIGN KEY ("UserId") REFERENCES "User"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PaySleep" ADD CONSTRAINT "PaySleep_Personnel_ID_fkey" FOREIGN KEY ("Personnel_ID") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PaySleep" ADD CONSTRAINT "PaySleep_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PaySleep" ADD CONSTRAINT "PaySleep_Budget_ID_fkey" FOREIGN KEY ("Budget_ID") REFERENCES "Budget"("Budget_ID") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_Warehouse_ID_fkey" FOREIGN KEY ("Warehouse_ID") REFERENCES "Warehouse"("Warehouse_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_Product_ID_fkey" FOREIGN KEY ("Product_ID") REFERENCES "Product"("Product_ID") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_Service_ID_fkey" FOREIGN KEY ("Service_ID") REFERENCES "Service"("Service_ID") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Leaves" ADD CONSTRAINT "Leaves_Personnel_ID_fkey" FOREIGN KEY ("Personnel_ID") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Leaves" ADD CONSTRAINT "Leaves_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RHEvaluation" ADD CONSTRAINT "RHEvaluation_Personnel_ID_fkey" FOREIGN KEY ("Personnel_ID") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RHEvaluation" ADD CONSTRAINT "RHEvaluation_Teacher_ID_fkey" FOREIGN KEY ("Teacher_ID") REFERENCES "Teacher"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Expenses" ADD CONSTRAINT "Expenses_Budget_ID_fkey" FOREIGN KEY ("Budget_ID") REFERENCES "Budget"("Budget_ID") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Expenses" ADD CONSTRAINT "Expenses_ApprovedBy_fkey" FOREIGN KEY ("ApprovedBy") REFERENCES "Personnel"("Id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Income" ADD CONSTRAINT "Income_User_ID_fkey" FOREIGN KEY ("User_ID") REFERENCES "User"("Id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_CourseToStudent" ADD CONSTRAINT "_CourseToStudent_A_fkey" FOREIGN KEY ("A") REFERENCES "Course"("Id") ON DELETE CASCADE ON UPDATE CASCADE;
