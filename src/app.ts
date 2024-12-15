@@ -14,6 +14,7 @@ import studentRoute from './routes/student.route';
 import academicsRoute from './routes/academics.route';
 import incidentRoute from './routes/incident.route';
 import schoolEventRoute from './routes/schoolEvent.route';
+import parentRoute from './routes/parents.route';
 import errorHandlerMiddleware from './middlewares/errorHandlerMiddleware';
 import NotificationRoute from './routes/notification.route';
 import cookieParser from 'cookie-parser';
@@ -48,6 +49,8 @@ app.use('/api/incident', incidentRoute);
 app.use('/api/schoolEvents', schoolEventRoute);
 app.use('/api/notification', NotificationRoute);
 app.use('/api/financial', financialRoutes);
+app.use('/api/parents', parentRoute);
+
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
@@ -55,7 +58,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.get('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
 });
-app.use('*', async (req, res) => {
+app.use('*', async (_req, res) => {
   res
     .status(404)
     .send(
