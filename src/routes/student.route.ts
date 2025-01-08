@@ -6,6 +6,8 @@ import {
   getStudents,
   updateStudent,
   getStudentById,
+  signInStudent,
+  logoutStudent,
 } from '../controllers/student.controller';
 
 const router = Router();
@@ -30,6 +32,18 @@ const router = Router();
  *           description: Invalid details
  *         500:
  *           description: Error creating student
+ *
+ *   /api/student/sign-in:
+ *     post:
+ *       tags: [Student]
+ *       summary: Singin a student
+ *       responses:
+ *         201:
+ *           description: Student signed in successfully
+ *         400:
+ *           description: Invalid details
+ *         500:
+ *           description: Error Signing in student
  *
  *   /api/student/delete/{id}:
  *     delete:
@@ -81,6 +95,18 @@ const router = Router();
  *         404:
  *           description: Student ID not found
  *
+ *   /api/student/logout:
+ *     post:
+ *       tags: [Student]
+ *       summary: Log out a student
+ *       security:
+ *         - bearerAuth: []
+ *       responses:
+ *         200:
+ *           description: Successfully logged out
+ *         401:
+ *           description: Unauthorized
+ *
  *   /api/student/update/{id}:
  *     put:
  *       tags: [Student]
@@ -105,7 +131,9 @@ const router = Router();
  *           description: Error updating student
  */
 
-router.post('/create', authMiddleware(['teacher', 'admin']), createStudent);
+router.post('/create', createStudent);
+router.post('/sign-in', signInStudent);
+router.post('/logout', authMiddleware(['student']), logoutStudent);
 router.get('/:id', authMiddleware, getStudentById);
 router.put('/update/:id', authMiddleware, updateStudent);
 router.delete('/delete/:id', authMiddleware, deleteStudent);
