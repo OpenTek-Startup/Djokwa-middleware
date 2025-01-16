@@ -29,7 +29,7 @@ const SECRET_KEY = process.env.JWT_SECRET || '';
 export const signUpTeacher = async (req: Request, res: Response) => {
   try {
     const teacherData = req.body;
-    console.log(req.body);
+    console.log(teacherData);
 
     // Validate the incoming data
     const createTeacherDto = new CreateTeacherDto();
@@ -85,8 +85,8 @@ export const signUpTeacher = async (req: Request, res: Response) => {
         Email: teacherData.Email,
         Phone: teacherData.Phone,
         password: hashedPassword,
-        Gender: teacherData.gender,
-        role: 'teacher',
+        Gender: teacherData.Gender,
+        role: teacherData.role,
         createdAt: new Date(),
       },
     });
@@ -153,12 +153,12 @@ export const signUpTeacher = async (req: Request, res: Response) => {
 */
 export const signInTeacher = async (req: Request, res: Response) => {
   try {
-    const { Email, password } = req.body;
+    const { email, password } = req.body;
     console.log(req.body);
 
     // Find the teacher by email
     const teacher = await prisma.user.findUnique({
-      where: { Email: Email },
+      where: { Email: email },
       include: {
         user_role: {
           include: {
