@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "ISC",
   "author": "",
-  "main": "src/app.ts",
+  "main": "dist/app.js",
   "keywords": [],
   "description": "this app is for the djokwa school management system ERP platform -   **Perequisites: make sure you have docker & docker compose installed\r     locally**\r -   Clone the staging branch of this repository.\r -   Open the project in your favourite code editor _preferrably Visual Studio\r     Code_.",
   "scripts": {
@@ -15,7 +15,7 @@
     "db:dev:up": "docker compose up postgres -d",
     "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up && npm run prisma:dev:deploy",
     "server-pre": "npm install && npm install --prefix server",
-    "build:prod": "npm run build",
+    "build:prod": "npm run build && (cd server && npm run build)",
     "build": "tsc",
     "check-types": "tsc --pretty --noEmit",
     "check-format": "prettier --check .",
@@ -26,7 +26,8 @@
     "prepare": "husky install",
     "lint": "eslint ./src",
     "lint:debug": "eslint ./src --debug",
-    "lint:fix": "eslint ./src --fix"
+    "lint:fix": "eslint ./src --fix",
+    "start": "node dist/app.js"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
