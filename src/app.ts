@@ -33,6 +33,11 @@ const corsOptions = {
   credentials: true, // Allow cookies to be sent
 };
 
+// Health check endpoint
+app.use('/', (req, res) => {
+  res.status(200).send('Hello DJOKWA, API is running');
+});
+
 // Middleware
 app.use(express.json()); // Parse JSON bodies
 app.use(cors(corsOptions));
@@ -54,10 +59,6 @@ app.use('/api/parents', parentRoute);
 // Set up Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Health check endpoint
-app.use('/', (req, res) => {
-  res.status(200).send('Hello DJOKWA, API is running');
-});
 app.use('*', async (_req, res) => {
   res.status(404).send('CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒');
 });
