@@ -55,15 +55,11 @@ app.use('/api/parents', parentRoute);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Health check endpoint
-app.get('/', (req, res) => {
+app.use('/', (req, res) => {
   res.status(200).send('Hello DJOKWA, API is running');
 });
 app.use('*', async (_req, res) => {
-  res
-    .status(404)
-    .send(
-      'HELLO BROTHERMAN , CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒 Milkovic SAID SO '
-    );
+  res.status(404).send('CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒');
 });
 app.use(errorHandlerMiddleware);
 
