@@ -37,7 +37,7 @@ const corsOptions = {
     credentials: true, // Allow cookies to be sent
 };
 // Health check endpoint
-app.use('/', (req, res) => {
+app.get('/', (req, res) => {
     res.status(200).send('Hello DJOKWA, API is running');
 });
 // Middleware
@@ -62,26 +62,18 @@ app.use('*', async (_req, res) => {
     res.status(404).send('CANNOT FOUND THIS ROUTE YOU ARE LOOKING FOR 😒');
 });
 app.use(errorHandlerMiddleware_1.default);
-async function startServer() {
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+async function initializePrisma() {
     try {
-        // Test the database connection
         await exports.prisma.$connect();
         console.log('✅ Successfully connected to the database');
-        // Start your server here
-        // Example server start (using Express or another framework)
-        app.listen(PORT, () => {
-            console.log(`Server is running on http://localhost:${PORT}`);
-        });
     }
     catch (error) {
         console.error('❌ Error connecting to the database:', error);
-        process.exit(1); // Exit the process if the connection fails
-    }
-    finally {
-        // Disconnect when the app is closed
-        await exports.prisma.$disconnect();
+        process.exit(1);
     }
 }
-startServer();
-// Start server
+initializePrisma();
 module.exports = app;
