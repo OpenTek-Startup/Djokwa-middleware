@@ -14,7 +14,7 @@
     "db:dev:rm": "docker compose rm postgres -s -f -v",
     "db:dev:up": "docker compose up postgres -d",
     "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up && npm run prisma:dev:deploy",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "check-types": "tsc --pretty --noEmit",
     "check-format": "prettier --check .",
     "check-lint": "eslint . --ext ts --ext tsx --ext js",
@@ -25,7 +25,9 @@
     "lint": "eslint ./src",
     "lint:debug": "eslint ./src --debug",
     "lint:fix": "eslint ./src --fix",
-    "start": "node dist/src/app.js"
+    "start": "node dist/src/app.js",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && tsc && prisma migrate deploy"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -80,7 +82,8 @@
     "prop-types": "^15.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "webpack": "^5.76.3"
+    "webpack": "^5.76.3",
+    "prisma": "^5.22.0"
   },
   "type": "commonjs",
   "private": true,
@@ -100,5 +103,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "engineType": "binary"
   }
 }
