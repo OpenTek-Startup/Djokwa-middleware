@@ -40,7 +40,7 @@ export const getUserWithRoles = async (
     // If the user exists and has user roles, map them into an array
     if (user && hasUserRolesArray(user)) {
       const roles = user.user_role.map((ur) => ({
-        id: ur.roles.id,
+        id: ur.roles.Id,
         name: ur.roles.name,
       }));
 
