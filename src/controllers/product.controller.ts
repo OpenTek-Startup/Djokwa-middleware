@@ -20,7 +20,7 @@ export const createProduct = async (
   try {
     // Check if the warehouse exists
     const warehouseExists = await prisma.warehouse.findUnique({
-      where: { Warehouse_ID },
+      where: { Id: Number(Warehouse_ID) },
     });
 
     if (!warehouseExists) {
@@ -69,7 +69,7 @@ export const getProductById = async (
   const { id } = req.params;
   try {
     const product = await prisma.product.findUnique({
-      where: { Product_ID: Number(id) },
+      where: { Id: Number(id) },
       include: { Warehouse: true },
     });
     if (!product) {
@@ -99,7 +99,7 @@ export const updateProduct = async (
   } = req.body;
   try {
     const updatedProduct = await prisma.product.update({
-      where: { Product_ID: Number(id) },
+      where: { Id: Number(id) },
       data: {
         Name,
         Description,
@@ -124,7 +124,7 @@ export const deleteProduct = async (
   const { id } = req.params;
   try {
     await prisma.product.delete({
-      where: { Product_ID: Number(id) },
+      where: { Id: Number(id) },
     });
     res.status(200).json({ message: 'Product deleted successfully' });
   } catch (error: any) {
@@ -169,7 +169,7 @@ export const recordSale = async (
   try {
     // Find the product and validate stock availability
     const product = await prisma.product.findUnique({
-      where: { Product_ID },
+      where: { Id: Product_ID },
     });
     if (!product) {
       res.status(404).json({ error: 'Product not found' });
@@ -194,13 +194,13 @@ export const recordSale = async (
 
     // Update product quantity in inventory
     const updatedProduct = await prisma.product.update({
-      where: { Product_ID },
+      where: { Id: Product_ID },
       data: { Quantity: product.Quantity - Quantity },
     });
 
     // Generate and send the invoice response
     const invoice = {
-      transactionID: transaction.Transaction_ID,
+      transactionID: transaction.Id,
       product: product.Name,
       quantity: Quantity,
       pricePerUnit: product.Price,

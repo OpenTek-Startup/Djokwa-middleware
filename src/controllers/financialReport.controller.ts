@@ -2,10 +2,8 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 
 const prisma = new PrismaClient();
-const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 600, height: 400 });
 
 const validateDates = (startDate: any, endDate: any) => {
   if (startDate && isNaN(Date.parse(startDate)))

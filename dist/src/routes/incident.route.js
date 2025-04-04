@@ -1,0 +1,145 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const incident_controller_1 = require("../controllers/incident.controller");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const router = (0, express_1.Router)();
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Operations related to disciplinary incidents
+ */
+/**
+ * @swagger
+ * paths:
+ *   /api/admin/incident/create:
+ *     post:
+ *       tags: [Admin]
+ *       summary: Create a new disciplinary incident
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - Student_ID
+ *                 - place
+ *                 - witness
+ *                 - description
+ *               properties:
+ *                 Student_ID:
+ *                   type: integer
+ *                   description: ID of the student involved in the incident
+ *                 place:
+ *                   type: string
+ *                   description: The location where the incident occurred
+ *                 witness:
+ *                   type: string
+ *                   description: The witness to the incident
+ *                 description:
+ *                   type: string
+ *                   default: Pending
+ *                   description: Description of the incident
+ *                 disciplinary_recomendation:
+ *                   type: string
+ *                   description: Optional disciplinary recommendation
+ *       responses:
+ *         201:
+ *           description: Incident created successfully
+ *         400:
+ *           description: Bad request, validation failed
+ *         401:
+ *           description: Unauthorized
+ */
+/**
+ * @swagger
+ *   /api/admin/incident:
+ *     get:
+ *       tags: [Admin]
+ *       summary: Retrieve all incidents
+ *       responses:
+ *         200:
+ *           description: A list of incidents
+ *         404:
+ *           description: No incidents found
+ */
+/**
+ * @swagger
+ *   /api/admin/incident/{id}:
+ *     get:
+ *       tags: [Admin]
+ *       summary: Get incident details by ID
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: ID of the incident to retrieve
+ *           schema:
+ *             type: integer
+ *       responses:
+ *         200:
+ *           description: Incident found
+ *         404:
+ *           description: Incident not found
+ */
+/**
+ * @swagger
+ *   /api/admin/incident/{id}:
+ *     put:
+ *       tags: [Admin]
+ *       summary: Update incident by ID
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: ID of the incident to update
+ *           schema:
+ *             type: integer
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 description:
+ *                   type: string
+ *                   description: Updated description of the incident
+ *                 disciplinary_recomendation:
+ *                   type: string
+ *                   description: Updated disciplinary recommendation
+ *       responses:
+ *         200:
+ *           description: Incident updated successfully
+ *         400:
+ *           description: Bad request, validation failed
+ *         404:
+ *           description: Incident not found
+ */
+/**
+ * @swagger
+ *   /api/admin/incident/{id}:
+ *     delete:
+ *       tags: [Admin]
+ *       summary: Delete incident by ID
+ *       parameters:
+ *         - name: id
+ *           in: path
+ *           required: true
+ *           description: ID of the incident to delete
+ *           schema:
+ *             type: integer
+ *       responses:
+ *         204:
+ *           description: Incident deleted successfully
+ *         404:
+ *           description: Incident not found
+ */
+router.post('/incident/create', incident_controller_1.createIncident);
+router.get('/incident', incident_controller_1.getIncidents);
+router.get('/incident/:id', incident_controller_1.getIncidentById);
+router.put('/incident/:id', auth_middleware_1.authMiddleware, incident_controller_1.updateIncident);
+router.delete('/incident/:id', auth_middleware_1.authMiddleware, incident_controller_1.deleteIncident);
+exports.default = router;
